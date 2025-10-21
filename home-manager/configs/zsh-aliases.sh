@@ -89,13 +89,3 @@ extract() {
         echo "'$1' is not a valid file"
     fi
 }
-
-# Quick git commit
-gcm() {
-    git add . && git commit -m "$1"
-}
-
-# Quick git push
-gpu() {
-    git push origin $(git branch --show-current)
-}
