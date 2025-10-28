@@ -64,6 +64,8 @@
     # PYTHON DEVELOPMENT
     # =============================================================================
     python3           # Python interpreter (latest stable)
+    python3Packages.pip  # Python package installer
+    python3Packages.virtualenv  # Virtual environment tool
     uv                # Fast Python package installer (pip alternative)
 
     # =============================================================================
