@@ -1,9 +1,11 @@
 # Packages configuration
 # This file contains all the packages you want to install
 
-{ config, pkgs, ... }:
-
 {
+  config,
+  pkgs,
+  ...
+}: {
   home.packages = with pkgs; [
     # =============================================================================
     # DEVELOPMENT TOOLS
@@ -26,6 +28,8 @@
     fzf
     jq
     neofetch
+    lazydocker
+    lazygit
     
     # =============================================================================
     # NETWORKING & SECURITY
@@ -37,12 +41,6 @@
     # TEXT EDITORS & TOOLS
     # =============================================================================
     nano
-    
-    # =============================================================================
-    # GUI APPLICATIONS
-    # =============================================================================
-    firefox
-    chromium
     
     # =============================================================================
     # ADDITIONAL UTILITIES

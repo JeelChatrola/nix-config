@@ -39,10 +39,7 @@
       theme = "robbyrussell";
     };
     
-    # Import aliases and environment from external file
-    initExtra = builtins.readFile ../configs/zsh-aliases.sh;
-    
-    # Shell options
+    # Shell options and initialization
     initExtraBeforeCompInit = ''
       # Enable useful shell options
       setopt AUTO_CD
@@ -53,6 +50,11 @@
       setopt HIST_IGNORE_SPACE
       setopt HIST_VERIFY
       setopt SHARE_HISTORY
+      # Initialize ZSH_HIGHLIGHT_HIGHLIGHTERS array
+      ZSH_HIGHLIGHT_HIGHLIGHTERS=(main brackets pattern cursor root line)
+      
+      # Import aliases and environment from external file
+      ${builtins.readFile ../configs/zsh-aliases.sh}
     '';
   };
 }

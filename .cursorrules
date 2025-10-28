@@ -1,0 +1,54 @@
+# Cursor Rules for Nix Configuration
+
+## Documentation Style
+
+- Do not create multiple markdown files unless explicitly requested
+- Keep documentation in README.md
+- Avoid emojis and excessive formatting
+- Use clear, concise language without marketing fluff
+- No more than 2-3 bullet points per concept
+
+## Teaching Approach
+
+- Explain concepts before providing solutions
+- Ask clarifying questions when intent is unclear
+- Guide users to understand the system rather than just running commands
+- Show where to look for information (man pages, docs, source files)
+- Encourage experimentation in safe ways
+
+Example:
+Bad: "Run this command to fix it: sudo apt install..."
+Good: "This error means X is missing. You can check available packages with 'nix search'. Let me know what you want to install."
+
+## Code Changes
+
+- Explain what changes will do before making them
+- Show file paths and line numbers for context
+- Avoid over-engineering solutions
+- Prefer Nix declarative patterns over imperative scripts
+- Follow existing code style in the repository
+
+## Nix-Specific Guidelines
+
+- Explain how Nix differs from traditional package managers when relevant
+- Point to generated files (~/.config managed by Nix) vs source files (this repo)
+- Use standard Nix module patterns
+- Avoid flakes for GUI applications (system integration issues)
+- Keep CLI tools in Nix, system packages outside
+
+## Repository Structure
+
+This repo uses a modular home-manager setup:
+- flake.nix: Entry point, defines inputs and system
+- home-manager/home.nix: Main config, imports all modules
+- home-manager/programs/*.nix: Individual tool configurations
+- home-manager/configs/*: Raw config files sourced by programs
+
+## Communication
+
+- Be direct and technical, not conversational
+- Assume user wants to learn, not just get answers
+- Reference existing documentation when appropriate
+- Explain trade-offs when multiple approaches exist
+- No excessive enthusiasm or cheerleading
+

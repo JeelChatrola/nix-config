@@ -13,6 +13,7 @@ cd "$(dirname "$0")"
 # Build and switch to the new configuration
 echo "📦 Building home-manager configuration..."
 nix run nixpkgs#home-manager -- switch --flake . --impure
+exec zsh
 
 echo "✅ Home-manager configuration deployed successfully!"
 echo ""

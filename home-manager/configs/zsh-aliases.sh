@@ -6,7 +6,6 @@
 # =============================================================================
 export TERM=xterm-256color
 export EDITOR='nvim'
-export BROWSER='firefox'
 export PATH="$HOME/.local/bin:$PATH"
 
 # =============================================================================
