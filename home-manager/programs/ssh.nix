@@ -6,16 +6,18 @@
 {
   programs.ssh = {
     enable = true;
+    enableDefaultConfig = false;  # Disable deprecated defaults
     
-    # Global SSH configuration
+    # Set default values explicitly (replaces deprecated defaults)
+    matchBlocks."*" = {
+      forwardAgent = true;
+      compression = true;
+      serverAliveInterval = 60;
+      serverAliveCountMax = 3;
+    };
+    
+    # Additional SSH configuration
     extraConfig = ''
-      # Keep connections alive
-      ServerAliveInterval 60
-      ServerAliveCountMax 3
-      
-      # Compression
-      Compression yes
-      
       # Connection multiplexing
       ControlMaster auto
       ControlPath ~/.ssh/sockets/%r@%h-%p
@@ -30,8 +32,7 @@
       StrictHostKeyChecking ask
       VerifyHostKeyDNS yes
       
-      # Common settings
-      ForwardAgent yes
+      # X11 forwarding
       ForwardX11 yes
       ForwardX11Trusted yes
     '';

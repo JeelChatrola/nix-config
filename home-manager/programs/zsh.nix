@@ -1,7 +1,7 @@
 # Zsh program configuration
 # This file configures zsh with oh-my-zsh and plugins
 
-{ config, pkgs, ... }:
+{ config, pkgs, lib, ... }:
 
 {
   programs.zsh = {
@@ -26,7 +26,6 @@
         "python"
         "node"
         "npm"
-        "yarn"
         "tmux"
         "sudo"
         "z"
@@ -39,8 +38,8 @@
       theme = "robbyrussell";
     };
     
-    # Shell options and initialization
-    initExtraBeforeCompInit = ''
+    # Shell options and initialization (runs before compinit)
+    initContent = lib.mkOrder 550 ''
       # Enable useful shell options
       setopt AUTO_CD
       setopt CORRECT
