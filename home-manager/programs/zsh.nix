@@ -13,6 +13,19 @@
     # Set zsh as default shell
     defaultKeymap = "emacs";
     
+    # Zsh plugins
+    plugins = [
+      {
+        name = "fzf-tab";
+        src = pkgs.fetchFromGitHub {
+          owner = "Aloxaf";
+          repo = "fzf-tab";
+          rev = "v1.1.2";
+          sha256 = "sha256-Qv8zAiMtrr67CbLRrFjGaPzFZcOiMVEFLg1Z+N6VMhg=";
+        };
+      }
+    ];
+    
     # Oh-my-zsh configuration
     oh-my-zsh = {
       enable = true;

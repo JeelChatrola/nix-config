@@ -12,14 +12,26 @@
     # =============================================================================
     tree              # Display directory structure as a tree
     htop              # Interactive process viewer (better than top)
+    btop              # Modern resource monitor (better than htop)
+    ctop              # Container metrics and monitoring (like top for containers)
     ripgrep           # Fast grep alternative (search file contents)
     fd                # Fast find alternative (search file names)
     bat               # Cat with syntax highlighting and git integration
     eza               # Modern ls replacement with colors and icons
     fzf               # Fuzzy finder for command-line
     jq                # JSON processor and query tool
+    yq-go             # YAML processor (like jq but for YAML)
     neofetch          # System information display tool
     rsync             # Remote file synchronization
+    ranger            # Terminal file manager with vi-like keybindings
+    gping             # Ping with a graph (visual network latency)
+    
+    # =============================================================================
+    # PRODUCTIVITY & KNOWLEDGE TOOLS
+    # =============================================================================
+    navi              # Interactive cheat sheet tool (command examples)
+    tldr              # Simplified man pages (community-driven examples)
+    buku              # Powerful bookmark manager for URLs
 
     # =============================================================================
     # CORE DEVELOPMENT TOOLS
@@ -91,5 +103,10 @@
     more              # Basic pager (less is more)
     man-pages         # Linux manual pages
     man-db            # Man page indexing and search
+    
+    # =============================================================================
+    # MULTIMEDIA & MEDIA TOOLS
+    # =============================================================================
+    ffmpeg            # Video/audio converter and processor
   ];
 }
