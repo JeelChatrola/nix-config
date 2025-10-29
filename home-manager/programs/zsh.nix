@@ -7,13 +7,18 @@
   programs.zsh = {
     enable = true;
     enableCompletion = true;
-    autosuggestion.enable = true;
-    syntaxHighlighting.enable = true;
+    # NOTE: autosuggestions and syntax-highlighting must load AFTER fzf-tab
+    # So we disable the built-in options and load them manually via plugins
+    autosuggestion.enable = false;
+    syntaxHighlighting.enable = false;
     
     # Set zsh as default shell
     defaultKeymap = "emacs";
     
-    # Zsh plugins
+    # Zsh plugins (order matters!)
+    # 1. fzf-tab (after compinit, before autosuggestions)
+    # 2. zsh-autosuggestions
+    # 3. zsh-syntax-highlighting
     plugins = [
       {
         name = "fzf-tab";
@@ -23,6 +28,16 @@
           rev = "v1.1.2";
           sha256 = "sha256-Qv8zAiMtrr67CbLRrFjGaPzFZcOiMVEFLg1Z+N6VMhg=";
         };
+      }
+      {
+        name = "zsh-autosuggestions";
+        src = pkgs.zsh-autosuggestions;
+        file = "share/zsh-autosuggestions/zsh-autosuggestions.zsh";
+      }
+      {
+        name = "zsh-syntax-highlighting";
+        src = pkgs.zsh-syntax-highlighting;
+        file = "share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh";
       }
     ];
     
@@ -45,14 +60,14 @@
         "extract"
         "colored-man-pages"
         "command-not-found"
-        "fzf"
+        # NOTE: "fzf" plugin removed - conflicts with fzf-tab
         "ssh-agent"
       ];
       theme = "robbyrussell";
     };
     
-    # Shell options and initialization (runs before compinit)
-    initContent = lib.mkOrder 550 ''
+    # Shell initialization - runs before compinit
+    initExtra = ''
       # Enable useful shell options
       setopt AUTO_CD
       setopt CORRECT
@@ -67,6 +82,28 @@
       
       # Import aliases and environment from external file
       ${builtins.readFile ../configs/zsh-aliases.sh}
+    '';
+    
+    # Completion configuration - runs after compinit and plugins
+    completionInit = ''
+      # fzf-tab configuration
+      # Disable sort when completing git checkout
+      zstyle ':completion:*:git-checkout:*' sort false
+      
+      # Set descriptions format to enable group support
+      zstyle ':completion:*:descriptions' format '[%d]'
+      
+      # Set list-colors to enable filename colorizing
+      zstyle ':completion:*' list-colors ''${(s.:.)LS_COLORS}
+      
+      # Force zsh not to show completion menu (let fzf-tab handle it)
+      zstyle ':completion:*' menu no
+      
+      # Preview directory contents with eza when completing cd
+      zstyle ':fzf-tab:complete:cd:*' fzf-preview 'eza -1 --color=always $realpath'
+      
+      # Switch group using '<' and '>'
+      zstyle ':fzf-tab:*' switch-group '<' '>'
     '';
   };
 }
