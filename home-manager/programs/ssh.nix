@@ -38,8 +38,6 @@
     '';
   };
   
-  # Create SSH directory and sockets directory
-  home.file.".ssh/sockets".source = pkgs.runCommand "ssh-sockets-dir" {} ''
-    mkdir -p $out
-  '';
+  # SSH will create the sockets directory automatically when needed
+  # No need to manage it with home-manager
 }

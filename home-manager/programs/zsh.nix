@@ -67,7 +67,7 @@
     };
     
     # Shell initialization - runs before compinit
-    initExtra = ''
+    initContent = ''
       # Enable useful shell options
       setopt AUTO_CD
       setopt CORRECT
