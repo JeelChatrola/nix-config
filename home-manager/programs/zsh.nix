@@ -63,7 +63,7 @@
         # NOTE: "fzf" plugin removed - conflicts with fzf-tab
         "ssh-agent"
       ];
-      theme = "robbyrussell";
+      theme = "";  # Disable oh-my-zsh theme (using Oh My Posh instead)
     };
     
     # Shell initialization - runs before compinit
@@ -79,6 +79,11 @@
       setopt SHARE_HISTORY
       # Initialize ZSH_HIGHLIGHT_HIGHLIGHTERS array
       ZSH_HIGHLIGHT_HIGHLIGHTERS=(main brackets pattern cursor root line)
+      
+      # Initialize Oh My Posh with powerlevel10k_rainbow theme
+      # Theme source: https://github.com/JanDeDobbeleer/oh-my-posh/blob/main/themes/powerlevel10k_rainbow.omp.json
+      # Colors: blue #3465a4 (path), green #4e9a06 (git), yellow #c4a000 (changes), rainbow segments
+      eval "$(oh-my-posh init zsh --config ~/.config/ohmyposh/powerlevel10k_rainbow.omp.json)"
       
       # Import aliases and environment from external file
       ${builtins.readFile ../configs/zsh-aliases.sh}

@@ -87,6 +87,15 @@
     tailscale         # VPN mesh network (zero-config)
     
     # =============================================================================
+    # SHELL THEMING & FONTS
+    # =============================================================================
+    oh-my-posh        # Cross-platform prompt theme engine
+    # Nerd Fonts (required for Oh My Posh icons)
+    nerd-fonts.fira-code
+    nerd-fonts.jetbrains-mono
+    nerd-fonts.meslo-lg
+    
+    # =============================================================================
     # TEXT EDITORS & TOOLS
     # =============================================================================
     nano              # Simple terminal text editor
