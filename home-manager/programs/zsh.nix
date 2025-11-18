@@ -63,7 +63,7 @@
         # NOTE: "fzf" plugin removed - conflicts with fzf-tab
         "ssh-agent"
       ];
-      theme = "";  # Disable oh-my-zsh theme (using Oh My Posh instead)
+      theme = "robbyrussell";  # Simple, clean prompt
     };
     
     # Shell initialization - runs before compinit
@@ -77,13 +77,20 @@
       setopt HIST_IGNORE_SPACE
       setopt HIST_VERIFY
       setopt SHARE_HISTORY
-      # Initialize ZSH_HIGHLIGHT_HIGHLIGHTERS array
-      ZSH_HIGHLIGHT_HIGHLIGHTERS=(main brackets pattern cursor root line)
       
-      # Initialize Oh My Posh with powerlevel10k_rainbow theme
-      # Theme source: https://github.com/JanDeDobbeleer/oh-my-posh/blob/main/themes/powerlevel10k_rainbow.omp.json
-      # Colors: blue #3465a4 (path), green #4e9a06 (git), yellow #c4a000 (changes), rainbow segments
-      eval "$(oh-my-posh init zsh --config ~/.config/ohmyposh/powerlevel10k_rainbow.omp.json)"
+      # Gruvbox colors for zsh-syntax-highlighting
+      ZSH_HIGHLIGHT_HIGHLIGHTERS=(main brackets pattern cursor)
+      ZSH_HIGHLIGHT_STYLES[default]='fg=#ebdbb2'
+      ZSH_HIGHLIGHT_STYLES[command]='fg=#b8bb26'
+      ZSH_HIGHLIGHT_STYLES[alias]='fg=#b8bb26'
+      ZSH_HIGHLIGHT_STYLES[builtin]='fg=#fabd2f'
+      ZSH_HIGHLIGHT_STYLES[function]='fg=#8ec07c'
+      ZSH_HIGHLIGHT_STYLES[path]='fg=#83a598,underline'
+      ZSH_HIGHLIGHT_STYLES[globbing]='fg=#d3869b'
+      ZSH_HIGHLIGHT_STYLES[history-expansion]='fg=#d3869b'
+      ZSH_HIGHLIGHT_STYLES[single-hyphen-option]='fg=#fe8019'
+      ZSH_HIGHLIGHT_STYLES[double-hyphen-option]='fg=#fe8019'
+      ZSH_HIGHLIGHT_STYLES[back-quoted-argument]='fg=#d3869b'
       
       # Import aliases and environment from external file
       ${builtins.readFile ../configs/zsh-aliases.sh}

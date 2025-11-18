@@ -30,9 +30,25 @@
   };
   
   # =============================================================================
-  # CONFIG FILES
+  # RANGER CONFIGURATION
   # =============================================================================
-  home.file.".config/ohmyposh/powerlevel10k_rainbow.omp.json".source = ./configs/powerlevel10k_rainbow.omp.json;
+  home.file.".config/ranger/colorschemes/gruvbox.py".source = ./configs/ranger-gruvbox.py;
+  home.file.".config/ranger/rc.conf".text = ''
+    # Use Gruvbox colorscheme
+    set colorscheme gruvbox
+    
+    # Show hidden files
+    set show_hidden true
+    
+    # Display
+    set draw_borders both
+    set preview_images true
+    set preview_images_method kitty
+    
+    # Sorting
+    set sort natural
+    set sort_case_insensitive true
+  '';
   
   # =============================================================================
   # IMPORT ALL PROGRAM CONFIGURATIONS
