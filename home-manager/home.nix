@@ -30,25 +30,38 @@
   };
   
   # =============================================================================
-  # RANGER CONFIGURATION
+  # LF FILE MANAGER CONFIGURATION
   # =============================================================================
-  home.file.".config/ranger/colorschemes/gruvbox.py".source = ./configs/ranger-gruvbox.py;
-  home.file.".config/ranger/rc.conf".text = ''
-    # Use Gruvbox colorscheme
-    set colorscheme gruvbox
+  home.file.".config/lf/lfrc".text = ''
+    # Basic settings
+    set hidden true
+    set icons true
+    set ignorecase true
     
-    # Show hidden files
-    set show_hidden true
+    # Gruvbox colors
+    set color256 true
     
-    # Display
-    set draw_borders both
-    set preview_images true
-    set preview_images_method kitty
+    # Use pistol for previews if available
+    set previewer ~/.config/lf/preview
     
-    # Sorting
-    set sort natural
-    set sort_case_insensitive true
+    # Key bindings
+    map <enter> open
+    map <delete> delete
   '';
+  
+  home.file.".config/lf/preview".text = ''
+    #!/bin/sh
+    case "$1" in
+        *.tar*) tar tf "$1";;
+        *.zip) unzip -l "$1";;
+        *.rar) unrar l "$1";;
+        *.7z) 7z l "$1";;
+        *.pdf) pdftotext "$1" -;;
+        *) bat --color=always --style=plain "$1" 2>/dev/null || cat "$1";;
+    esac
+  '';
+  
+  home.file.".config/lf/preview".executable = true;
   
   # =============================================================================
   # IMPORT ALL PROGRAM CONFIGURATIONS

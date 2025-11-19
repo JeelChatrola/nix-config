@@ -23,7 +23,7 @@
     yq-go             # YAML processor (like jq but for YAML)
     neofetch          # System information display tool
     rsync             # Remote file synchronization
-    ranger            # Terminal file manager with vi-like keybindings
+    lf                # Terminal file manager (fast, simple, vi-like)
     gping             # Ping with a graph (visual network latency)
     
     # =============================================================================

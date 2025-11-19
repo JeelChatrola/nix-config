@@ -26,14 +26,15 @@
       }
       {
         plugin = pkgs.tmuxPlugins.mkTmuxPlugin {
-          pluginName = "gruvbox";
-          version = "master";
+          pluginName = "tmux-gruvbox";
+          version = "main";
           src = pkgs.fetchFromGitHub {
             owner = "egel";
             repo = "tmux-gruvbox";
-            rev = "master";
+            rev = "main";
             sha256 = "sha256-TuWPw6sk61k7GnHwN2zH6x6mGurTHiA9f0E6NJfMa6g=";
           };
+          rtpFilePath = "gruvbox-tpm.tmux";
         };
         extraConfig = ''
           set -g @tmux-gruvbox 'dark'
