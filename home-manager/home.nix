@@ -74,6 +74,7 @@
     ./programs/ssh.nix
     ./programs/fzf.nix
     ./programs/neovim.nix
+    ./programs/gnome.nix
   ];
   
   # =============================================================================
