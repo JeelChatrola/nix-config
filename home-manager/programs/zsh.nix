@@ -70,6 +70,16 @@
     initContent = ''
       # Enable useful shell options
       setopt AUTO_CD
+      
+      # Auto-load SSH keys
+      if [ -z "$SSH_AUTH_SOCK" ]; then
+        eval "$(ssh-agent -s)" > /dev/null
+      fi
+      
+      # Add GitHub SSH key if it exists and isn't already loaded
+      if [ -f ~/.ssh/github_auth ] && ! ssh-add -l 2>/dev/null | grep -q github_auth; then
+        ssh-add ~/.ssh/github_auth 2>/dev/null
+      fi
       setopt CORRECT
       setopt CORRECT_ALL
       setopt HIST_EXPIRE_DUPS_FIRST

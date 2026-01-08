@@ -70,13 +70,46 @@ nix-config/
 
 ## Quick Start
 
-```bash
-# Deploy configuration
-./deploy.sh
+### Initial Setup (New Machine)
 
-# Restart shell to load changes
-exec zsh
-```
+1. **Set up SSH key for GitHub** (required for git operations):
+   ```bash
+   # Generate SSH key if you don't have one
+   ssh-keygen -t ed25519 -f ~/.ssh/github_auth -C "your-email@example.com"
+   
+   # Or copy existing key to the required location
+   # The key MUST be named: ~/.ssh/github_auth
+   # The public key MUST be named: ~/.ssh/github_auth.pub
+   
+   # Set correct permissions
+   chmod 600 ~/.ssh/github_auth
+   chmod 644 ~/.ssh/github_auth.pub
+   
+   # Add public key to GitHub
+   cat ~/.ssh/github_auth.pub
+   # Copy output and add to: https://github.com/settings/keys
+   ```
+
+2. **Deploy configuration**:
+   ```bash
+   ./deploy.sh
+   ```
+
+3. **Restart shell to load changes**:
+   ```bash
+   exec zsh
+   ```
+
+### SSH Key Requirements
+
+This configuration expects your GitHub SSH key to be:
+- **Location**: `~/.ssh/github_auth` (private key)
+- **Public key**: `~/.ssh/github_auth.pub`
+- **Permissions**: `600` for private key, `644` for public key
+
+The SSH configuration in `home-manager/programs/ssh.nix` is hardcoded to use `github_auth`. If you use a different key name, update the `identityFile` in `ssh.nix`.
+
+After deployment, your SSH key will be automatically loaded when you open a new terminal, and git will use SSH for all GitHub operations.
 
 ## Installed Tools
 
@@ -208,6 +241,8 @@ Common issues:
 - "Config not applied": Restart the program or terminal
 - "Syntax error": Run `nix flake check` to validate
 - "File exists": Nix won't overwrite unmanaged files, back them up first
+- "Git push/pull fails": Ensure `~/.ssh/github_auth` exists and is added to GitHub
+- "SSH key not loading": Check that `~/.ssh/github_auth` has correct permissions (600)
 
 ## Nix Standards Used
 

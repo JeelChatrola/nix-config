@@ -16,6 +16,14 @@
       serverAliveCountMax = 3;
     };
     
+    # GitHub SSH configuration
+    matchBlocks."github.com" = {
+      hostname = "github.com";
+      user = "git";
+      identityFile = "~/.ssh/github_auth";
+      identitiesOnly = true;
+    };
+    
     # Additional SSH configuration
     extraConfig = ''
       # Connection multiplexing

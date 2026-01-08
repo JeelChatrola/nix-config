@@ -26,6 +26,9 @@
         autoSetupRemote = true;
       };
       
+      # Use SSH for GitHub URLs
+      url."git@github.com:".insteadOf = "https://github.com/";
+      
       alias = {
         # Basic aliases
         st = "status";
