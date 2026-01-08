@@ -64,6 +64,27 @@
   home.file.".config/lf/preview".executable = true;
   
   # =============================================================================
+  # ALACRITTY CONFIGURATION
+  # =============================================================================
+  # Configure alacritty window size and position
+  programs.alacritty = {
+    enable = true;
+    settings = {
+      window = {
+        dimensions = {
+          columns = 120;
+          lines = 35;
+        };
+        position = {
+          x = 700;
+          y = 350;
+        };
+        startup_mode = "Windowed";
+      };
+    };
+  };
+  
+  # =============================================================================
   # IMPORT ALL PROGRAM CONFIGURATIONS
   # =============================================================================
   imports = [
