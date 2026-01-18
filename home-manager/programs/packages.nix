@@ -41,6 +41,7 @@
     git               # Distributed version control system
     git-lfs           # Git Large File Storage (handle large files in git)
     zsh               # Z shell (alternative to bash)
+    zoxide            # Fast directory jumper (replaces oh-my-zsh "z" plugin)
     tmux              # Terminal multiplexer (split terminals, sessions)
 
     # =============================================================================

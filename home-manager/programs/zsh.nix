@@ -56,11 +56,9 @@
         "npm"
         "tmux"
         "sudo"
-        "z"
         "extract"
         "colored-man-pages"
         "command-not-found"
-        # NOTE: "fzf" plugin removed - conflicts with fzf-tab
         "ssh-agent"
       ];
       theme = "robbyrussell";  # Simple, clean prompt
@@ -104,6 +102,10 @@
       
       # Import aliases and environment from external file
       ${builtins.readFile ../configs/zsh-aliases.sh}
+      
+      # Initialize zoxide (fast directory jumper)
+      # --cmd cd: Replace 'cd' command so zoxide learns directories automatically
+      eval "$(zoxide init zsh --cmd cd)"
     '';
     
     # Completion configuration - runs after compinit and plugins
