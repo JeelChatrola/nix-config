@@ -39,6 +39,7 @@
     curl              # Transfer data with URLs (HTTP, FTP, etc.)
     wget              # Non-interactive network downloader
     git               # Distributed version control system
+    git-lfs           # Git Large File Storage (handle large files in git)
     zsh               # Z shell (alternative to bash)
     tmux              # Terminal multiplexer (split terminals, sessions)
 
