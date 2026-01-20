@@ -12,7 +12,7 @@
     # =============================================================================
     tree              # Display directory structure as a tree
     htop              # Interactive process viewer (better than top)
-    btop              # Modern resource monitor (better than htop)
+    # btop              # Modern resource monitor (better than htop) - using apt version instead (GPU detection works)
     ctop              # Container metrics and monitoring (like top for containers)
     ripgrep           # Fast grep alternative (search file contents)
     fd                # Fast find alternative (search file names)
