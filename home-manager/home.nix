@@ -67,13 +67,8 @@
   # ALACRITTY CONFIGURATION
   # =============================================================================
   # Configure alacritty window size and position
-  # Note: Using apt-installed alacritty, only managing config file
-  programs.alacritty = {
-    enable = false;  # Don't install via nix, use apt version
-    package = null;  # Use system alacritty
-  };
-  
-  # Manage config file directly (apt alacritty will use this)
+  # Note: Using apt-installed alacritty (/usr/bin/alacritty), only managing config file
+  # We don't use programs.alacritty because it would install nix version
   home.file.".config/alacritty/alacritty.toml".text = ''
     [window]
     dimensions = { columns = 120, lines = 35 }
