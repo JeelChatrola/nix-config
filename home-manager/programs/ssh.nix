@@ -41,8 +41,8 @@
       VerifyHostKeyDNS yes
       
       # X11 forwarding
-      ForwardX11 yes
-      ForwardX11Trusted yes
+      ForwardX11 no
+      ForwardX11Trusted no
     '';
   };
   

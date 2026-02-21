@@ -16,19 +16,9 @@
     defaultKeymap = "emacs";
     
     # Zsh plugins (order matters!)
-    # 1. fzf-tab (after compinit, before autosuggestions)
-    # 2. zsh-autosuggestions
-    # 3. zsh-syntax-highlighting
+    # 1. zsh-autosuggestions
+    # 2. zsh-syntax-highlighting
     plugins = [
-      {
-        name = "fzf-tab";
-        src = pkgs.fetchFromGitHub {
-          owner = "Aloxaf";
-          repo = "fzf-tab";
-          rev = "v1.1.2";
-          sha256 = "sha256-Qv8zAiMtrr67CbLRrFjGaPzFZcOiMVEFLg1Z+N6VMhg=";
-        };
-      }
       {
         name = "zsh-autosuggestions";
         src = pkgs.zsh-autosuggestions;
