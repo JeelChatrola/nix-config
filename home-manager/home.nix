@@ -81,6 +81,7 @@
   # =============================================================================
   imports = [
     ./programs/packages.nix
+    ./programs/ai-tools.nix
     ./programs/git.nix
     ./programs/zsh.nix
     ./programs/tmux.nix

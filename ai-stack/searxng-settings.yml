@@ -1,0 +1,9 @@
+use_default_settings: true
+
+server:
+  secret_key: "local-only-searxng-key-change-if-exposed"
+
+search:
+  formats:
+    - html
+    - json

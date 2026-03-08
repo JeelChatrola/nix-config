@@ -1,0 +1,58 @@
+services:
+
+  # ---------------------------------------------------------------------------
+  # Ollama - Local LLM runner
+  # Access: http://localhost:11434
+  # ---------------------------------------------------------------------------
+  ollama:
+    image: ollama/ollama:latest
+    container_name: ollama
+    restart: unless-stopped
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama-models:/root/.ollama
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    environment:
+      - HF_TOKEN=${HF_TOKEN:-}
+
+  # ---------------------------------------------------------------------------
+  # SearXNG - self-hosted search backend for Lobe online search
+  # ---------------------------------------------------------------------------
+  searxng:
+    image: searxng/searxng:latest
+    container_name: lobe-searxng
+    restart: unless-stopped
+    volumes:
+      - ./searxng-settings.yml:/etc/searxng/settings.yml:ro
+
+  # ---------------------------------------------------------------------------
+  # LobeChat - client mode (data stored in browser IndexedDB)
+  # Access: http://localhost:3210
+  # ---------------------------------------------------------------------------
+  lobe:
+    image: lobehub/lobe-chat:latest
+    container_name: lobechat
+    restart: unless-stopped
+    ports:
+      - "${LOBE_PORT:-3210}:3210"
+    depends_on:
+      - ollama
+      - searxng
+    environment:
+      - OLLAMA_PROXY_URL=http://ollama:11434
+      - SEARXNG_URL=http://searxng:8080
+      - SEARCH_PROVIDERS=searxng
+      - CRAWLER_IMPLS=naive
+    env_file:
+      - path: .env
+        required: false
+
+volumes:
+  ollama-models:

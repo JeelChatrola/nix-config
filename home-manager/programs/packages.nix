@@ -40,6 +40,7 @@
     wget              # Non-interactive network downloader
     git               # Distributed version control system
     git-lfs           # Git Large File Storage (handle large files in git)
+    nodejs_22         # Node.js runtime for Claude Code, opencode, and MCP servers
     zsh               # Z shell (alternative to bash)
     zoxide            # Fast directory jumper (replaces oh-my-zsh "z" plugin)
     tmux              # Terminal multiplexer (split terminals, sessions)
@@ -61,13 +62,17 @@
     # C/C++ DEVELOPMENT
     # =============================================================================
     # Build Tools
+    bear              # Generate compile_commands.json from existing builds
+    ccache            # Compiler cache for faster rebuilds
     cmake             # Cross-platform build system generator
     ninja             # Fast build system (alternative to make)
     gnumake           # GNU Make build automation tool
+    pkg-config        # Discover compiler and linker flags for dependencies
     
     # GCC Toolchain (default compiler)
     gcc               # GNU Compiler Collection (C, C++, etc.)
     gdb               # GNU Debugger for GCC
+    lldb              # LLVM debugger, often useful for modern C++ stacks
     
     # Clang/LLVM Tools (formatting, linting, LSP)
     clang-tools       # clang-format, clang-tidy, clangd LSP server
@@ -81,6 +86,7 @@
     python3Packages.pip  # Python package installer
     python3Packages.virtualenv  # Virtual environment tool
     uv                # Fast Python package installer (pip alternative)
+    ruff              # Fast Python linting and formatting
 
     # =============================================================================
     # NETWORKING & SECURITY

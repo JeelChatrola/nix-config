@@ -18,3 +18,6 @@ result
 # Ignore OS files
 .DS_Store
 Thumbs.db
+
+# AI stack secrets - never commit API keys
+ai-stack/.env

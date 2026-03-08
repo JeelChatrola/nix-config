@@ -60,6 +60,42 @@ alias f='fzf'
 alias ssh='ssh -o ServerAliveInterval=60'
 
 # =============================================================================
+# AI STACK
+# =============================================================================
+AI_STACK_DIR="$HOME/nix-config/ai-stack"
+
+# Stack lifecycle
+alias ai-up='docker compose -f "$AI_STACK_DIR/docker-compose.yml" up -d'
+alias ai-down='docker compose -f "$AI_STACK_DIR/docker-compose.yml" down'
+alias ai-restart='docker compose -f "$AI_STACK_DIR/docker-compose.yml" restart'
+alias ai-logs='docker compose -f "$AI_STACK_DIR/docker-compose.yml" logs -f'
+alias ai-ps='docker compose -f "$AI_STACK_DIR/docker-compose.yml" ps'
+alias ai-pull='docker compose -f "$AI_STACK_DIR/docker-compose.yml" pull'
+
+# Run the Ollama CLI inside the stack container from the host.
+ai-ollama() {
+  docker exec -it ollama ollama "$@"
+}
+
+ollama-pull() {
+  ai-ollama pull "$@"
+}
+
+ollama-run() {
+  ai-ollama run "$@"
+}
+
+ollama-show() {
+  ai-ollama show "$@"
+}
+
+ollama-rm() {
+  ai-ollama rm "$@"
+}
+
+alias ollama-list='ai-ollama list'
+
+# =============================================================================
 # CUSTOM FUNCTIONS
 # =============================================================================
 # Quick directory navigation
