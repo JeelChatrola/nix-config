@@ -1,17 +1,5 @@
 [mcp]
 
-[mcp.filesystem]
-command = "npx"
-args = ["-y", "@modelcontextprotocol/server-filesystem", "/home/jeel"]
-
-[mcp.git]
-command = "npx"
-args = ["-y", "@modelcontextprotocol/server-git", "--repository", "/home/jeel"]
-
-[mcp.fetch]
-command = "npx"
-args = ["-y", "@modelcontextprotocol/server-fetch"]
-
 [mcp.memory]
 command = "npx"
 args = ["-y", "@modelcontextprotocol/server-memory"]
@@ -23,11 +11,3 @@ args = ["-y", "@modelcontextprotocol/server-sequential-thinking"]
 [mcp.brave-search]
 command = "npx"
 args = ["-y", "@modelcontextprotocol/server-brave-search"]
-
-[mcp.github]
-command = "npx"
-args = ["-y", "@modelcontextprotocol/server-github"]
-
-[mcp.time]
-command = "npx"
-args = ["-y", "@modelcontextprotocol/server-time"]

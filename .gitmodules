@@ -1,0 +1,3 @@
+[submodule "ai-stack/skills/robotics/robotics-agent-skills"]
+	path = ai-stack/skills/robotics/robotics-agent-skills
+	url = https://github.com/arpitg1304/robotics-agent-skills.git

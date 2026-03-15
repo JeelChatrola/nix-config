@@ -4,22 +4,30 @@
     "ANTHROPIC_AUTH_TOKEN": "ollama",
     "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC": "1"
   },
+  "permissions": {
+    "allow": [
+      "Bash(git *)",
+      "Bash(gh *)",
+      "Bash(ruff *)",
+      "Bash(clang-format *)",
+      "Bash(clang-tidy *)",
+      "Bash(cmake *)",
+      "Bash(make *)",
+      "Bash(ninja *)",
+      "Bash(bear *)",
+      "Bash(pytest *)",
+      "Bash(python *)",
+      "Bash(uv *)",
+      "Bash(docker *)",
+      "Bash(docker-compose *)",
+      "Bash(rg *)",
+      "Bash(fd *)",
+      "Bash(jq *)",
+      "Bash(yq *)",
+      "Bash(tree *)"
+    ]
+  },
   "mcpServers": {
-    "filesystem": {
-      "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-filesystem", "/home/jeel"],
-      "description": "Read/write access to your home directory"
-    },
-    "git": {
-      "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-git", "--repository", "/home/jeel"],
-      "description": "Git operations on repos under /home/jeel"
-    },
-    "fetch": {
-      "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-fetch"],
-      "description": "Fetch and read web pages / URLs"
-    },
     "memory": {
       "command": "npx",
       "args": ["-y", "@modelcontextprotocol/server-memory"],
@@ -34,19 +42,6 @@
       "command": "npx",
       "args": ["-y", "@modelcontextprotocol/server-brave-search"],
       "description": "Web search via Brave Search API (needs BRAVE_API_KEY)"
-    },
-    "github": {
-      "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-github"],
-      "env": {
-        "GITHUB_TOKEN": "${GITHUB_TOKEN}"
-      },
-      "description": "GitHub API: PRs, issues, repos, code search"
-    },
-    "time": {
-      "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-time"],
-      "description": "Time zones, date conversions, current time"
     }
   }
 }

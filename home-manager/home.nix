@@ -1,7 +1,7 @@
 # Main home-manager configuration
 # This file imports all program configurations and sets up the environment
 
-{ config, pkgs, lib, ... }:
+{ config, pkgs, lib, enableAI ? false, ... }:
 
 {
   # =============================================================================
@@ -81,13 +81,14 @@
   # =============================================================================
   imports = [
     ./programs/packages.nix
-    ./programs/ai-tools.nix
     ./programs/git.nix
     ./programs/zsh.nix
     ./programs/tmux.nix
     ./programs/ssh.nix
     ./programs/fzf.nix
     ./programs/neovim.nix
+  ] ++ lib.optionals enableAI [
+    ./programs/ai-tools.nix
   ];
   
   # =============================================================================

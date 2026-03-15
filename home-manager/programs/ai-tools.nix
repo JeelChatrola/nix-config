@@ -13,20 +13,38 @@ let
     exec ${pkgs.nodejs_22}/bin/npx -y opencode-ai "$@"
   '';
 
-  aiderWrapper = pkgs.writeShellScriptBin "aider" ''
-    export OLLAMA_HOST="''${OLLAMA_HOST:-http://127.0.0.1:11434}"
-    exec ${pkgs.uv}/bin/uv tool run --from aider-chat aider "$@"
-  '';
+  commandFiles = [
+    { name = "commit.md"; }
+    { name = "review.md"; }
+    { name = "setup-project.md"; }
+  ];
+
+  # One source of truth for commands, deployed to both agents
+  commandDeployment = builtins.listToAttrs (
+    builtins.concatMap (cmd: [
+      {
+        name = ".claude/commands/${cmd.name}";
+        value = { source = ../../ai-stack/commands/${cmd.name}; };
+      }
+      {
+        name = ".config/opencode/commands/${cmd.name}";
+        value = { source = ../../ai-stack/commands/${cmd.name}; };
+      }
+    ]) commandFiles
+  );
 in
 {
   home.packages = [
     claudeWrapper
     opencodeWrapper
-    aiderWrapper
   ];
 
-  # Keep MCP and provider settings in the repo, activate them on the host.
-  home.file.".config/claude/settings.json".source = ../../ai-stack/mcp/claude-settings.json;
-  home.file.".config/opencode/mcp.toml".source = ../../ai-stack/mcp/opencode.toml;
-  home.file.".config/opencode/opencode.json".source = ../../ai-stack/mcp/opencode.json;
+  home.file = commandDeployment // {
+    # Claude Code: MCP + permissions
+    ".config/claude/settings.json".source = ../../ai-stack/mcp/claude-settings.json;
+
+    # OpenCode: MCP + provider + permissions
+    ".config/opencode/mcp.toml".source = ../../ai-stack/mcp/opencode.toml;
+    ".config/opencode/opencode.json".source = ../../ai-stack/mcp/opencode.json;
+  };
 }

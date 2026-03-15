@@ -1,30 +1,43 @@
 #!/bin/bash
-
-# Deploy home-manager configuration
-# This script will build and switch to the new home-manager configuration
 set -e
-
-echo "🚀 Deploying home-manager configuration..."
-
-# Navigate to the nix directory
 cd "$(dirname "$0")"
 
-# Build and switch to the new configuration
-echo "📦 Building home-manager configuration..."
-nix run nixpkgs#home-manager -- switch --flake . --impure
-exec zsh
+FLAKE_TARGET="jeel"
+WITH_AI=false
 
-echo "✅ Home-manager configuration deployed successfully!"
+for arg in "$@"; do
+  case $arg in
+    --ai) FLAKE_TARGET="jeel-ai"; WITH_AI=true ;;
+    -h|--help)
+      echo "Usage: ./deploy.sh [--ai]"
+      echo ""
+      echo "  --ai    Include AI tools (aider, claude, opencode),"
+      echo "          MCP configs, and start the Docker AI stack"
+      echo "          (Ollama, LobeChat, SearXNG)"
+      exit 0
+      ;;
+    *)
+      echo "Unknown option: $arg (try --help)"
+      exit 1
+      ;;
+  esac
+done
+
+echo "Building home-manager configuration ($FLAKE_TARGET)..."
+nix run nixpkgs#home-manager -- switch --flake ".#${FLAKE_TARGET}" --impure
+
+if $WITH_AI; then
+  echo ""
+  echo "Starting AI stack (Ollama, LobeChat, SearXNG)..."
+  docker compose -f ai-stack/docker-compose.yml up -d
+  echo ""
+  echo "AI stack is running:"
+  echo "  Ollama:   http://localhost:11434"
+  echo "  LobeChat: http://localhost:3210"
+  echo ""
+  echo "Pull a model:  ollama-pull llama3.2"
+  echo "CLI agents:    aider, claude, opencode"
+fi
+
 echo ""
-echo "🎉 Your development environment is now configured with:"
-echo "   • Development tools: curl, wget, git, zsh, tmux"
-echo "   • Oh-my-zsh with plugins and green-on-black theme"
-echo "   • Additional tools: tree, htop, ripgrep, fd, bat, exa, fzf"
-echo ""
-echo "💡 To apply changes:"
-echo "   • Restart your terminal or run: exec zsh"
-echo "   • Start tmux: tmux"
-echo ""
-echo "🔧 To update your configuration:"
-echo "   1. Edit home-manager/home.nix"
-echo "   2. Run: ./deploy.sh"
+echo "Done. Restart your terminal or run: exec zsh"

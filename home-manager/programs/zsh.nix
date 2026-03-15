@@ -119,5 +119,15 @@
       # Switch group using '<' and '>'
       zstyle ':fzf-tab:*' switch-group '<' '>'
     '';
+    
+    # Extra initialization - runs at the end of zshrc
+    initExtra = ''
+      # Disable Powerlevel10k when Cursor Agent runs
+      if [[ -n "$CURSOR_AGENT" ]]; then
+        # Skip theme initialization for better compatibility
+      else
+        [[ -r ~/.p10k.zsh ]] && source ~/.p10k.zsh
+      fi
+    '';
   };
 }

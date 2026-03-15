@@ -25,5 +25,37 @@
         }
       }
     }
+  },
+  "permission": {
+    "*": "ask",
+    "read": "allow",
+    "bash": {
+      "*": "ask",
+      "git *": "allow",
+      "gh *": "allow",
+      "ruff *": "allow",
+      "clang-format *": "allow",
+      "clang-tidy *": "allow",
+      "cmake *": "allow",
+      "make *": "allow",
+      "ninja *": "allow",
+      "bear *": "allow",
+      "pytest *": "allow",
+      "python *": "allow",
+      "uv *": "allow",
+      "docker *": "allow",
+      "docker-compose *": "allow",
+      "rg *": "allow",
+      "fd *": "allow",
+      "jq *": "allow",
+      "yq *": "allow",
+      "tree *": "allow"
+    },
+    "edit": "allow",
+    "glob": "allow",
+    "grep": "allow",
+    "todoread": "allow",
+    "todowrite": "allow",
+    "skill": "allow"
   }
 }

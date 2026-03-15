@@ -1,0 +1,15 @@
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "file=\"$CLAUDE_FILE\"; case \"$file\" in *.cpp|*.cc|*.cxx|*.h|*.hpp|*.hxx) clang-format -i \"$file\" 2>/dev/null;; esac; exit 0"
+          }
+        ]
+      }
+    ]
+  }
+}

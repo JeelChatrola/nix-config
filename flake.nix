@@ -20,6 +20,14 @@
     homeConfigurations = {
       jeel = home-manager.lib.homeManagerConfiguration {
         inherit pkgs;
+        extraSpecialArgs = { enableAI = false; };
+        modules = [
+          ./home-manager/home.nix
+        ];
+      };
+      jeel-ai = home-manager.lib.homeManagerConfiguration {
+        inherit pkgs;
+        extraSpecialArgs = { enableAI = true; };
         modules = [
           ./home-manager/home.nix
         ];
