@@ -55,30 +55,48 @@ Claude Code: natural language or `/agents` for **ask** / **debug** / **docs**.
 
 | Script | Scope | Role |
 |--------|--------|------|
-| `install-skill.py` | **Per repo** | Skills under `.cursor/skills/`, templates (`AGENTS.md`, `CLAUDE.md`), Claude Code hooks in that project’s `.claude/settings.json`. |
+| `install-skill.py` | **Per repo** | Skills via **`--to`**. **`--agents`** follows the same **`--to`**, but only **`opencode`** / **`claude`** install agent markdown dirs. Templates and hooks unchanged. |
 | `install-optional-agents.sh` | **User / global** | Third-party CLIs (uv) and GSD via npx into `~/.claude/` and `~/.config/opencode/`. |
 | `sync-opencode-ollama-models.sh` | **This flake** | Rewrites `ai-stack/mcp/opencode.json` from local Ollama; then redeploy / `home-manager` to refresh `~/.config/opencode/`. |
 
 ### `install-skill.py` (per project)
 
-Run from anywhere; point at your nix-config checkout (examples use `~/nix-config`). The **target** is the **repository root** you want to equip (often `.`).
+Run **`install-skill.py -h`** and **`install-skill.py bootstrap -h`** for full usage (examples are in the **`--help`** epilog).
 
-- **`list`** — Skills under `ai-stack/skills/{generic,programming,learning,robotics}/` (each folder with `SKILL.md`), plus hook template names.
-- **`install <skill> <target>`** — Copies that skill into `<target>/.cursor/skills/<skill>/`. Cursor, OpenCode, and Claude Code can read `.cursor/skills/`. Re-running replaces the skill directory.
-- **`agents-md <target>`** — Installs `templates/AGENTS.md` as `<target>/AGENTS.md` (prompts before overwrite).
-- **`claude-md <target>`** — Same for `templates/CLAUDE.md` → `<target>/CLAUDE.md`.
-- **`hooks <type> <target>`** — `type` is `python`, `cpp`, or `mixed`. Merges the matching JSON from `templates/claude-hooks/` into **`<target>/.claude/settings.json`** (creates or updates; replaces the `hooks` key). OpenCode does not need this; it ships formatters.
+**`target`** defaults to **`.`**. **`-y` / `--yes`** skips overwrite prompts.
 
-Example for a project at `/path/to/myapp`:
+**Skills — `--to cursor` / `--to opencode` / `--to claude`**
+
+- Required for **`install`** and for **`bootstrap`** whenever you use **`--skills`**, **`--all-skills`**, or **`--all`** (those paths install skills).
+- Pass **`--to`** more than once: the **first** gets a full copy; later paths get **symlinks** into the first (relative). Use **`--copy-all`** to duplicate full trees instead.
+
+**`bootstrap`** (aliases **`b`**, **`init`**) does **nothing** unless you pass at least one of:
+
+- **`--md`** — **`AGENTS.md`** + **`CLAUDE.md`**
+- **`--agents`** — Agent **`*.md`** only for **`opencode`** and/or **`claude`** in **`--to`** (not **`cursor`**). Example: **`--to opencode --agents`** does not create **`.claude/agents/`**.
+- **`--skills n1 n2 …`** — listed skills (**needs `--to`**)
+- **`--all-skills`** — every skill (**needs `--to`**)
+- **`--hooks TYPE`** — `python` \| `cpp` \| `mixed` (Claude Code only)
+- **`--all`** — **`--md` + `--agents` + `--all-skills`** (still **requires `--to`** for the skill trees; does **not** add hooks)
+
+Other subcommands: **`list`**; **`install` (`i`)**; **`agents` (`a`)**; **`agents-md`**; **`claude-md`**; **`hooks`**.
+
+**Zsh** (`AI_STACK_DIR` in `zsh-aliases.sh`):
+
+- **`ai-proj`** — forwards to this script (**`ai-proj list`**, **`ai-proj i x --to opencode`**).
+- **`ai-boot`** — **`bootstrap -y --all --to cursor --to opencode --to claude`** (templates + OpenCode + Claude agent dirs + skills in all three roots). Narrower installs: use **`ai-proj bootstrap …`** (e.g. only **`--to opencode --agents`**).
+
+Examples:
 
 ```bash
-python3 ~/nix-config/ai-stack/scripts/install-skill.py list
-python3 ~/nix-config/ai-stack/scripts/install-skill.py install alphaxiv /path/to/myapp
-python3 ~/nix-config/ai-stack/scripts/install-skill.py agents-md /path/to/myapp
-python3 ~/nix-config/ai-stack/scripts/install-skill.py hooks python /path/to/myapp
+cd /path/to/myapp
+python3 ~/nix-config/ai-stack/scripts/install-skill.py i cpp-standards --to opencode --to cursor -y
+python3 ~/nix-config/ai-stack/scripts/install-skill.py b -y --md --agents --to opencode --to cursor --skills tool-awareness security-review
+python3 ~/nix-config/ai-stack/scripts/install-skill.py b -y --hooks python
+ai-boot   # --all with --to cursor opencode claude (skills + both agent dirs)
 ```
 
-Commit the new `.cursor/`, `AGENTS.md`, `CLAUDE.md`, or `.claude/` files in **that** repo if you want teammates or CI to see them.
+Commit **`.cursor/`**, **`.opencode/`**, **`.claude/`**, **`AGENTS.md`**, and **`CLAUDE.md`** in **that** repo if you want them shared.
 
 ### `install-optional-agents.sh` (user / global)
 
