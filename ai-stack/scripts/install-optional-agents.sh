@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # Optional third-party agent stacks (not vendored in this repo).
-# Run manually when you want them; safe to re-run (installers are idempotent-ish).
+# ./deploy.sh --ai runs only --code-review-graph and --arxiv (MCP wired in ai-stack/mcp/).
+# Run --gsd or --all yourself if you want Get Shit Done (third-party npx installer).
 set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$ROOT"

@@ -237,6 +237,7 @@ nix run home-manager/master -- switch --flake . --show-trace
 
 Common issues:
 
+- **`builtins.toFile` … `options.json` … without a proper context**: Harmless evaluation warning while Home Manager builds option documentation (paths like `meta.maintainers` end up inside generated JSON). It does **not** mean your flake is wrong. Tracked upstream: [home-manager#7935](https://github.com/nix-community/home-manager/issues/7935). It shows up more often with **Determinate Nix** / newer Nix because string-context checks are stricter. You can ignore it, or try `manual.manpages.enable = false;` in `home.nix` if you do not need `man home-configuration.nix` (may reduce related doc builds).
 - "Package not found": Check package name with `nix search`
 - "Config not applied": Restart the program or terminal
 - "Syntax error": Run `nix flake check` to validate

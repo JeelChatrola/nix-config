@@ -1,0 +1,32 @@
+# Copy to models.yaml (same directory) or set MODEL_CONFIG to this path.
+# Requires: ollama (client; set OLLAMA_HOST if Ollama runs in Docker),
+#           yq, jq — from Home Manager packages.
+# Optional: HF_TOKEN in env for gated HF repos or fewer rate limits.
+
+version: 1
+
+models:
+  # Ollama library tag (same as: ollama pull <pull>)
+  - id: qwen3-coder-30b
+    source: ollama
+    pull: qwen3-coder:30b-a3b-q4_K_M
+    skip_if_present: true
+
+  - id: deepseek-r1-14b
+    source: ollama
+    pull: deepseek-r1:14b-qwen-distill-q4_K_M
+    skip_if_present: true
+
+  # Hugging Face GGUF pulled by Ollama (see https://ollama.com/blog/huggingface)
+  # Use hf.co/<user>/<repo>[:quant] — exact syntax may vary by Ollama version.
+  # - id: example-hf-ollama
+  #   source: ollama
+  #   pull: hf.co/bartowski/meta-llama-3.1-8B-Instruct-GGUF
+  #   skip_if_present: false
+
+  # Hugging Face → GGUF on disk via llmfit (llama.cpp layout; not auto-registered in Ollama)
+  # - id: example-llmfit
+  #   source: huggingface
+  #   provider: llmfit
+  #   repo: bartowski/Llama-3.2-3B-Instruct-GGUF
+  #   quant: Q4_K_M

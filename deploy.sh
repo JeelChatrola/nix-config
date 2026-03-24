@@ -12,9 +12,8 @@ for arg in "$@"; do
       echo "Usage: ./deploy.sh [--ai]"
       echo ""
       echo "  --ai    Include AI tools (claude, opencode), MCP configs,"
-      echo "          custom commands/agents, optional stacks installer"
-      echo "          (GSD, code-review-graph, arxiv), and start Docker"
-      echo "          services (Ollama, LobeChat, SearXNG)"
+      echo "          commands/agents, uv MCP CLIs (code-review-graph, arxiv),"
+      echo "          Docker (Ollama, LobeChat, SearXNG). GSD: opt-in — see README."
       exit 0
       ;;
     *)
@@ -29,8 +28,8 @@ nix run nixpkgs#home-manager -- switch --flake ".#${FLAKE_TARGET}" --impure
 
 if $WITH_AI; then
   echo ""
-  echo "Installing optional agent stacks (GSD, code-review-graph, arxiv)..."
-  bash ai-stack/scripts/install-optional-agents.sh --all
+  echo "Installing MCP helper CLIs (code-review-graph, arxiv via uv)..."
+  bash ai-stack/scripts/install-optional-agents.sh --code-review-graph --arxiv
   echo ""
   echo "Starting AI stack (Ollama, LobeChat, SearXNG)..."
   docker compose -f ai-stack/docker-compose.yml up -d
