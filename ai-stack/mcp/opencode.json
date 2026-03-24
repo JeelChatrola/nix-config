@@ -8,20 +8,14 @@
         "baseURL": "http://localhost:11434/v1"
       },
       "models": {
+        "qwen3.5:35b-a3b-q4_K_M": {
+          "name": "qwen3.5:35b-a3b-q4_K_M"
+        },
+        "hf.co/Qwen/Qwen3-14B-GGUF:Q5_K_M": {
+          "name": "hf.co/Qwen/Qwen3-14B-GGUF:Q5_K_M"
+        },
         "qwen3-coder:30b-a3b-q4_K_M": {
           "name": "Qwen3 Coder 30B-A3B — best coder, 578 tok/s, 262k ctx"
-        },
-        "gpt-oss:20b": {
-          "name": "GPT-OSS 20B — dense 20B, 272 tok/s, 131k ctx"
-        },
-        "deepseek-coder-v2:16b-lite-instruct-q4_K_M": {
-          "name": "DeepSeek Coder V2 Lite — 451 tok/s, 164k ctx"
-        },
-        "qwen2.5-coder:7b-instruct": {
-          "name": "Qwen2.5 Coder 7B — workhorse Q8_0, 65 tok/s, 32k ctx"
-        },
-        "alibayram/mimo-7b-rl": {
-          "name": "MiMo 7B RL — reasoning + code specialist, 70 tok/s"
         }
       }
     }

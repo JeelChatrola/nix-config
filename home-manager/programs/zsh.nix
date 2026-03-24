@@ -78,6 +78,8 @@
         setopt SHARE_HISTORY
 
         # Gruvbox colors for zsh-syntax-highlighting
+        # Declare associative array before assignments: initContent runs before the plugin is sourced.
+        typeset -gA ZSH_HIGHLIGHT_STYLES
         ZSH_HIGHLIGHT_HIGHLIGHTERS=(main brackets pattern cursor)
         ZSH_HIGHLIGHT_STYLES[default]='fg=#ebdbb2'
         ZSH_HIGHLIGHT_STYLES[command]='fg=#b8bb26'

@@ -73,8 +73,13 @@ alias ai-ps='docker compose -f "$AI_STACK_DIR/docker-compose.yml" ps'
 alias ai-pull='docker compose -f "$AI_STACK_DIR/docker-compose.yml" pull'
 
 # Run the Ollama CLI inside the stack container from the host.
+# -it only in a real terminal; piping (e.g. ollama-list | grep) must not use -t.
 ai-ollama() {
-  docker exec -it ollama ollama "$@"
+  if [[ -t 0 && -t 1 ]]; then
+    docker exec -it ollama ollama "$@"
+  else
+    docker exec ollama ollama "$@"
+  fi
 }
 
 ollama-pull() {
