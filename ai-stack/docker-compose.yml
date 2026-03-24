@@ -29,6 +29,9 @@ services:
     image: searxng/searxng:latest
     container_name: lobe-searxng
     restart: unless-stopped
+    ports:
+      # Host MCP (Claude / OpenCode) uses this URL; Lobe uses docker network SEARXNG_URL
+      - "${SEARXNG_PORT:-8080}:8080"
     volumes:
       - ./searxng-settings.yml:/etc/searxng/settings.yml:ro
 

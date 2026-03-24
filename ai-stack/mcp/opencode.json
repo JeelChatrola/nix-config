@@ -20,6 +20,56 @@
       }
     }
   },
+  "mcp": {
+    "memory": {
+      "type": "local",
+      "command": [
+        "npx",
+        "-y",
+        "@modelcontextprotocol/server-memory"
+      ]
+    },
+    "sequential-thinking": {
+      "type": "local",
+      "command": [
+        "npx",
+        "-y",
+        "@modelcontextprotocol/server-sequential-thinking"
+      ]
+    },
+    "searxng": {
+      "type": "local",
+      "command": [
+        "uv",
+        "tool",
+        "run",
+        "searxng-mcp-server",
+        "--searxng-url",
+        "http://127.0.0.1:8080"
+      ]
+    },
+    "code-review-graph": {
+      "type": "local",
+      "command": [
+        "uv",
+        "tool",
+        "run",
+        "--from",
+        "code-review-graph",
+        "code-review-graph",
+        "serve"
+      ]
+    },
+    "arxiv": {
+      "type": "local",
+      "command": [
+        "uv",
+        "tool",
+        "run",
+        "arxiv-mcp-server"
+      ]
+    }
+  },
   "permission": {
     "bash": {
       "*": "ask",

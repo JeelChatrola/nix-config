@@ -8,9 +8,15 @@
       "command": "npx",
       "args": ["-y", "@modelcontextprotocol/server-sequential-thinking"]
     },
-    "brave-search": {
-      "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-brave-search"]
+    "searxng": {
+      "command": "uv",
+      "args": [
+        "tool",
+        "run",
+        "searxng-mcp-server",
+        "--searxng-url",
+        "http://127.0.0.1:8080"
+      ]
     },
     "code-review-graph": {
       "command": "uv",

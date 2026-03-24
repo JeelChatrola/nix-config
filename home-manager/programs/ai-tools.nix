@@ -69,8 +69,7 @@ in
     # Claude Code: MCP + permissions
     ".config/claude/settings.json".source = ../../ai-stack/mcp/claude-settings.json;
 
-    # OpenCode: MCP + provider + permissions
-    ".config/opencode/mcp.toml".source = ../../ai-stack/mcp/opencode.toml;
+    # OpenCode: MCP lives in opencode.json (type local + command[]); see opencode.ai/docs/mcp-servers
     ".config/opencode/opencode.json".source = ../../ai-stack/mcp/opencode.json;
   };
 }

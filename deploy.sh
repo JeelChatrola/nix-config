@@ -12,7 +12,7 @@ for arg in "$@"; do
       echo "Usage: ./deploy.sh [--ai]"
       echo ""
       echo "  --ai    Include AI tools (claude, opencode), MCP configs,"
-      echo "          commands/agents, uv MCP CLIs (code-review-graph, arxiv),"
+      echo "          commands/agents, uv MCP CLIs (code-review-graph, arxiv, searxng-mcp),"
       echo "          Docker (Ollama, LobeChat, SearXNG). GSD: opt-in — see README."
       exit 0
       ;;
@@ -28,8 +28,8 @@ nix run nixpkgs#home-manager -- switch --flake ".#${FLAKE_TARGET}" --impure
 
 if $WITH_AI; then
   echo ""
-  echo "Installing MCP helper CLIs (code-review-graph, arxiv via uv)..."
-  bash ai-stack/scripts/install-optional-agents.sh --code-review-graph --arxiv
+  echo "Installing MCP helper CLIs (code-review-graph, arxiv, searxng-mcp via uv)..."
+  bash ai-stack/scripts/install-optional-agents.sh --code-review-graph --arxiv --searxng-mcp
   echo ""
   echo "Starting AI stack (Ollama, LobeChat, SearXNG)..."
   docker compose -f ai-stack/docker-compose.yml up -d
@@ -46,6 +46,7 @@ if $WITH_AI; then
   echo "AI stack is running:"
   echo "  Ollama:   http://localhost:11434"
   echo "  LobeChat: http://localhost:3210"
+  echo "  SearXNG:  http://localhost:${SEARXNG_PORT:-8080}  (MCP web search)"
   echo ""
   echo "Pull a model:  ollama-pull llama3.2"
   echo "CLI agents:    claude, opencode"

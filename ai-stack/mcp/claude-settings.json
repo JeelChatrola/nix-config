@@ -38,10 +38,16 @@
       "args": ["-y", "@modelcontextprotocol/server-sequential-thinking"],
       "description": "Structured multi-step reasoning tool"
     },
-    "brave-search": {
-      "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-brave-search"],
-      "description": "Web search via Brave Search API (needs BRAVE_API_KEY)"
+    "searxng": {
+      "command": "uv",
+      "args": [
+        "tool",
+        "run",
+        "searxng-mcp-server",
+        "--searxng-url",
+        "http://127.0.0.1:8080"
+      ],
+      "description": "Web search + fetch via local SearXNG (docker: SEARXNG_PORT default 8080; uv tool install searxng-mcp-server)"
     },
     "code-review-graph": {
       "command": "uv",

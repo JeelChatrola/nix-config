@@ -24,11 +24,11 @@ Nothing is required for **local Ollama only**. Add keys only for the features be
 | **`ANTHROPIC_API_KEY`** | Claude Code talking to **Anthropic’s API** instead of local Ollama | Your shell (e.g. Nix `home.sessionVariables`, direnv). This repo’s `ai-stack/mcp/claude-settings.json` sets `ANTHROPIC_BASE_URL` / `ANTHROPIC_AUTH_TOKEN` for Ollama; for cloud you must **override** those (e.g. `~/.config/claude/settings.local.json` merging `env`, or edit the source JSON in git) so traffic goes to Anthropic. See [Claude Code environment](https://code.claude.com/docs). |
 | **Provider keys** (e.g. **`OPENAI_API_KEY`**, **`ANTHROPIC_API_KEY`**) | **OpenCode** cloud models | OpenCode `/connect` or provider setup; export in shell if the app reads env. `opencode.json` here only configures **Ollama**; add providers per [OpenCode config](https://opencode.ai/docs/config). |
 | **`OPENAI_API_KEY`**, **`ANTHROPIC_API_KEY`**, etc. | **LobeChat** web UI with hosted models | `ai-stack/.env` (copy from `.env.example`), then `docker compose … up -d` again; finish provider setup in the Lobe UI if needed. |
-| **`BRAVE_API_KEY`** | **brave-search** MCP (web search) | [Brave Search API](https://brave.com/search/api/) — export in the **same environment** that launches `claude` / `opencode` (MCP is stdio on the host). |
+| **—** | **searxng** MCP (web search + fetch) | **SearXNG** must be running (**`ai-up`**). Default host URL `http://127.0.0.1:8080` (**`SEARXNG_PORT`** in `ai-stack/.env`). If you change the port, update **`--searxng-url`** in `ai-stack/mcp/claude-settings.json`, **`opencode.json`** (`mcp.searxng.command`), and `mcpo-config.json`. **`uv tool install searxng-mcp-server`**: **`./deploy.sh --ai`** or **`install-optional-agents.sh --searxng-mcp`**. |
 | **`HF_TOKEN`** | **Gated** Hugging Face models pulled into Ollama | `ai-stack/.env` (passed into the `ollama` service). |
 | **`ALPHAXIV_API_KEY`** | **alphaxiv** skill (optional assistant features) | Shell env; see `skills/learning/alphaxiv/SKILL.md`. |
 
-**No keys:** `memory`, `sequential-thinking`, `arxiv`, `code-review-graph` MCP servers as configured in this repo (arxiv/code-review-graph need `uv tool install` from `install-optional-agents.sh`, already run by `./deploy.sh --ai`).
+**No paid search API:** Web search for agents uses **SearXNG** + PyPI **`searxng-mcp-server`** (`uv tool install`, same script as arxiv/code-review-graph). **`memory`**, **`sequential-thinking`**, **`arxiv`**, **`code-review-graph`**, **`searxng`** MCP entries are declared in `ai-stack/mcp/*`.
 
 ## Day-to-day
 
@@ -38,6 +38,7 @@ Nothing is required for **local Ollama only**. Add keys only for the features be
 | CLI agents | `opencode`, `claude` |
 | Chat UI | http://localhost:3210 |
 | Ollama API | http://localhost:11434 |
+| SearXNG (MCP + browser) | http://localhost:8080 (override with `SEARXNG_PORT` in `ai-stack/.env`) |
 
 OpenCode: **Tab** = primary agents (Build, Plan, ask, debug). **`@docs`** = docs subagent.  
 Claude Code: natural language or `/agents` for **ask** / **debug** / **docs**.
@@ -45,7 +46,7 @@ Claude Code: natural language or `/agents` for **ask** / **debug** / **docs**.
 ## If something breaks
 
 - **Agent ignores tools:** Model likely not tool-capable; try another Ollama tag or a cloud model in OpenCode to confirm the stack.
-- **Brave search errors:** Set `BRAVE_API_KEY` or ignore that MCP server.
+- **SearXNG / search MCP errors:** Ensure **`ai-up`** (or compose) is running, **`searxng-mcp-server`** is installed (`uv tool install searxng-mcp-server` or `./deploy.sh --ai`), and the URL in MCP configs matches **`SEARXNG_PORT`** (default **8080** on the host).
 - **MCP changes not visible:** Redeploy + fully quit and restart the agent.
 
 ## Scripts: machine-wide vs per repo
@@ -81,7 +82,7 @@ Commit the new `.cursor/`, `AGENTS.md`, `CLAUDE.md`, or `.claude/` files in **th
 
 ### `install-optional-agents.sh` (user / global)
 
-Not tied to a project directory. Run from `ai-stack/` or with the path to the script. **`./deploy.sh --ai`** already runs `--code-review-graph` and `--arxiv` (uv tools expected by MCP entries in `ai-stack/mcp/`). **`--gsd`** installs [Get Shit Done](https://github.com/gsd-build/get-shit-done) into global Claude/OpenCode config via npx; use **`--all`** for everything. See `--help` / script header for flags.
+Not tied to a project directory. Run from `ai-stack/` or with the path to the script. **`./deploy.sh --ai`** runs **`--code-review-graph`**, **`--arxiv`**, and **`--searxng-mcp`** (uv tools expected by MCP entries in `ai-stack/mcp/`). **`--gsd`** installs [Get Shit Done](https://github.com/gsd-build/get-shit-done) into global Claude/OpenCode config via npx; use **`--all`** for everything. See `--help` / script header for flags.
 
 ### `sync-opencode-ollama-models.sh` (nix-config file)
 
@@ -89,7 +90,7 @@ Updates **`ai-stack/mcp/opencode.json`** only. Invoked automatically after Docke
 
 ## Reference
 
-**Configs in git:** `ai-stack/mcp/` → `~/.config/claude/settings.json`, `~/.config/opencode/mcp.toml`, `~/.config/opencode/opencode.json`. Keep Claude and OpenCode MCP lists aligned when you add a server.
+**Configs in git:** `ai-stack/mcp/` → `~/.config/claude/settings.json`, `~/.config/opencode/opencode.json`. OpenCode reads MCP only from **`opencode.json`** (`mcp` + `type: "local"` + `command` array); see [OpenCode MCP docs](https://opencode.ai/docs/mcp-servers). Keep Claude (`mcpServers` in `claude-settings.json`) and OpenCode (`mcp` in `opencode.json`) aligned when you add a server.
 
 **Commands:** `ai-stack/commands/` → `~/.claude/commands/` and `~/.config/opencode/commands/`.
 
