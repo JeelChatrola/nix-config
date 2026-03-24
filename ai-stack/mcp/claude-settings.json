@@ -42,6 +42,16 @@
       "command": "npx",
       "args": ["-y", "@modelcontextprotocol/server-brave-search"],
       "description": "Web search via Brave Search API (needs BRAVE_API_KEY)"
+    },
+    "code-review-graph": {
+      "command": "uv",
+      "args": ["tool", "run", "--from", "code-review-graph", "code-review-graph", "serve"],
+      "description": "Tree-sitter code graph + blast-radius review context (uv tool install code-review-graph)"
+    },
+    "arxiv": {
+      "command": "uv",
+      "args": ["tool", "run", "arxiv-mcp-server"],
+      "description": "Search, download, read arXiv papers (uv tool install arxiv-mcp-server). Storage: ~/.arxiv-mcp-server/papers or ARXIV_STORAGE_PATH"
     }
   }
 }

@@ -19,6 +19,7 @@ description: Detect project type and recommend which skills to install. Use when
 ### learning/
 - **learning-mode** -- AI explains and teaches instead of just writing
 - **doc-awareness** -- check library versions before writing code
+- **alphaxiv** -- arXiv / alphaXiv paper URLs and metadata (ML, robotics papers)
 
 ### robotics/ (from robotics-agent-skills submodule)
 - **ros2** -- rclpy, rclcpp, DDS, QoS, lifecycle nodes

@@ -27,8 +27,6 @@
     }
   },
   "permission": {
-    "*": "ask",
-    "read": "allow",
     "bash": {
       "*": "ask",
       "git *": "allow",
@@ -42,6 +40,7 @@
       "bear *": "allow",
       "pytest *": "allow",
       "python *": "allow",
+      "python3 *": "allow",
       "uv *": "allow",
       "docker *": "allow",
       "docker-compose *": "allow",
@@ -49,13 +48,24 @@
       "fd *": "allow",
       "jq *": "allow",
       "yq *": "allow",
-      "tree *": "allow"
+      "tree *": "allow",
+      "curl *": "allow",
+      "wget *": "allow",
+      "nix *": "allow"
     },
+    "read": "allow",
     "edit": "allow",
     "glob": "allow",
     "grep": "allow",
+    "list": "allow",
+    "skill": "allow",
     "todoread": "allow",
     "todowrite": "allow",
-    "skill": "allow"
+    "task": "allow",
+    "question": "allow",
+    "webfetch": "allow",
+    "websearch": "allow",
+    "lsp": "allow",
+    "codesearch": "allow"
   }
 }

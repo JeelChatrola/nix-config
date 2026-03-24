@@ -19,6 +19,18 @@ let
     { name = "setup-project.md"; }
   ];
 
+  opencodeAgentFiles = [
+    "ask.md"
+    "debug.md"
+    "docs.md"
+  ];
+
+  claudeAgentFiles = [
+    "ask.md"
+    "debug.md"
+    "docs.md"
+  ];
+
   # One source of truth for commands, deployed to both agents
   commandDeployment = builtins.listToAttrs (
     builtins.concatMap (cmd: [
@@ -32,6 +44,20 @@ let
       }
     ]) commandFiles
   );
+
+  opencodeAgentDeployment = builtins.listToAttrs (
+    map (f: {
+      name = ".config/opencode/agents/${f}";
+      value = { source = ../../ai-stack/agents/opencode/${f}; };
+    }) opencodeAgentFiles
+  );
+
+  claudeAgentDeployment = builtins.listToAttrs (
+    map (f: {
+      name = ".claude/agents/${f}";
+      value = { source = ../../ai-stack/agents/claude/${f}; };
+    }) claudeAgentFiles
+  );
 in
 {
   home.packages = [
@@ -39,7 +65,7 @@ in
     opencodeWrapper
   ];
 
-  home.file = commandDeployment // {
+  home.file = commandDeployment // opencodeAgentDeployment // claudeAgentDeployment // {
     # Claude Code: MCP + permissions
     ".config/claude/settings.json".source = ../../ai-stack/mcp/claude-settings.json;
 

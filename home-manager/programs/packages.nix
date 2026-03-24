@@ -4,6 +4,7 @@
 {
   config,
   pkgs,
+  pkgsUnstable,
   ...
 }: {
   home.packages = with pkgs; [    
@@ -27,6 +28,11 @@
     lf                # Terminal file manager (fast, simple, vi-like)
     gping             # Ping with a graph (visual network latency)
     
+    # =============================================================================
+    # AI / LLM TOOLS
+    # =============================================================================
+    pkgsUnstable.llmfit  # Right-size LLM models (from newer nixpkgs; fit, recommend, download)
+
     # =============================================================================
     # PRODUCTIVITY & KNOWLEDGE TOOLS
     # =============================================================================
@@ -58,6 +64,7 @@
     # GIT TOOLS
     # =============================================================================
     lazygit           # TUI for Git operations (commits, branches, rebasing)
+    gh                # GitHub CLI (PRs, issues, `gh auth login`)
 
     # =============================================================================
     # C/C++ DEVELOPMENT

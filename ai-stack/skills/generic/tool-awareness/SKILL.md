@@ -44,6 +44,7 @@ Use them directly instead of writing scripts that replicate their functionality.
 
 ## Git & Collaboration
 - `git` + `git-lfs` -- version control.
+- `gh` -- GitHub CLI (`gh pr create`, `gh issue`, `gh browse`). Run `gh auth login` once.
 - `lazygit` -- TUI for git operations.
 - `gh` -- GitHub CLI. Create PRs, issues, browse repos.
 

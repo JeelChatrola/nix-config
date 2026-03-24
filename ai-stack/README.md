@@ -1,114 +1,75 @@
-# AI Stack
+# AI stack
 
-Local LLM services in Docker, AI coding agents on the host via Home Manager.
+Docker runs **Ollama**, **LobeChat**, and **SearXNG**. Home Manager (`./deploy.sh --ai`) installs **claude** and **opencode**, copies MCP/agents/commands from `ai-stack/` into `~/.config/` and `~/.claude/`.
 
-## Services
+## Install
 
-| Service | URL | Purpose |
-|---|---|---|
-| **ollama** | http://localhost:11434 | Local LLM runner (GPU) |
-| **lobechat** | http://localhost:3210 | Chat UI with search |
-| **searxng** | internal | Search backend for Lobe |
+1. **Docker:** `sudo systemctl enable --now docker` and add your user to the `docker` group, then **log out and back in** (or new login session) so `docker compose` works without sudo.
+2. **GPU (optional):** For NVIDIA in Docker, install the [NVIDIA Container Toolkit](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html) and restart Docker. Without it, Ollama may still run on CPU.
+3. **Deploy:** From the repo root: `./deploy.sh --ai`  
+   - Needs **network** (npx / uv optional installers).  
+   - Nix only includes **git-tracked** files in the flake—new files under `ai-stack/` must be committed or `home-manager` will fail to find them.
+4. **Shell:** `exec zsh` (or open a new terminal) so `claude`, `opencode`, and `ai-up` are on `PATH`.
+5. **Model:** `ollama-pull <name>` (or pull from LobeChat). Use a **tool-calling** coder model (e.g. `qwen2.5-coder`, `qwen3-coder`); tiny chat models often never invoke tools.
 
-## Setup
+**After changing** `ai-stack/mcp/*` or agents: `./deploy.sh` or `home-manager switch`, then **restart** Claude Code / OpenCode.
 
-```bash
-# Docker daemon
-sudo systemctl enable --now docker
-sudo usermod -aG docker $USER
+## API keys (optional)
 
-# NVIDIA Container Toolkit (Ubuntu/Debian)
-curl -fsSL https://nvidia.github.io/libnvidia-container/gpgkey | sudo gpg --dearmor -o /usr/share/keyrings/nvidia-container-toolkit-keyring.gpg
-curl -s -L https://nvidia.github.io/libnvidia-container/stable/deb/nvidia-container-toolkit.list | \
-  sed 's#deb https://#deb [signed-by=/usr/share/keyrings/nvidia-container-toolkit-keyring.gpg] https://#g' | \
-  sudo tee /etc/apt/sources.list.d/nvidia-container-toolkit.list
-sudo apt-get update && sudo apt-get install -y nvidia-container-toolkit
-sudo nvidia-ctk runtime configure --runtime=docker && sudo systemctl restart docker
+Nothing is required for **local Ollama only**. Add keys only for the features below.
 
-# Deploy
-./deploy.sh --ai
-```
+| Credential | For | Where to set |
+|------------|-----|----------------|
+| **`ANTHROPIC_API_KEY`** | Claude Code talking to **Anthropic’s API** instead of local Ollama | Your shell (e.g. Nix `home.sessionVariables`, direnv). This repo’s `ai-stack/mcp/claude-settings.json` sets `ANTHROPIC_BASE_URL` / `ANTHROPIC_AUTH_TOKEN` for Ollama; for cloud you must **override** those (e.g. `~/.config/claude/settings.local.json` merging `env`, or edit the source JSON in git) so traffic goes to Anthropic. See [Claude Code environment](https://code.claude.com/docs). |
+| **Provider keys** (e.g. **`OPENAI_API_KEY`**, **`ANTHROPIC_API_KEY`**) | **OpenCode** cloud models | OpenCode `/connect` or provider setup; export in shell if the app reads env. `opencode.json` here only configures **Ollama**; add providers per [OpenCode config](https://opencode.ai/docs/config). |
+| **`OPENAI_API_KEY`**, **`ANTHROPIC_API_KEY`**, etc. | **LobeChat** web UI with hosted models | `ai-stack/.env` (copy from `.env.example`), then `docker compose … up -d` again; finish provider setup in the Lobe UI if needed. |
+| **`BRAVE_API_KEY`** | **brave-search** MCP (web search) | [Brave Search API](https://brave.com/search/api/) — export in the **same environment** that launches `claude` / `opencode` (MCP is stdio on the host). |
+| **`HF_TOKEN`** | **Gated** Hugging Face models pulled into Ollama | `ai-stack/.env` (passed into the `ollama` service). |
+| **`ALPHAXIV_API_KEY`** | **alphaxiv** skill (optional assistant features) | Shell env; see `skills/learning/alphaxiv/SKILL.md`. |
 
-## Usage
+**No keys:** `memory`, `sequential-thinking`, `arxiv`, `code-review-graph` MCP servers as configured in this repo (arxiv/code-review-graph need `uv tool install` from `install-optional-agents.sh`, already run by `./deploy.sh --ai`).
 
-```bash
-ai-up                              # start services
-ai-down                            # stop
-ollama-pull qwen2.5-coder:14b      # pull a model
-opencode                           # recommended CLI agent
-claude                             # if using Anthropic cloud API
-```
+## Day-to-day
 
-LobeChat: http://localhost:3210
+| Action | Command / URL |
+|--------|----------------|
+| Start / stop stack | `ai-up` / `ai-down` (or `docker compose -f ai-stack/docker-compose.yml …`) |
+| CLI agents | `opencode`, `claude` |
+| Chat UI | http://localhost:3210 |
+| Ollama API | http://localhost:11434 |
 
-## MCP
+OpenCode: **Tab** = primary agents (Build, Plan, ask, debug). **`@docs`** = docs subagent.  
+Claude Code: natural language or `/agents` for **ask** / **debug** / **docs**.
 
-Only servers that add capabilities beyond built-in agent tools:
+## If something breaks
 
-| Server | Purpose |
-|---|---|
-| **memory** | Persistent knowledge graph across sessions |
-| **brave-search** | Web search (`BRAVE_API_KEY` required) |
-| **sequential-thinking** | Multi-step reasoning |
+- **Agent ignores tools:** Model likely not tool-capable; try another Ollama tag or a cloud model in OpenCode to confirm the stack.
+- **Brave search errors:** Set `BRAVE_API_KEY` or ignore that MCP server.
+- **MCP changes not visible:** Redeploy + fully quit and restart the agent.
 
-## Commands
+## Reference
 
-Single set of commands, deployed to both `~/.claude/commands/` and
-`~/.config/opencode/commands/` by Home Manager. Source in `commands/`.
+**Configs in git:** `ai-stack/mcp/` → `~/.config/claude/settings.json`, `~/.config/opencode/mcp.toml`, `~/.config/opencode/opencode.json`. Keep Claude and OpenCode MCP lists aligned when you add a server.
 
-| Command | Purpose |
-|---|---|
-| `/commit` | Conventional commit, optionally push/PR |
-| `/review` | Review changes for bugs, security, style |
-| `/setup-project` | Detect project type, install skills |
+**Commands:** `ai-stack/commands/` → `~/.claude/commands/` and `~/.config/opencode/commands/`.
 
-## Skills
+**Agents:** `ai-stack/agents/claude/` and `agents/opencode/` (same roles; format differs per product).
 
-18 skills organized by category. Installed to `.cursor/skills/`
-(read by Cursor, OpenCode, and Claude Code).
+**Skills:** Install into a repo with  
+`python3 ~/nix-config/ai-stack/scripts/install-skill.py install <name> .`  
+or use `/setup-project`. Categories under `skills/{generic,programming,learning,robotics}/`.
 
-```
-skills/
-  generic/          tool-awareness, security-review, repo-documenter, skill-selector
-  programming/      python-standards, cpp-standards
-  learning/         learning-mode, doc-awareness
-  robotics/         ros2, ros1, robot-perception, robotics-testing, ... (submodule)
-```
+**Optional installers:** `./deploy.sh --ai` runs `scripts/install-optional-agents.sh --all` (GSD, `code-review-graph`, `arxiv` CLI). Run that script alone with `--gsd` / `--code-review-graph` / `--arxiv` if you deploy without `--ai`.
 
-Robotics skills from [arpitg1304/robotics-agent-skills](https://github.com/arpitg1304/robotics-agent-skills) (git submodule).
-
-### Install
-
-```bash
-python3 ~/nix-config/ai-stack/scripts/install-skill.py list
-python3 ~/nix-config/ai-stack/scripts/install-skill.py install python-standards .
-python3 ~/nix-config/ai-stack/scripts/install-skill.py install ros2 .
-python3 ~/nix-config/ai-stack/scripts/install-skill.py agents-md .
-```
-
-Or run `/setup-project` in Claude Code or OpenCode.
-
-## Formatters
-
-**OpenCode**: Built-in ruff + clang-format (auto-detects from project config).
-
-**Claude Code**: Per-repo hooks:
-```bash
-python3 ~/nix-config/ai-stack/scripts/install-skill.py hooks python .
-```
-
-## File Structure
+**Formatters:** OpenCode bundles ruff/clang-format. Claude Code: `install-skill.py hooks python .` in a project.
 
 ```
 ai-stack/
-  commands/             Unified commands (deployed to both agents)
-  mcp/                  MCP + permissions configs
-  scripts/              install-skill.py
+  agents/           claude/ + opencode/
+  commands/
+  mcp/
+  scripts/
   skills/
-    generic/            Always-useful skills
-    programming/        Language-specific standards
-    learning/           Teaching and doc-awareness
-    robotics/           Submodule: robotics-agent-skills
-  templates/            AGENTS.md, CLAUDE.md, claude-hooks/
-  docker-compose.yml    Ollama + LobeChat + SearXNG
+  templates/
+  docker-compose.yml
 ```
