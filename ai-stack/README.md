@@ -10,27 +10,9 @@ Docker runs **Ollama**, **LobeChat**, and **SearXNG**. Home Manager (`./deploy.s
    - Needs **network** (npx / uv optional installers).  
    - Nix only includes **git-tracked** files in the flake—new files under `ai-stack/` must be committed or `home-manager` will fail to find them.
 4. **Shell:** `exec zsh` (or open a new terminal) so `claude`, `opencode`, and `ai-up` are on `PATH`.
-5. **Models:** Pull manually, from LobeChat, or use **`scripts/pull-models.sh`** with a YAML list (see below). Use **tool-calling** coder weights for agents (e.g. `qwen3-coder`); tiny chat-only models often never invoke tools.
+5. **Models:** Install per machine (not scripted in this repo). With Docker Ollama, use **`ollama-pull <tag>`** / **`ai-ollama …`** from your zsh aliases (host CLI optional), **`docker exec ollama ollama pull …`**, or the Lobe UI. Point OpenCode / Claude at tags that exist in **`ollama list`**. Prefer **tool-calling** coder models for agents; small chat-only weights often skip tools.
 
 **After changing** `ai-stack/mcp/*` or agents: `./deploy.sh` or `home-manager switch`, then **restart** Claude Code / OpenCode.
-
-## Pull models from YAML
-
-1. Copy `ai-stack/config/models.example.yaml` → `ai-stack/config/models.yaml` (the latter is gitignored).
-2. Edit `models:` — each entry has `source`, `id`, and fields below.
-3. Run from repo root or anywhere:
-
-```bash
-bash ai-stack/scripts/pull-models.sh
-# or: MODEL_CONFIG=/path/to/custom.yaml bash ai-stack/scripts/pull-models.sh
-# or: bash ai-stack/scripts/pull-models.sh --dry-run
-```
-
-**`source: ollama`** — `pull:` is passed to `ollama pull` (library tag or `hf.co/user/repo` if your Ollama supports it). Optional **`skip_if_present: true`** skips when `ollama list` already shows that name.
-
-**`source: huggingface`** — default **`provider: llmfit`**: `repo:` is `user/GGUF-repo`, optional **`quant:`** (e.g. `Q4_K_M`); runs `llmfit download` (GGUF for llama.cpp — register in Ollama yourself via a Modelfile if needed). With **`provider: ollama`**, builds `hf.co/<repo>[:quant]` and runs `ollama pull`.
-
-Needs **`yq`** and **`jq`** (Home Manager). For Docker Ollama, install the **`ollama`** CLI on the host and **`export OLLAMA_HOST=http://127.0.0.1:11434`**. Set **`HF_TOKEN`** when pulling gated HF content.
 
 ## API keys (optional)
 
@@ -55,7 +37,6 @@ Nothing is required for **local Ollama only**. Add keys only for the features be
 | CLI agents | `opencode`, `claude` |
 | Chat UI | http://localhost:3210 |
 | Ollama API | http://localhost:11434 |
-| Batch-pull models | `bash ai-stack/scripts/pull-models.sh` (YAML: `config/models.yaml`) |
 
 OpenCode: **Tab** = primary agents (Build, Plan, ask, debug). **`@docs`** = docs subagent.  
 Claude Code: natural language or `/agents` for **ask** / **debug** / **docs**.
@@ -86,9 +67,8 @@ or use `/setup-project`. Categories under `skills/{generic,programming,learning,
 ai-stack/
   agents/
   commands/
-  config/           models.example.yaml → copy to models.yaml (gitignored)
   mcp/
-  scripts/          pull-models.sh, install-optional-agents.sh, install-skill.py
+  scripts/          install-optional-agents.sh, install-skill.py
   skills/
   templates/
   docker-compose.yml
