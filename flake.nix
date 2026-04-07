@@ -26,14 +26,23 @@
     homeConfigurations = {
       jeel = home-manager.lib.homeManagerConfiguration {
         inherit pkgs;
-        extraSpecialArgs = { enableAI = false; pkgsUnstable = pkgsUnstable; };
+        extraSpecialArgs = {
+          enableAI = false;
+          pkgsUnstable = pkgsUnstable;
+          # If this flake lives outside ~/nix-config, set e.g. aiConfigRoot = "/path/to/nix-config";
+          aiConfigRoot = null;
+        };
         modules = [
           ./home-manager/home.nix
         ];
       };
       jeel-ai = home-manager.lib.homeManagerConfiguration {
         inherit pkgs;
-        extraSpecialArgs = { enableAI = true; pkgsUnstable = pkgsUnstable; };
+        extraSpecialArgs = {
+          enableAI = true;
+          pkgsUnstable = pkgsUnstable;
+          aiConfigRoot = null;
+        };
         modules = [
           ./home-manager/home.nix
         ];

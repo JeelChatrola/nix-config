@@ -62,7 +62,8 @@ alias ssh='ssh -o ServerAliveInterval=60'
 # =============================================================================
 # AI STACK
 # =============================================================================
-AI_STACK_DIR="$HOME/nix-config/ai-stack"
+# Set by home-manager (~/nix-config/ai-stack by default; change aiConfigRoot in flake.nix if cloned elsewhere).
+: "${AI_STACK_DIR:=$HOME/nix-config/ai-stack}"
 
 # docker compose needs models.compose.env for vLLM variable substitution (even when
 # not using the vllm profile). Generated from stack-models.json by apply-stack-models.sh.

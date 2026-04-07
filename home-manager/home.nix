@@ -1,8 +1,14 @@
 # Main home-manager configuration
 # This file imports all program configurations and sets up the environment
 
-{ config, pkgs, lib, enableAI ? false, ... }:
+{ config, pkgs, lib, enableAI ? false, aiConfigRoot ? null, ... }:
 
+let
+  # Mutable checkout: default ~/nix-config (matches historical zsh-aliases). Override aiConfigRoot in flake extraSpecialArgs if needed.
+  nixConfigRepo =
+    if aiConfigRoot != null then aiConfigRoot else config.home.homeDirectory + "/nix-config";
+  aiStackDir = nixConfigRepo + "/ai-stack";
+in
 {
   # =============================================================================
   # BASIC CONFIGURATION
@@ -27,6 +33,8 @@
     EDITOR = "nvim";
     BROWSER = "firefox";
     SHELL = "zsh";
+    # ai-up / ai-proj / deploy.sh expect this repo’s ai-stack/; set from flake path at switch time.
+    AI_STACK_DIR = aiStackDir;
   };
   
   # =============================================================================
