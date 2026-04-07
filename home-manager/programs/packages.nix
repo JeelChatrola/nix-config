@@ -31,7 +31,8 @@
     # =============================================================================
     # AI / LLM TOOLS
     # =============================================================================
-    pkgsUnstable.llmfit  # Right-size LLM models (from newer nixpkgs; fit, recommend, download)
+    # 0.9.2 via flake overlays/llmfit.nix until nixpkgs-unstable ships it
+    pkgsUnstable.llmfit
 
     # =============================================================================
     # PRODUCTIVITY & KNOWLEDGE TOOLS

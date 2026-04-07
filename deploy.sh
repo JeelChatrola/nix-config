@@ -23,6 +23,12 @@ for arg in "$@"; do
   esac
 done
 
+if $WITH_AI; then
+  echo "Applying stack-models.json → models.compose.env + OpenCode vLLM picker (before home-manager)..."
+  bash ai-stack/scripts/apply-stack-models.sh
+  echo ""
+fi
+
 echo "Building home-manager configuration ($FLAKE_TARGET)..."
 nix run nixpkgs#home-manager -- switch --flake ".#${FLAKE_TARGET}" --impure
 
@@ -32,7 +38,10 @@ if $WITH_AI; then
   bash ai-stack/scripts/install-optional-agents.sh --code-review-graph --arxiv --searxng-mcp
   echo ""
   echo "Starting AI stack (Ollama, LobeChat, SearXNG)..."
-  docker compose -f ai-stack/docker-compose.yml up -d
+  docker compose --env-file ai-stack/models.compose.env -f ai-stack/docker-compose.yml up -d
+  echo ""
+  echo "Pulling Ollama models from stack-models.json (if any)..."
+  bash ai-stack/scripts/apply-stack-models.sh
   echo ""
   echo "Syncing OpenCode Ollama model list from ${OLLAMA_HOST:-http://127.0.0.1:11434}..."
   _opencode_json_hash_before=$(sha256sum ai-stack/mcp/opencode.json | awk '{print $1}')
@@ -48,7 +57,8 @@ if $WITH_AI; then
   echo "  LobeChat: http://localhost:3210"
   echo "  SearXNG:  http://localhost:${SEARXNG_PORT:-8080}  (MCP web search)"
   echo ""
-  echo "Pull a model:  ollama-pull llama3.2"
+  echo "Models:        edit ai-stack/stack-models.json; ollama.pull[] and vllm.model"
+  echo "Pull ad-hoc:   ollama-pull <tag>"
   echo "CLI agents:    claude, opencode"
 fi
 

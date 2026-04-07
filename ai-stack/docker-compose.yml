@@ -3,9 +3,11 @@ services:
   # ---------------------------------------------------------------------------
   # Ollama - Local LLM runner
   # Access: http://localhost:11434
+  # Bump image tag when pulls return 412 (newer Ollama required); then:
+  #   docker compose -f ai-stack/docker-compose.yml pull ollama && docker compose -f ai-stack/docker-compose.yml up -d ollama
   # ---------------------------------------------------------------------------
   ollama:
-    image: ollama/ollama:latest
+    image: ollama/ollama:0.20.2
     container_name: ollama
     restart: unless-stopped
     ports:
@@ -57,5 +59,50 @@ services:
       - path: .env
         required: false
 
+  # ---------------------------------------------------------------------------
+  # vLLM — OpenAI-compatible API for Hugging Face model ids (optional profile)
+  # API: http://localhost:${VLLM_PORT:-8000}/v1  (start with: ai-up-vllm)
+  # ---------------------------------------------------------------------------
+  # vLLM image/ports/command use variables from models.compose.env — pass
+  #   docker compose --env-file models.compose.env
+  # (see zsh aliases ai-up / ai-up-vllm and apply-stack-models.sh).
+  vllm:
+    profiles:
+      - vllm
+    image: vllm/vllm-openai:${VLLM_IMAGE_TAG}
+    container_name: vllm-openai
+    ipc: host
+    shm_size: "4gb"
+    restart: unless-stopped
+    env_file:
+      - path: .env
+        required: false
+    ports:
+      - "${VLLM_PORT}:8000"
+    volumes:
+      - vllm-hf-cache:/root/.cache/huggingface
+    environment:
+      HUGGING_FACE_HUB_TOKEN: ${HF_TOKEN:-}
+      HF_TOKEN: ${HF_TOKEN:-}
+    command:
+      - --model
+      - ${VLLM_MODEL}
+      - --host
+      - "0.0.0.0"
+      - --port
+      - "8000"
+      - --max-model-len
+      - ${VLLM_MAX_MODEL_LEN}
+      - --gpu-memory-utilization
+      - ${VLLM_GPU_MEMORY_UTILIZATION}
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+
 volumes:
   ollama-models:
+  vllm-hf-cache:

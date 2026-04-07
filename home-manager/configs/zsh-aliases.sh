@@ -64,13 +64,28 @@ alias ssh='ssh -o ServerAliveInterval=60'
 # =============================================================================
 AI_STACK_DIR="$HOME/nix-config/ai-stack"
 
-# Stack lifecycle
-alias ai-up='docker compose -f "$AI_STACK_DIR/docker-compose.yml" up -d'
-alias ai-down='docker compose -f "$AI_STACK_DIR/docker-compose.yml" down'
-alias ai-restart='docker compose -f "$AI_STACK_DIR/docker-compose.yml" restart'
-alias ai-logs='docker compose -f "$AI_STACK_DIR/docker-compose.yml" logs -f'
-alias ai-ps='docker compose -f "$AI_STACK_DIR/docker-compose.yml" ps'
-alias ai-pull='docker compose -f "$AI_STACK_DIR/docker-compose.yml" pull'
+# docker compose needs models.compose.env for vLLM variable substitution (even when
+# not using the vllm profile). Generated from stack-models.json by apply-stack-models.sh.
+_ai_compose() {
+  docker compose --env-file "$AI_STACK_DIR/models.compose.env" -f "$AI_STACK_DIR/docker-compose.yml" "$@"
+}
+
+ai-up() {
+  bash "$AI_STACK_DIR/scripts/apply-stack-models.sh"
+  _ai_compose up -d
+}
+
+# Include profile vllm so the vLLM OpenAI server starts (HF models on :8000/v1)
+ai-up-vllm() {
+  bash "$AI_STACK_DIR/scripts/apply-stack-models.sh"
+  _ai_compose --profile vllm up -d
+}
+
+ai-down() { _ai_compose down; }
+ai-restart() { _ai_compose restart; }
+ai-logs() { _ai_compose logs -f; }
+ai-ps() { _ai_compose ps; }
+ai-pull() { _ai_compose pull; }
 
 # Run the Ollama CLI inside the stack container from the host.
 # -it only in a real terminal; piping (e.g. ollama-list | grep) must not use -t.

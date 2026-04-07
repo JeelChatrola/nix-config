@@ -18,7 +18,10 @@
     # system = "aarch64-linux"; If you are running on ARM powered computer
     system = "x86_64-linux";
     pkgs = nixpkgs.legacyPackages.${system};
-    pkgsUnstable = nixpkgs-unstable.legacyPackages.${system};
+    pkgsUnstable = import nixpkgs-unstable {
+      inherit system;
+      overlays = [ (import ./overlays/llmfit.nix) ];
+    };
   in {
     homeConfigurations = {
       jeel = home-manager.lib.homeManagerConfiguration {
