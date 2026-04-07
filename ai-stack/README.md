@@ -1,15 +1,15 @@
 # AI stack
 
-Docker runs **Ollama**, **LobeChat**, and **SearXNG**, with an **optional** **vLLM** service (Compose profile `vllm`, OpenAI-compatible API on port 8000). Home Manager (`./deploy.sh --ai`) installs **claude** and **opencode**, copies MCP/agents/commands from `ai-stack/` into `~/.config/` and `~/.claude/`.
+**Two layers:** (1) **Nix / home-manager** (`jeel-ai`): **claude**, **opencode**, MCP JSON, skills, agents — no Docker required. (2) **Docker compose**: **Ollama**, **LobeChat**, **SearXNG**, and an **optional** **vLLM** profile (OpenAI-compatible API on port 8000). Use **`AI_STACK_DOCKER=0`** in **`ai-stack/.env`** or **`./deploy.sh --ai --no-docker`** to deploy (1) only; run **`ai-up`** when you want the containers. Add more compose services in **`docker-compose.yml`** as needed; the same on/off switch applies to the whole stack from deploy.
 
 ## Install
 
 1. **Docker:** `sudo systemctl enable --now docker` and add your user to the `docker` group, then **log out and back in** (or new login session) so `docker compose` works without sudo.
 2. **GPU (optional):** For NVIDIA in Docker, install the [NVIDIA Container Toolkit](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html) and restart Docker. Without it, Ollama may still run on CPU.
-3. **Deploy:** From the repo root: `./deploy.sh --ai`  
+3. **Deploy:** From the repo root: `./deploy.sh --ai` (optional **`--no-docker`** or **`AI_STACK_DOCKER=0`** in **`ai-stack/.env`** to skip compose).  
    - Needs **network** (npx / uv optional installers).  
    - Nix only includes **git-tracked** files in the flake—new files under `ai-stack/` must be committed or `home-manager` will fail to find them.  
-   - **`stack-models.json`** is the source of truth for **which Ollama tags to pull** (`ollama.pull[]`) and **which Hugging Face id vLLM serves** (`vllm.*`). **`scripts/apply-stack-models.sh`** writes **`models.compose.env`** (for `docker compose --env-file …`) and sets **`provider.vllm.models`** in **`mcp/opencode.json`**. Deploy runs it **before** the first **home-manager** switch and again after Docker is up to run **`ollama pull`** for each listed tag.
+   - **`stack-models.json`** is the source of truth for **which Ollama tags to pull** (`ollama.pull[]`) and **which Hugging Face id vLLM serves** (`vllm.*`). **`scripts/apply-stack-models.sh`** writes **`models.compose.env`** (for `docker compose --env-file …`) and sets **`provider.vllm`** in **`mcp/opencode.json`** — only relevant when you use Docker/vLLM. **`deploy.sh --ai`** runs apply **only when the Docker stack is part of that deploy**; with **`--no-docker`** / **`AI_STACK_DOCKER=0`**, apply is skipped entirely (no spurious **`ollama pull`**, no rewriting **`opencode.json`** for vLLM). **`ai-up`** always runs apply first, so compose stays in sync when you start containers later.
    - After Docker starts Ollama, **`sync-opencode-ollama-models.sh`** rebuilds **`provider.ollama.models`** from **`/api/tags`** (1:1 with `ollama list`; drops pulled-but-removed models; keeps your `name` for tags that remain). It does **not** change **`provider.vllm`**. If the file changes, deploy runs **home-manager** again so `~/.config/opencode/opencode.json` matches. Requires **`jq`** on the host; if Ollama is not up yet, sync is skipped (no error). Manual sync: `bash ai-stack/scripts/sync-opencode-ollama-models.sh`
 4. **Shell:** `exec zsh` (or open a new terminal) so `claude`, `opencode`, and `ai-up` are on `PATH`.
 5. **Models:** Edit **`stack-models.json`**: add Ollama tags to **`ollama.pull`** and set **`vllm.model`** (and optional **`vllm.image_tag`**, **`max_model_len`**, etc.). Run **`bash ai-stack/scripts/apply-stack-models.sh`** or use **`ai-up`** / **`./deploy.sh --ai`** (they run it). Ad-hoc pulls still work: **`ollama-pull <tag>`**. Prefer **tool-calling** coder models for agents; small chat-only weights often skip tools.
@@ -82,7 +82,8 @@ VRAM limits still apply: on a **16 GiB** class GPU, prefer smaller checkpoints, 
 |--------|--------|------|
 | `install-skill.py` | **Per repo** | Skills via **`--to`**. **`--agents`** follows the same **`--to`**, but only **`opencode`** / **`claude`** install agent markdown dirs. Templates and hooks unchanged. |
 | `install-optional-agents.sh` | **User / global** | Third-party CLIs (uv) and GSD via npx into `~/.claude/` and `~/.config/opencode/`. |
-| `apply-stack-models.sh` | **This flake** | Reads **`stack-models.json`** → **`models.compose.env`** + **`provider.vllm.models`** in `opencode.json`; **`ollama pull`** when the **ollama** container is up. |
+| `apply-stack-models.sh` | **This flake** | Reads **`stack-models.json`** → **`models.compose.env`** + **`provider.vllm`** in `opencode.json`; **`ollama pull`** when the **ollama** container is up (skipped if **`SKIP_OLLAMA_PULL=1`** or **`--no-pull`**). **`deploy.sh --ai --no-docker`** skips this script entirely. |
+| `ai-stack-docker-wanted.sh` | **`deploy.sh --ai`** | Exit 0 if Docker compose should start; respects **`AI_STACK_DOCKER`** in **`ai-stack/.env`** and **`--no-docker`**. |
 | `sync-opencode-ollama-models.sh` | **This flake** | Rewrites **`provider.ollama.models`** in `opencode.json` from local Ollama; then redeploy / `home-manager` to refresh `~/.config/opencode/`. |
 
 ### `install-skill.py` (per project)
@@ -130,7 +131,7 @@ Not tied to a project directory. Run from `ai-stack/` or with the path to the sc
 
 ### `apply-stack-models.sh` (nix-config file)
 
-Reads **`ai-stack/stack-models.json`**. Writes **`ai-stack/models.compose.env`** (required for **`docker compose --env-file`**). Patches **`provider.vllm`** model list in **`mcp/opencode.json`**. Runs **`docker exec ollama ollama pull …`** for each **`ollama.pull[]`** entry when the container exists. Run manually after editing **`stack-models.json`**, or rely on **`ai-up`** / **`deploy.sh --ai`**.
+Reads **`ai-stack/stack-models.json`**. Writes **`ai-stack/models.compose.env`** (required for **`docker compose --env-file`**). Patches **`provider.vllm`** model list in **`mcp/opencode.json`**. Runs **`docker exec ollama ollama pull …`** for each **`ollama.pull[]`** when the **ollama** container exists, unless **`--no-pull`** or **`SKIP_OLLAMA_PULL=1`**. Run manually after editing **`stack-models.json`**, or rely on **`ai-up`** / **`deploy.sh --ai`**.
 
 ### `sync-opencode-ollama-models.sh` (nix-config file)
 
@@ -151,7 +152,7 @@ ai-stack/
   agents/
   commands/
   mcp/
-  scripts/          install-skill.py, install-optional-agents.sh, apply-stack-models.sh, sync-opencode-ollama-models.sh
+  scripts/          install-skill.py, install-optional-agents.sh, apply-stack-models.sh, sync-opencode-ollama-models.sh, ai-stack-docker-wanted.sh
   skills/
   templates/        AGENTS.md, CLAUDE.md, claude-hooks/
   stack-models.json   Ollama pull list + vLLM model / runtime (source of truth)

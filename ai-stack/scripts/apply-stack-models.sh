@@ -10,16 +10,21 @@ OUT_ENV="${STACK_DIR}/models.compose.env"
 OPENCODE_JSON="${STACK_DIR}/mcp/opencode.json"
 
 usage() {
-  echo "Usage: apply-stack-models.sh [--help]"
+  echo "Usage: apply-stack-models.sh [--help] [--no-pull]"
   echo "  Reads ${CONFIG_JSON#$REPO_ROOT/}"
   echo "  Writes ${OUT_ENV#$REPO_ROOT/} (VLLM_*, for docker compose)"
   echo "  Updates provider.vllm.models in mcp/opencode.json"
-  echo "  If the ollama container is running, runs ollama pull for each ollama.pull[] entry"
+  echo "  Ollama pull: runs when the ollama container is running, unless --no-pull or SKIP_OLLAMA_PULL=1"
 }
 
+NO_PULL=0
 if [[ "${1:-}" == "-h" || "${1:-}" == "--help" ]]; then
   usage
   exit 0
+fi
+if [[ "${1:-}" == "--no-pull" ]]; then
+  NO_PULL=1
+  shift
 fi
 
 if [[ ! -f "$CONFIG_JSON" ]]; then
@@ -74,7 +79,9 @@ else
   echo "apply-stack-models: set provider.vllm (baseURL $vbase, model \"$vmodel\") in mcp/opencode.json"
 fi
 
-if docker ps --format '{{.Names}}' 2>/dev/null | grep -qx 'ollama'; then
+if [[ "$NO_PULL" == 1 || "${SKIP_OLLAMA_PULL:-0}" == "1" ]]; then
+  echo "apply-stack-models: skipping ollama pull (--no-pull or SKIP_OLLAMA_PULL=1)"
+elif docker ps --format '{{.Names}}' 2>/dev/null | grep -qx 'ollama'; then
   while IFS= read -r tag; do
     [[ -z "$tag" ]] && continue
     echo "apply-stack-models: ollama pull $tag"
