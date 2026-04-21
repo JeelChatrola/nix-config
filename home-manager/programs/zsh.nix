@@ -7,6 +7,25 @@
   programs.zsh = {
     enable = true;
     enableCompletion = true;
+    history = {
+      size = 100000;
+      save = 100000;
+      path = "${config.home.homeDirectory}/.zsh_history";
+      append = true;
+      extended = true;
+      share = false;
+      ignoreDups = true;
+      ignoreAllDups = false;
+      saveNoDups = false;
+      findNoDups = false;
+      ignoreSpace = true;
+      expireDuplicatesFirst = true;
+    };
+    setOptions = lib.mkAfter [
+      "INC_APPEND_HISTORY"
+      "HIST_REDUCE_BLANKS"
+      "HIST_VERIFY"
+    ];
     # NOTE: autosuggestions and syntax-highlighting must load AFTER fzf-tab
     # So we disable the built-in options and load them manually via plugins
     autosuggestion.enable = false;
@@ -71,12 +90,6 @@
         fi
         setopt CORRECT
         setopt CORRECT_ALL
-        setopt HIST_EXPIRE_DUPS_FIRST
-        setopt HIST_IGNORE_DUPS
-        setopt HIST_IGNORE_SPACE
-        setopt HIST_VERIFY
-        setopt SHARE_HISTORY
-
         # Gruvbox colors for zsh-syntax-highlighting
         # Declare associative array before assignments: initContent runs before the plugin is sourced.
         typeset -gA ZSH_HIGHLIGHT_STYLES
@@ -107,6 +120,56 @@
           :
         else
           [[ -r ~/.p10k.zsh ]] && source ~/.p10k.zsh
+        fi
+
+        # Force Ctrl+R widget options explicitly. In some HM/fzf setups the
+        # dedicated historyWidgetOptions don't reliably surface in live zsh.
+        export FZF_CTRL_R_OPTS="--height=80% --layout=reverse --border=rounded --bind 'ctrl-r:toggle-sort' --header 'Ctrl-R: toggle sort'"
+
+        # Replace fzf's default history widget:
+        # - keep history storage intact, but show only the newest copy of each
+        #   exact command in the Ctrl+R picker so repeated commands do not spam
+        # - display only command text so line numbers never clutter the list
+        # - flatten embedded newlines so pasted multi-line commands stay readable
+        if (( $+functions[__fzfcmd] && $+functions[__fzf_defaults] )); then
+          fzf-history-widget() {
+            local selected num entry
+            local -a entries
+            local -A seen
+            setopt localoptions pipefail no_aliases noglobsubst noposixbuiltins
+
+            for num in ''${(Onk)history}; do
+              entry=$history[$num]
+              if [[ -n ''${seen[$entry]-} ]]; then
+                continue
+              fi
+              seen[$entry]=1
+              entry=''${entry//$'\n'/' <NL> '}
+              entry=''${entry//$'\t'/'    '}
+              entries+=("$num"$'\t'"$entry")
+            done
+
+            selected="$(
+              print -r -l -- ''${entries[@]} |
+                FZF_DEFAULT_OPTS=$(__fzf_defaults "" "--delimiter=$'\t' --with-nth=2.. --scheme=history --highlight-line ''${FZF_CTRL_R_OPTS-} --query=''${(qqq)LBUFFER} +m") \
+                FZF_DEFAULT_OPTS_FILE= $(__fzfcmd)
+            )"
+            local ret=$?
+
+            if [[ -n "$selected" && "$selected" =~ ^[0-9]+ ]]; then
+              zle vi-fetch-history -n $MATCH
+            fi
+
+            zle reset-prompt
+            return $ret
+          }
+          zle -N fzf-history-widget
+        fi
+
+        # Force Ctrl+R to use fzf's history widget, in case any plugin
+        # (oh-my-zsh, syntax-highlighting, etc.) rebound it after fzf loaded.
+        if (( $+functions[fzf-history-widget] )); then
+          bindkey '^R' fzf-history-widget
         fi
       '')
     ];

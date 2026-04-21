@@ -22,7 +22,7 @@
     fzf               # Fuzzy finder for command-line
     jq                # JSON processor and query tool
     yq-go             # YAML processor (like jq but for YAML)
-    neofetch          # System information display tool
+    fastfetch         # System information display tool
     rsync             # Remote file synchronization
     rclone            # Cloud storage management (sync, copy, mount cloud storage)
     lf                # Terminal file manager (fast, simple, vi-like)
