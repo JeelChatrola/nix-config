@@ -15,6 +15,7 @@ in
   # =============================================================================
   home.username = "jeel";
   home.homeDirectory = "/home/jeel";
+  # Pin stateVersion; only bump when you intend to migrate Home Manager state (see home-manager release notes).
   home.stateVersion = "23.05";
   
   # Enable home-manager
