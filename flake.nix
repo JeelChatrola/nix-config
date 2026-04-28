@@ -3,35 +3,33 @@
 
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixpkgs-unstable";
-    nixpkgs-unstable.url = "github:nixos/nixpkgs/nixpkgs-unstable";
     home-manager = {
       url = "github:nix-community/home-manager";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    aiStack = {
+      url = "path:./ai-stack";
+      flake = false;
+    };
   };
 
   outputs =
-    {
-      nixpkgs,
-      nixpkgs-unstable,
-      home-manager,
-      ...
-    }:
+    { nixpkgs, home-manager, aiStack, ... }:
     let
       # system = "aarch64-linux"; If you are running on ARM powered computer
       system = "x86_64-linux";
-      pkgs = nixpkgs.legacyPackages.${system};
-      pkgsUnstable = import nixpkgs-unstable {
+      # Single nixpkgs pin with overlays (llmfit, etc.). pkgsUnstable in modules is the same set.
+      pkgs = import nixpkgs {
         inherit system;
         overlays = import ./overlays/default.nix;
       };
       lib = nixpkgs.lib;
 
       mkHome = import ./home-manager/lib/mkHome.nix {
-        inherit home-manager pkgs pkgsUnstable;
+        inherit home-manager pkgs aiStack;
+        pkgsUnstable = pkgs;
       };
 
-      # One attrset entry per login name → Linux `$HOME` owner for home-manager.
       users = {
         jeel = import ./home-manager/users/jeel.nix;
       };

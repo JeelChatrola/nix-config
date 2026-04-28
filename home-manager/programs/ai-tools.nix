@@ -1,7 +1,7 @@
-{ pkgs, lib, ... }:
+{ pkgs, lib, aiStackSrc, ... }:
 
 let
-  aiRoot = ../../ai-stack;
+  aiRoot = aiStackSrc;
 
   mdFiles = dir:
     lib.sort lib.lessThan (

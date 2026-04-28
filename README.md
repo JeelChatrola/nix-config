@@ -35,7 +35,7 @@ This Nix approach:
 Source files (you edit these):
 
 - This repository: configuration source
-- `flake.nix`: Nix flake definition and home-manager outputs
+- `flake.nix`: Flake inputs (`nixpkgs`, `home-manager`) and locked path input `aiStack` pointing at `./ai-stack` so AI-related home.files track that tree reproducibly. To move `ai-stack/` to its own repository later, change the `aiStack` input to e.g. `github:owner/ai-stack` and run `nix flake update`.
 - `home-manager/home.nix`: Main config importing all modules
 - `home-manager/programs/*.nix`: Tool configurations
 - `home-manager/configs/*`: Raw config files (tmux, zsh aliases, etc.)
