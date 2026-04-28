@@ -8,23 +8,14 @@
         "baseURL": "http://localhost:11434/v1"
       },
       "models": {
-        "qwen3.5:35b": {
-          "name": "qwen3.5:35b"
+        "qwen3.6:35b": {
+          "name": "Qwen 3.6 35B"
         },
         "gemma4:31b": {
-          "name": "gemma4:31b"
+          "name": "Gemma 4 31B"
         },
         "nemotron-cascade-2:latest": {
-          "name": "nemotron-cascade-2:latest"
-        },
-        "qwen3.5:35b-a3b-q4_K_M": {
-          "name": "qwen3.5:35b-a3b-q4_K_M"
-        },
-        "hf.co/Qwen/Qwen3-14B-GGUF:Q5_K_M": {
-          "name": "hf.co/Qwen/Qwen3-14B-GGUF:Q5_K_M"
-        },
-        "qwen3-coder:30b-a3b-q4_K_M": {
-          "name": "Qwen3 Coder 30B-A3B — best coder, 578 tok/s, 262k ctx"
+          "name": "Nemotron Cascade 2 (latest)"
         }
       }
     },
@@ -37,7 +28,7 @@
       },
       "models": {
         "Qwen/Qwen2.5-3B-Instruct": {
-          "name": "Qwen/Qwen2.5-3B-Instruct (vLLM)"
+          "name": "Qwen2.5 3B Instruct (vLLM)"
         }
       }
     }
