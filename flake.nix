@@ -20,7 +20,7 @@
     pkgs = nixpkgs.legacyPackages.${system};
     pkgsUnstable = import nixpkgs-unstable {
       inherit system;
-      overlays = [ (import ./overlays/llmfit.nix) ];
+      overlays = import ./overlays/default.nix;
     };
   in {
     homeConfigurations = {
