@@ -1,7 +1,7 @@
 # Main home-manager configuration
 # This file imports all program configurations and sets up the environment
 
-{ config, pkgs, lib, enableAI ? false, aiConfigRoot ? null, ... }:
+{ config, pkgs, lib, enableAI ? false, aiConfigRoot ? null, userProfile, ... }:
 
 let
   # Mutable checkout: default ~/nix-config (matches historical zsh-aliases). Override aiConfigRoot in flake extraSpecialArgs if needed.
@@ -13,8 +13,8 @@ in
   # =============================================================================
   # BASIC CONFIGURATION
   # =============================================================================
-  home.username = "jeel";
-  home.homeDirectory = "/home/jeel";
+  home.username = userProfile.username;
+  home.homeDirectory = userProfile.homeDirectory;
   # Pin stateVersion; only bump when you intend to migrate Home Manager state (see home-manager release notes).
   home.stateVersion = "23.05";
 

@@ -1,13 +1,13 @@
 # Git program configuration
 # This file configures git with custom settings
 
-{ config, pkgs, ... }:
+{ config, pkgs, userProfile, ... }:
 
 {
   programs.git = {
     enable = true;
-    userName = "JeelChatrola";
-    userEmail = "jeelchatrola046@gmail.com"; # Update this with your actual email
+    userName = userProfile.fullName;
+    userEmail = userProfile.email;
     
     # Git configuration as attribute set (not string)
     extraConfig = {

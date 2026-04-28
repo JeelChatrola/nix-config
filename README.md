@@ -108,11 +108,15 @@ nix-config/
    ./deploy.sh
    ```
 
+   Home Manager uses flake outputs named after your Unix login (see `users` in `flake.nix`). By default `./deploy.sh` switches `.#$USER`. Override with `./deploy.sh --user LOGIN` if needed.
+
    Optional **AI stack** (Claude Code, OpenCode, MCP configs, optional Docker for Ollama/Lobe/SearXNG):
 
    ```bash
    ./deploy.sh --ai
    ```
+
+   That selects `.#${USER}-ai` (or `.#${LOGIN}-ai` with `--user LOGIN`).
 
    Skip Docker on that run:
 
