@@ -1,5 +1,6 @@
-# Pin llmfit newer than nixpkgs-unstable until upstream ships >= 0.9.2.
-# Remove this overlay once `pkgs.llmfit.version` from unstable is 0.9.2 or higher.
+# Pin llmfit 0.9.2 from upstream. Many nixpkgs revisions no longer expose pkgs.llmfit,
+# so we define metadata here instead of inheriting prev.llmfit.meta.
+
 final: prev: {
   llmfit = prev.rustPlatform.buildRustPackage (finalAttrs: {
     pname = "llmfit";
@@ -11,10 +12,13 @@ final: prev: {
       hash = "sha256-ZRICjMj3/kdturKAOYdnujMVH35O+Ojq2/eh5pj+ahM=";
     };
     cargoHash = "sha256-Df7MmVReTO+3MvAJ2wyUTgmeFH/ZX/sPfOADllslUy4=";
-    meta =
-      prev.llmfit.meta
-      // {
-        changelog = "https://github.com/AlexsJones/llmfit/releases/tag/v${finalAttrs.version}";
-      };
+    meta = with prev.lib; {
+      description = "LLM fitness / benchmarking CLI";
+      homepage = "https://github.com/AlexsJones/llmfit";
+      changelog = "https://github.com/AlexsJones/llmfit/releases/tag/v${finalAttrs.version}";
+      license = licenses.mit;
+      maintainers = [ ];
+      platforms = platforms.all;
+    };
   });
 }
