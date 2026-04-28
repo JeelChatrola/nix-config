@@ -30,13 +30,13 @@
   "mcpServers": {
     "memory": {
       "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-memory"],
-      "description": "Persistent knowledge graph across sessions"
+      "args": ["-y", "@modelcontextprotocol/server-memory@0.6.3"],
+      "description": "Persistent knowledge graph across sessions (pinned; mutable runtime via npx)"
     },
     "sequential-thinking": {
       "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-sequential-thinking"],
-      "description": "Structured multi-step reasoning tool"
+      "args": ["-y", "@modelcontextprotocol/server-sequential-thinking@0.6.2"],
+      "description": "Structured multi-step reasoning tool (pinned)"
     },
     "searxng": {
       "command": "uv",
@@ -45,19 +45,19 @@
         "run",
         "searxng-mcp-server",
         "--searxng-url",
-        "http://127.0.0.1:8080"
+        "__SEARXNG_URL__"
       ],
-      "description": "Web search + fetch via local SearXNG (docker: SEARXNG_PORT default 8080; uv tool install searxng-mcp-server)"
+      "description": "Web search via local SearXNG; URL from SEARXNG_PORT in ai-stack/.env (render-mcp-templates.sh)"
     },
     "code-review-graph": {
       "command": "uv",
       "args": ["tool", "run", "--from", "code-review-graph", "code-review-graph", "serve"],
-      "description": "Tree-sitter code graph + blast-radius review context (uv tool install code-review-graph)"
+      "description": "Tree-sitter code graph MCP (uv tool install code-review-graph)"
     },
     "arxiv": {
       "command": "uv",
       "args": ["tool", "run", "arxiv-mcp-server"],
-      "description": "Search, download, read arXiv papers (uv tool install arxiv-mcp-server). Storage: ~/.arxiv-mcp-server/papers or ARXIV_STORAGE_PATH"
+      "description": "arXiv MCP (uv tool install arxiv-mcp-server)"
     }
   }
 }

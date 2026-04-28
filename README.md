@@ -39,7 +39,7 @@ Source files (you edit these):
 - `home-manager/home.nix`: Main config importing all modules
 - `home-manager/programs/*.nix`: Tool configurations
 - `home-manager/configs/*`: Raw config files (tmux, zsh aliases, etc.)
-- `ai-stack/`: AI agents, MCP JSON, Docker compose, skills (see below)
+- `ai-stack/`: AI agents, MCP templates → `generated/`, Docker compose, skills (see [ai-stack/README.md](ai-stack/README.md))
 - `overlays/`: Nix overlays (for example `llmfit`)
 
 Git identity is configured in `home-manager/programs/git.nix`, not a standalone `gitconfig` file in `configs/`.

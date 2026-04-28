@@ -2,11 +2,11 @@
   "mcpServers": {
     "memory": {
       "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-memory"]
+      "args": ["-y", "@modelcontextprotocol/server-memory@0.6.3"]
     },
     "sequential-thinking": {
       "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-sequential-thinking"]
+      "args": ["-y", "@modelcontextprotocol/server-sequential-thinking@0.6.2"]
     },
     "searxng": {
       "command": "uv",
@@ -15,7 +15,7 @@
         "run",
         "searxng-mcp-server",
         "--searxng-url",
-        "http://127.0.0.1:8080"
+        "__SEARXNG_URL__"
       ]
     },
     "code-review-graph": {

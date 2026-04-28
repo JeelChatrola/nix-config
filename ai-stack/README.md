@@ -1,11 +1,13 @@
 # AI stack
 
+You can use this directory **without Nix**: install [Docker](https://docs.docker.com/engine/install/), `jq`, `curl`, `uv`, Node/`npx`, Python 3, then run `bin/ai-stack doctor`, `bin/ai-stack sync`, and `bin/ai-stack up`. For user-level symlinks into `~/.config`, run `bin/ai-stack install`.
+
 There are two layers:
 
-1. **Nix / home-manager** (flake output `*-ai`): `claude`, `opencode`, MCP JSON, skills, agents. No Docker required for this part.
+1. **Agents / MCP / commands** (portable): templates in `config/*.template.json` render to `generated/*.json` (gitignored). `bin/ai-stack sync` applies `stack-models.json` and live Ollama tags. Optional: **Nix / home-manager** (flake output `*-ai`) installs `claude` / `opencode` wrappers, copies commands and agents from the flake, runs `ai-stack sync` on switch, and symlinks `~/.config/...` to `generated/*.json` under your checkout (`AI_STACK_DIR`).
 2. **Docker Compose**: Ollama, LobeChat, SearXNG, and an optional vLLM profile (OpenAI-compatible API on port 8000).
 
-To deploy only the Nix side, set `AI_STACK_DOCKER=0` in `ai-stack/.env` or use `./deploy.sh --ai --no-docker`. Use `ai-up` when you want the containers. You can add services in `docker-compose.yml`; the same Docker on/off switch applies to the whole stack from deploy.
+To deploy only the Home Manager side, set `AI_STACK_DOCKER=0` in `ai-stack/.env` or use `./deploy.sh --ai --no-docker`. `./deploy.sh --ai` still runs `bin/ai-stack sync` first so `generated/` exists before `home-manager switch`. Use `ai-up` when you want the containers. You can add services in `docker-compose.yml`; the same Docker on/off switch applies to the whole stack from deploy.
 
 ## Install
 
@@ -17,18 +19,18 @@ To deploy only the Nix side, set `AI_STACK_DOCKER=0` in `ai-stack/.env` or use `
    ./deploy.sh --ai
    ```
 
-   Optional: `--no-docker` or `AI_STACK_DOCKER=0` in `ai-stack/.env` to skip Compose.
+   Optional: `--no-docker` or `AI_STACK_DOCKER=0` in `ai-stack/.env` to skip Compose (Home Manager + `bin/ai-stack sync` still run).
 
    - Needs network (npx / uv installers).
-   - Nix only sees git-tracked files in the flake: new files under `ai-stack/` must be committed or home-manager cannot reference them.
-   - `stack-models.json` is the source of truth for Ollama tags to pull (`ollama.pull[]`) and which Hugging Face id vLLM serves (`vllm.*`). `scripts/apply-stack-models.sh` writes `models.compose.env` (for `docker compose --env-file`) and sets `provider.vllm` in `mcp/opencode.json` when you use Docker/vLLM. `./deploy.sh --ai` runs apply only when the Docker stack is part of that deploy; with `--no-docker` / `AI_STACK_DOCKER=0`, apply is skipped (no spurious `ollama pull`, no rewriting `opencode.json` for vLLM). `ai-up` always runs apply first so compose stays in sync when you start containers later.
-   - After Docker starts Ollama, `sync-opencode-ollama-models.sh` rebuilds `provider.ollama.models` from `/api/tags` (aligned with `ollama list`; drops removed tags; keeps your `name` where tags remain). It does not change `provider.vllm`. If that JSON changes, deploy runs home-manager again so `~/.config/opencode/opencode.json` matches. Requires `jq` on the host; if Ollama is not up yet, sync is skipped without error. Manual: `bash ai-stack/scripts/sync-opencode-ollama-models.sh`
+   - Nix only sees git-tracked files in the flake: new files under `ai-stack/` must be committed or home-manager cannot reference them for commands/agents.
+   - `stack-models.json` is the source of truth for Ollama tags to pull (`ollama.pull[]`) and optional Hugging Face id for vLLM (`vllm.*`). `scripts/apply-stack-models.sh` writes `models.compose.env` (gitignored; for `docker compose --env-file`) and updates `provider.vllm` in `generated/opencode.json` when `vllm.model` is set. Omit the whole `vllm` object for Ollama-only. `bin/ai-stack sync` / `./deploy.sh --ai` refresh `generated/`; `ai-up` runs `bin/ai-stack up` (sync, compose, apply with pull when Ollama is up, then Ollama tag sync).
+   - After Docker starts Ollama, `sync-opencode-ollama-models.sh` rebuilds `provider.ollama.models` in `generated/opencode.json` from `/api/tags`. If that file changes, `./deploy.sh --ai` runs `home-manager switch` again. Requires `jq` on the host; if Ollama is not up yet, sync is skipped without error.
 
 4. **Shell:** `exec zsh` or open a new terminal so `claude`, `opencode`, and `ai-up` are on PATH.
 
-5. **Models:** Edit `stack-models.json`: add Ollama tags to `ollama.pull` and set `vllm.model` (and optional `vllm.image_tag`, `max_model_len`, etc.). Run `bash ai-stack/scripts/apply-stack-models.sh` or use `ai-up` / `./deploy.sh --ai`. Ad-hoc: `ollama-pull <tag>`. Prefer tool-calling coder models for agents; small chat-only weights often skip tools.
+5. **Models:** Edit `stack-models.json`: add Ollama tags to `ollama.pull` and optionally set `vllm.model` (and `vllm.image_tag`, `max_model_len`, etc.). Run `bin/ai-stack sync` or `bash ai-stack/scripts/apply-stack-models.sh` or use `ai-up` / `./deploy.sh --ai`. Ad-hoc: `ollama-pull <tag>`. Prefer tool-calling coder models for agents; small chat-only weights often skip tools.
 
-After changing `ai-stack/mcp/*` or agents: `./deploy.sh` or `home-manager switch`, then restart Claude Code / OpenCode.
+After changing `ai-stack/config/*.template.json` or agents: `bin/ai-stack sync` and restart Claude Code / OpenCode (or `./deploy.sh` / `home-manager switch` if you use Nix).
 
 ## API keys (optional)
 
@@ -36,15 +38,15 @@ Nothing is required for local Ollama only. Add keys only for the features below.
 
 | Credential | For | Where to set |
 |------------|-----|--------------|
-| `ANTHROPIC_API_KEY` | Claude Code via Anthropic API instead of local Ollama | Shell (e.g. `home.sessionVariables`, direnv). This repo’s `ai-stack/mcp/claude-settings.json` sets `ANTHROPIC_BASE_URL` / `ANTHROPIC_AUTH_TOKEN` for Ollama; for cloud you must override (e.g. `~/.config/claude/settings.local.json`, or edit source JSON) so traffic goes to Anthropic. See [Claude Code environment](https://code.claude.com/docs). |
-| Provider keys (`OPENAI_API_KEY`, `ANTHROPIC_API_KEY`, …) | OpenCode cloud models | OpenCode `/connect` or provider setup; export in shell if needed. `opencode.json` here configures Ollama and optional vLLM (`http://localhost:8000/v1`); add more per [OpenCode config](https://opencode.ai/docs/config). |
+| `ANTHROPIC_API_KEY` | Claude Code via Anthropic API instead of local Ollama | Shell (e.g. `home.sessionVariables`, direnv). Templates set `ANTHROPIC_BASE_URL` / `ANTHROPIC_AUTH_TOKEN` for Ollama in `generated/claude-settings.json`; for cloud override (e.g. `~/.config/claude/settings.local.json`). See [Claude Code environment](https://code.claude.com/docs). |
+| Provider keys (`OPENAI_API_KEY`, `ANTHROPIC_API_KEY`, …) | OpenCode cloud models | OpenCode `/connect` or provider setup; export in shell if needed. `generated/opencode.json` configures Ollama and optional vLLM (`http://localhost:8000/v1`); add more per [OpenCode config](https://opencode.ai/docs/config). |
 | `OPENAI_API_KEY`, `ANTHROPIC_API_KEY`, … | LobeChat web UI with hosted models | `ai-stack/.env` (copy from `.env.example`), then `docker compose … up -d` again; finish provider setup in Lobe if needed. |
-| — | searxng MCP | SearXNG must be running (`ai-up`). Default URL `http://127.0.0.1:8080` (`SEARXNG_PORT` in `ai-stack/.env`). If you change the port, update `--searxng-url` in `ai-stack/mcp/claude-settings.json`, `opencode.json` (`mcp.searxng.command`), and `mcpo-config.json`. Install with `./deploy.sh --ai` or `install-optional-agents.sh --searxng-mcp`. |
+| — | searxng MCP | SearXNG must be running (`ai-up`). Set `SEARXNG_PORT` in `ai-stack/.env`; `bin/ai-stack sync` injects the URL into `generated/*.json`. Install with `./deploy.sh --ai` or `install-optional-agents.sh --searxng-mcp`. |
 | `HF_TOKEN` | Gated Hugging Face weights (Ollama pulls, vLLM download) | `ai-stack/.env` (passed into `ollama` and `vllm` services). |
 | `stack-models.json` | vLLM HF id, image tag, port, context, GPU util; Ollama pull list | `stack-models.json` → `apply-stack-models.sh` → `models.compose.env`. Used with `docker compose --env-file models.compose.env` (`ai-up`, `ai-up-vllm`). |
 | `ALPHAXIV_API_KEY` | alphaxiv skill | Shell env; see `skills/learning/alphaxiv/SKILL.md`. |
 
-Web search for agents uses SearXNG plus PyPI `searxng-mcp-server` (same script path as arxiv/code-review-graph). MCP entries for `memory`, `sequential-thinking`, `arxiv`, `code-review-graph`, `searxng` live under `ai-stack/mcp/`.
+Web search for agents uses SearXNG plus PyPI `searxng-mcp-server` (same script path as arxiv/code-review-graph). MCP entries live in `config/*.template.json` and appear in `generated/opencode.json` / `generated/claude-settings.json` after `bin/ai-stack sync`.
 
 ## Day-to-day
 
@@ -60,7 +62,7 @@ Web search for agents uses SearXNG plus PyPI `searxng-mcp-server` (same script p
 
 OpenCode: Tab = primary agents (Build, Plan, ask, debug). `@docs` = docs subagent. Pick provider Ollama (default) or vLLM (HF) after `ai-up-vllm`; the vLLM picker entry comes from `stack-models.json` via `apply-stack-models.sh`.
 
-Claude Code: natural language or `/agents` for ask / debug / docs. This repo points Claude at Ollama via Anthropic-shaped URLs in `claude-settings.json`. vLLM speaks OpenAI `/v1` only, so use OpenCode (or another OpenAI-base-URL client) for vLLM unless you add a bridge.
+Claude Code: natural language or `/agents` for ask / debug / docs. This stack points Claude at Ollama via Anthropic-shaped URLs in `generated/claude-settings.json`. vLLM speaks OpenAI `/v1` only, so use OpenCode (or another OpenAI-base-URL client) for vLLM unless you add a bridge.
 
 ## vLLM (optional)
 
@@ -97,9 +99,9 @@ Machine-wide scripts change your user environment or this nix-config tree. Per-r
 |--------|--------|------|
 | `install-skill.py` | Per repo | Skills via `--to`. `--agents` follows `--to`; only `opencode` / `claude` install agent markdown dirs. |
 | `install-optional-agents.sh` | User / global | Third-party CLIs (uv) and GSD via npx into `~/.claude/` and `~/.config/opencode/`. |
-| `apply-stack-models.sh` | This flake | Reads `stack-models.json` → `models.compose.env` + `provider.vllm` in `opencode.json`; `ollama pull` when ollama container exists (skipped with `SKIP_OLLAMA_PULL=1` or `--no-pull`). `./deploy.sh --ai --no-docker` skips this script entirely. |
+| `apply-stack-models.sh` | This checkout | Reads `stack-models.json` → `models.compose.env` + `provider.vllm` in `generated/opencode.json`; `ollama pull` when ollama container exists (skipped with `SKIP_OLLAMA_PULL=1` or `--no-pull`). Prefer `bin/ai-stack sync` (no pull) or `bin/ai-stack up` (full). |
 | `ai-stack-docker-wanted.sh` | `./deploy.sh --ai` | Exit 0 if Docker compose should start; respects `AI_STACK_DOCKER` in `ai-stack/.env` and `--no-docker`. |
-| `sync-opencode-ollama-models.sh` | This flake | Rewrites `provider.ollama.models` in `opencode.json` from local Ollama; then redeploy / home-manager to refresh `~/.config/opencode/`. |
+| `sync-opencode-ollama-models.sh` | This checkout | Rewrites `provider.ollama.models` in `generated/opencode.json` from local Ollama; `./deploy.sh --ai` may re-run `home-manager switch` if that file changes. |
 
 ### install-skill.py (per project)
 
@@ -143,19 +145,25 @@ Commit `.cursor/`, `.opencode/`, `.claude/`, `AGENTS.md`, and `CLAUDE.md` in tha
 
 Run from `ai-stack/` or with the script path. `./deploy.sh --ai` runs `--code-review-graph`, `--arxiv`, and `--searxng-mcp` (uv tools expected by MCP entries). `--gsd` installs [Get Shit Done](https://github.com/gsd-build/get-shit-done) via npx; `--all` for everything. See `--help`.
 
-### apply-stack-models.sh (nix-config tree)
+### apply-stack-models.sh
 
-Reads `ai-stack/stack-models.json`. Writes `ai-stack/models.compose.env`. Patches `provider.vllm` in `mcp/opencode.json`. Runs `docker exec ollama ollama pull …` for each `ollama.pull[]` when the ollama container exists, unless `--no-pull` or `SKIP_OLLAMA_PULL=1`. Run manually after editing `stack-models.json`, or rely on `ai-up` / `./deploy.sh --ai`.
+Reads `ai-stack/stack-models.json`. Writes `ai-stack/models.compose.env` (gitignored). Patches `provider.vllm` in `generated/opencode.json` when `vllm.model` is set; removes `provider.vllm` for Ollama-only configs. Runs `docker exec ollama ollama pull …` for each `ollama.pull[]` when the ollama container exists, unless `--no-pull` or `SKIP_OLLAMA_PULL=1`. Usually invoked via `bin/ai-stack sync` / `bin/ai-stack up` / `./deploy.sh --ai`.
 
-### sync-opencode-ollama-models.sh (nix-config tree)
+### sync-opencode-ollama-models.sh
 
-Updates `provider.ollama.models` in `ai-stack/mcp/opencode.json` only. Invoked after Docker Ollama starts when using `./deploy.sh --ai`, or run manually when Ollama is up.
+Updates `provider.ollama.models` in `generated/opencode.json` only. Invoked after Docker Ollama starts when using `./deploy.sh --ai` or `bin/ai-stack up`, or run manually when Ollama is up.
 
 ## Reference
 
-Configs in git: `ai-stack/mcp/` → `~/.config/claude/settings.json`, `~/.config/opencode/opencode.json`. OpenCode reads MCP from `opencode.json` (`mcp` + `type: "local"` + `command` array); see [OpenCode MCP docs](https://opencode.ai/docs/mcp-servers). Keep Claude (`mcpServers` in `claude-settings.json`) and OpenCode (`mcp` in `opencode.json`) aligned when you add a server.
+Templates in git: `ai-stack/config/*.template.json`. Runtime output: `ai-stack/generated/*.json` (symlinked from `~/.config/opencode/opencode.json` and `~/.config/claude/settings.json` when using Nix, or via `bin/ai-stack install`). OpenCode reads MCP from `opencode.json` (`mcp` + `type: "local"` + `command` array); see [OpenCode MCP docs](https://opencode.ai/docs/mcp-servers). Keep Claude (`mcpServers` in `claude-settings`) and OpenCode (`mcp` in `opencode`) aligned when you add a server.
 
-Commands: `ai-stack/commands/` → `~/.claude/commands/` and `~/.config/opencode/commands/`.
+**Bash permissions:** OpenCode `permission.bash` and Claude `permissions.allow` both use an ask-by-default policy for arbitrary commands; only common dev tools are pre-approved. Network-heavy tools (`curl`, `wget`, `nix`) are not allow-listed in OpenCode to match Claude’s narrower stance.
+
+**MCP `npx` packages** in templates use pinned versions (`@modelcontextprotocol/server-memory@0.6.3`, etc.); `claude` / `opencode` CLI wrappers from Nix still use floating `npx -y` for the agent runtimes (documented as mutable runtime tools).
+
+**Docker images:** `docker-compose.yml` pins `lobehub/lobe-chat` and `searxng/searxng` to explicit tags (not `:latest`). Bump tags deliberately when you upgrade.
+
+Commands: `ai-stack/commands/` → deployed by Home Manager to `~/.claude/commands/` and `~/.config/opencode/commands/`, or linked by `bin/ai-stack install`.
 
 Agents: `ai-stack/agents/claude/` and `agents/opencode/` (same roles; format differs per product).
 
@@ -165,13 +173,19 @@ Robotics skills use a git submodule under `skills/robotics/robotics-agent-skills
 
 ```
 ai-stack/
+  bin/ai-stack
+  config/           *.template.json → generated/
+  generated/        gitignored runtime MCP JSON + (see .gitignore)
   agents/
   commands/
-  mcp/
-  scripts/          install-skill.py, install-optional-agents.sh, apply-stack-models.sh, sync-opencode-ollama-models.sh, ai-stack-docker-wanted.sh
+  mcp/README.md     notes only; no canonical JSON here
+  scripts/          render-mcp-templates.sh, install-skill.py, …
   skills/
   templates/        AGENTS.md, CLAUDE.md, claude-hooks/
-  stack-models.json   Ollama pull list + vLLM model / runtime (source of truth)
-  models.compose.env  generated for docker compose --env-file (keep in sync via apply-stack-models.sh)
+  stack-models.json
   docker-compose.yml
 ```
+
+## Splitting `ai-stack` into its own repository (optional)
+
+To extract only `ai-stack/` with history: from the parent repo, `git subtree split --prefix=ai-stack -b split/ai-stack`, then push that branch to a new remote as `main`. Move the robotics submodule entry into the new repo’s `.gitmodules`. In `nix-config`, drop the embedded `ai-stack/` directory and set `AI_STACK_DIR` (e.g. `$HOME/ai-stack`) so zsh aliases and `bin/ai-stack` point at the clone; optionally add a flake input for read-only command sources vs a mutable checkout (document drift between `nix flake update` and local edits).

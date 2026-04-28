@@ -7,17 +7,7 @@
       "options": {
         "baseURL": "http://localhost:11434/v1"
       },
-      "models": {
-        "qwen3.6:35b": {
-          "name": "Qwen 3.6 35B"
-        },
-        "gemma4:31b": {
-          "name": "Gemma 4 31B"
-        },
-        "nemotron-cascade-2:latest": {
-          "name": "Nemotron Cascade 2 (latest)"
-        }
-      }
+      "models": {}
     },
     "vllm": {
       "npm": "@ai-sdk/openai-compatible",
@@ -39,7 +29,7 @@
       "command": [
         "npx",
         "-y",
-        "@modelcontextprotocol/server-memory"
+        "@modelcontextprotocol/server-memory@0.6.3"
       ]
     },
     "sequential-thinking": {
@@ -47,7 +37,7 @@
       "command": [
         "npx",
         "-y",
-        "@modelcontextprotocol/server-sequential-thinking"
+        "@modelcontextprotocol/server-sequential-thinking@0.6.2"
       ]
     },
     "searxng": {
@@ -58,7 +48,7 @@
         "run",
         "searxng-mcp-server",
         "--searxng-url",
-        "http://127.0.0.1:8080"
+        "__SEARXNG_URL__"
       ]
     },
     "code-review-graph": {
@@ -105,10 +95,7 @@
       "fd *": "allow",
       "jq *": "allow",
       "yq *": "allow",
-      "tree *": "allow",
-      "curl *": "allow",
-      "wget *": "allow",
-      "nix *": "allow"
+      "tree *": "allow"
     },
     "read": "allow",
     "edit": "allow",
