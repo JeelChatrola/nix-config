@@ -3,52 +3,51 @@
 
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixpkgs-unstable";
-    nixpkgs-unstable.url = "github:nixos/nixpkgs/nixpkgs-unstable";
     home-manager = {
       url = "github:nix-community/home-manager";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-  };
-  outputs = {
-    nixpkgs,
-    nixpkgs-unstable,
-    home-manager,
-    ...
-  }: let
-    # system = "aarch64-linux"; If you are running on ARM powered computer
-    system = "x86_64-linux";
-    pkgs = nixpkgs.legacyPackages.${system};
-    pkgsUnstable = import nixpkgs-unstable {
-      inherit system;
-      overlays = [ (import ./overlays/llmfit.nix) ];
-    };
-  in {
-    homeConfigurations = {
-      jeel = home-manager.lib.homeManagerConfiguration {
-        inherit pkgs;
-        extraSpecialArgs = {
-          enableAI = false;
-          pkgsUnstable = pkgsUnstable;
-          # If this flake lives outside ~/nix-config, set e.g. aiConfigRoot = "/path/to/nix-config";
-          aiConfigRoot = null;
-        };
-        modules = [
-          ./home-manager/home.nix
-        ];
-      };
-      jeel-ai = home-manager.lib.homeManagerConfiguration {
-        inherit pkgs;
-        extraSpecialArgs = {
-          enableAI = true;
-          pkgsUnstable = pkgsUnstable;
-          aiConfigRoot = null;
-        };
-        modules = [
-          ./home-manager/home.nix
-        ];
-      };
+    aiStack = {
+      url = "path:./ai-stack";
+      flake = false;
     };
   };
+
+  outputs =
+    { nixpkgs, home-manager, aiStack, ... }:
+    let
+      # system = "aarch64-linux"; If you are running on ARM powered computer
+      system = "x86_64-linux";
+      # Single nixpkgs pin with overlays (llmfit, etc.). pkgsUnstable in modules is the same set.
+      pkgs = import nixpkgs {
+        inherit system;
+        overlays = import ./overlays/default.nix;
+      };
+      lib = nixpkgs.lib;
+
+      mkHome = import ./home-manager/lib/mkHome.nix {
+        inherit home-manager pkgs aiStack;
+        pkgsUnstable = pkgs;
+      };
+
+      users = {
+        jeel = import ./home-manager/users/jeel.nix;
+      };
+    in
+    {
+      homeConfigurations =
+        lib.concatMapAttrs (login: userProfile: {
+          ${login} = mkHome {
+            inherit userProfile;
+            enableAI = false;
+            aiConfigRoot = null;
+          };
+          "${login}-ai" = mkHome {
+            inherit userProfile;
+            enableAI = true;
+            aiConfigRoot = null;
+          };
+        })
+          users;
+    };
 }
-
-

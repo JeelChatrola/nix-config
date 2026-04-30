@@ -10,6 +10,8 @@ import shutil
 import sys
 from pathlib import Path
 
+sys.dont_write_bytecode = True
+
 STACK_DIR = Path(__file__).resolve().parent.parent
 SKILLS_DIR = STACK_DIR / "skills"
 TEMPLATES_DIR = STACK_DIR / "templates"

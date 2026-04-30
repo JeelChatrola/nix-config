@@ -1,0 +1,4 @@
+[window]
+dimensions = { columns = 120, lines = 35 }
+position = { x = 700, y = 350 }
+startup_mode = "Windowed"

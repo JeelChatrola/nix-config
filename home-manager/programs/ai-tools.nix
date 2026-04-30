@@ -1,6 +1,48 @@
-{ pkgs, ... }:
+{ pkgs, lib, aiStackSrc, ... }:
 
 let
+  aiRoot = aiStackSrc;
+
+  mdFiles = dir:
+    lib.sort lib.lessThan (
+      lib.filter (n: lib.hasSuffix ".md" n) (builtins.attrNames (builtins.readDir dir))
+    );
+
+  commandsDir = aiRoot + "/commands";
+  opencodeAgentsDir = aiRoot + "/agents/opencode";
+  claudeAgentsDir = aiRoot + "/agents/claude";
+
+  commandNames = mdFiles commandsDir;
+  opencodeAgentNames = mdFiles opencodeAgentsDir;
+  claudeAgentNames = mdFiles claudeAgentsDir;
+
+  commandDeployment = builtins.listToAttrs (
+    builtins.concatMap (name: [
+      {
+        name = ".claude/commands/${name}";
+        value.source = aiRoot + "/commands/" + name;
+      }
+      {
+        name = ".config/opencode/commands/${name}";
+        value.source = aiRoot + "/commands/" + name;
+      }
+    ]) commandNames
+  );
+
+  opencodeAgentDeployment = builtins.listToAttrs (
+    map (name: {
+      name = ".config/opencode/agents/${name}";
+      value.source = aiRoot + "/agents/opencode/" + name;
+    }) opencodeAgentNames
+  );
+
+  claudeAgentDeployment = builtins.listToAttrs (
+    map (name: {
+      name = ".claude/agents/${name}";
+      value.source = aiRoot + "/agents/claude/" + name;
+    }) claudeAgentNames
+  );
+
   claudeWrapper = pkgs.writeShellScriptBin "claude" ''
     export OLLAMA_HOST="''${OLLAMA_HOST:-http://127.0.0.1:11434}"
     export ANTHROPIC_BASE_URL="''${ANTHROPIC_BASE_URL:-http://localhost:11434}"
@@ -12,52 +54,6 @@ let
     export OLLAMA_HOST="''${OLLAMA_HOST:-http://127.0.0.1:11434}"
     exec ${pkgs.nodejs_22}/bin/npx -y opencode-ai "$@"
   '';
-
-  commandFiles = [
-    { name = "commit.md"; }
-    { name = "review.md"; }
-    { name = "setup-project.md"; }
-  ];
-
-  opencodeAgentFiles = [
-    "ask.md"
-    "debug.md"
-    "docs.md"
-  ];
-
-  claudeAgentFiles = [
-    "ask.md"
-    "debug.md"
-    "docs.md"
-  ];
-
-  # One source of truth for commands, deployed to both agents
-  commandDeployment = builtins.listToAttrs (
-    builtins.concatMap (cmd: [
-      {
-        name = ".claude/commands/${cmd.name}";
-        value = { source = ../../ai-stack/commands/${cmd.name}; };
-      }
-      {
-        name = ".config/opencode/commands/${cmd.name}";
-        value = { source = ../../ai-stack/commands/${cmd.name}; };
-      }
-    ]) commandFiles
-  );
-
-  opencodeAgentDeployment = builtins.listToAttrs (
-    map (f: {
-      name = ".config/opencode/agents/${f}";
-      value = { source = ../../ai-stack/agents/opencode/${f}; };
-    }) opencodeAgentFiles
-  );
-
-  claudeAgentDeployment = builtins.listToAttrs (
-    map (f: {
-      name = ".claude/agents/${f}";
-      value = { source = ../../ai-stack/agents/claude/${f}; };
-    }) claudeAgentFiles
-  );
 in
 {
   home.packages = [
@@ -65,11 +61,12 @@ in
     opencodeWrapper
   ];
 
-  home.file = commandDeployment // opencodeAgentDeployment // claudeAgentDeployment // {
-    # Claude Code: MCP + permissions
-    ".config/claude/settings.json".source = ../../ai-stack/mcp/claude-settings.json;
-
-    # OpenCode: MCP lives in opencode.json (type local + command[]); see opencode.ai/docs/mcp-servers
-    ".config/opencode/opencode.json".source = ../../ai-stack/mcp/opencode.json;
-  };
+  home.file =
+    commandDeployment
+    // opencodeAgentDeployment
+    // claudeAgentDeployment
+    // {
+      ".config/claude/settings.json".source = aiRoot + "/mcp/claude-settings.json";
+      ".config/opencode/opencode.json".source = aiRoot + "/mcp/opencode.json";
+    };
 }

@@ -33,6 +33,8 @@
     # =============================================================================
     # 0.9.2 via flake overlays/llmfit.nix until nixpkgs-unstable ships it
     pkgsUnstable.llmfit
+    magika                        # file type detection (locked nixpkgs has magika; magika-cli attr is newer)
+    python313Packages.markitdown  # Convert files and office documents to Markdown
 
     # =============================================================================
     # PRODUCTIVITY & KNOWLEDGE TOOLS

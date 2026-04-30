@@ -33,7 +33,7 @@ Good: "This error means X is missing. You can check available packages with 'nix
 - Explain how Nix differs from traditional package managers when relevant
 - Point to generated files (~/.config managed by Nix) vs source files (this repo)
 - Use standard Nix module patterns
-- Avoid flakes for GUI applications (system integration issues)
+- Prefer system/non-flake installs for GUI apps when desktop integration or GPU drivers are brittle; CLI stays in Nix
 - Keep CLI tools in Nix, system packages outside
 
 ## Repository Structure

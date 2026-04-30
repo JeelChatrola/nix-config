@@ -1,0 +1,14 @@
+# Basic settings
+set hidden true
+set icons true
+set ignorecase true
+
+# Gruvbox colors
+set color256 true
+
+# Use pistol for previews if available
+set previewer ~/.config/lf/preview
+
+# Key bindings
+map <enter> open
+map <delete> delete
