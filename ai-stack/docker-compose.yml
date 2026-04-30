@@ -28,7 +28,7 @@ services:
   # SearXNG - self-hosted search backend for Lobe online search
   # ---------------------------------------------------------------------------
   searxng:
-    image: searxng/searxng:latest
+    image: searxng/searxng:2026.4.13-ee66b070a
     container_name: lobe-searxng
     restart: unless-stopped
     ports:
@@ -42,7 +42,7 @@ services:
   # Access: http://localhost:3210
   # ---------------------------------------------------------------------------
   lobe:
-    image: lobehub/lobe-chat:latest
+    image: lobehub/lobe-chat:1.143.3
     container_name: lobechat
     restart: unless-stopped
     ports:

@@ -1,15 +1,16 @@
 #!/usr/bin/env bash
 # Set provider.ollama.models to match Ollama /api/tags exactly (same keys, same order).
-# Reuses existing "name" for tags still present; new tags get { "name": "<tag>" }.
+# Writes ai-stack/generated/opencode.json (not tracked templates).
 # Safe to run when Ollama is down: exits 0 without modifying the file.
 set -euo pipefail
 
-REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
-CONFIG="${REPO_ROOT}/ai-stack/mcp/opencode.json"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+STACK_DIR="${AI_STACK_DIR:-$(cd "$SCRIPT_DIR/.." && pwd)}"
+CONFIG="${STACK_DIR}/generated/opencode.json"
 OLLAMA="${OLLAMA_HOST:-http://127.0.0.1:11434}"
 
 if [[ ! -f "$CONFIG" ]]; then
-  echo "sync-opencode-ollama-models: missing $CONFIG" >&2
+  echo "sync-opencode-ollama-models: missing $CONFIG (run: ai-stack sync or render-mcp-templates.sh)" >&2
   exit 1
 fi
 

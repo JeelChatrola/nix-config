@@ -1,10 +1,14 @@
 #!/usr/bin/env bash
 # Optional third-party agent stacks (not vendored in this repo).
-# ./deploy.sh --ai runs --code-review-graph, --arxiv, --searxng-mcp (MCP wired in ai-stack/mcp/).
+# ./deploy.sh --ai runs --code-review-graph, --arxiv, --searxng-mcp (MCP wired in ai-stack/config templates → generated/).
 # Run --gsd or --all yourself if you want Get Shit Done (third-party npx installer).
 set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$ROOT"
+
+uv_tool_present() {
+  command -v uv >/dev/null 2>&1 && uv tool list 2>/dev/null | awk '{print $1}' | grep -qx "$1"
+}
 
 usage() {
   echo "Usage: $0 [--gsd] [--code-review-graph] [--arxiv] [--searxng-mcp] [--all]"
@@ -44,8 +48,12 @@ do_crg() {
     echo "uv not found. Add uv to Home Manager packages." >&2
     exit 1
   fi
-  uv tool install code-review-graph
-  echo "    MCP is already declared in this repo (ai-stack/mcp/*) via: uv tool run ... code-review-graph serve"
+  if uv_tool_present code-review-graph; then
+    echo "    code-review-graph already installed (skip)"
+  else
+    uv tool install code-review-graph
+  fi
+  echo "    MCP is declared in ai-stack/config templates (render → generated/) via: uv tool run ... code-review-graph serve"
   echo "    Run ./deploy.sh or home-manager switch, then restart the agent."
   echo "    Optional: for upstream plugin + extra hooks, see https://github.com/tirth8205/code-review-graph"
 }
@@ -56,8 +64,12 @@ do_arxiv() {
     echo "uv not found." >&2
     exit 1
   fi
-  uv tool install arxiv-mcp-server
-  echo "    MCP wired in ai-stack/mcp/*. Papers cache: ~/.arxiv-mcp-server/papers (or ARXIV_STORAGE_PATH)"
+  if uv_tool_present arxiv-mcp-server; then
+    echo "    arxiv-mcp-server already installed (skip)"
+  else
+    uv tool install arxiv-mcp-server
+  fi
+  echo "    MCP wired in generated/*.json. Papers cache: ~/.arxiv-mcp-server/papers (or ARXIV_STORAGE_PATH)"
 }
 
 do_searxng_mcp() {
@@ -66,9 +78,13 @@ do_searxng_mcp() {
     echo "uv not found." >&2
     exit 1
   fi
-  uv tool install searxng-mcp-server
-  echo "    MCP wired in ai-stack/mcp/* via: uv tool run searxng-mcp-server --searxng-url http://127.0.0.1:8080"
-  echo "    Start SearXNG (./deploy.sh --ai or ai-up). Override port: SEARXNG_PORT in ai-stack/.env + same URL in mcp configs."
+  if uv_tool_present searxng-mcp-server; then
+    echo "    searxng-mcp-server already installed (skip)"
+  else
+    uv tool install searxng-mcp-server
+  fi
+  echo "    MCP URL comes from SEARXNG_PORT in ai-stack/.env (see render-mcp-templates.sh)."
+  echo "    Start SearXNG (./deploy.sh --ai or ai-up)."
   echo "    One-shot without install: uvx --from searxng-mcp-server searxng-mcp-server --searxng-url http://127.0.0.1:8080"
 }
 

@@ -3,7 +3,7 @@
 # Skip: ./deploy.sh --ai --no-docker  OR  AI_STACK_DOCKER=0 in environment  OR  ai-stack/.env
 set -euo pipefail
 
-STACK_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+STACK_DIR="${AI_STACK_DIR:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}"
 ENV_FILE="$STACK_DIR/.env"
 
 [[ "${DEPLOY_AI_NO_DOCKER:-}" == "1" ]] && exit 1

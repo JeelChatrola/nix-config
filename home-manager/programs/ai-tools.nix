@@ -1,7 +1,10 @@
-{ pkgs, lib, aiStackSrc, ... }:
+{ config, pkgs, lib, aiStackSrc, aiConfigRoot ? null, ... }:
 
 let
   aiRoot = aiStackSrc;
+  nixConfigRepo =
+    if aiConfigRoot != null then aiConfigRoot else config.home.homeDirectory + "/nix-config";
+  aiStackDir = nixConfigRepo + "/ai-stack";
 
   mdFiles = dir:
     lib.sort lib.lessThan (
@@ -61,12 +64,21 @@ in
     opencodeWrapper
   ];
 
-  home.file =
-    commandDeployment
-    // opencodeAgentDeployment
-    // claudeAgentDeployment
-    // {
-      ".config/claude/settings.json".source = aiRoot + "/mcp/claude-settings.json";
-      ".config/opencode/opencode.json".source = aiRoot + "/mcp/opencode.json";
-    };
+  home.file = commandDeployment // opencodeAgentDeployment // claudeAgentDeployment;
+
+  # Generated MCP JSON under ai-stack/generated/ (mutable, gitignored). Refresh on switch, symlink into ~/.config.
+  home.activation.aiStackGeneratedAndLinks = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+    set -euo pipefail
+    export AI_STACK_DIR="${aiStackDir}"
+    export PATH="${lib.makeBinPath [ pkgs.jq pkgs.curl ]}:$PATH"
+    if [[ -x "${aiStackDir}/bin/ai-stack" ]]; then
+      "${aiStackDir}/bin/ai-stack" sync
+    else
+      echo "home-manager: missing ${aiStackDir}/bin/ai-stack" >&2
+      exit 1
+    fi
+    mkdir -p "${config.home.homeDirectory}/.config/opencode" "${config.home.homeDirectory}/.config/claude"
+    ln -sfn "${aiStackDir}/generated/opencode.json" "${config.home.homeDirectory}/.config/opencode/opencode.json"
+    ln -sfn "${aiStackDir}/generated/claude-settings.json" "${config.home.homeDirectory}/.config/claude/settings.json"
+  '';
 }

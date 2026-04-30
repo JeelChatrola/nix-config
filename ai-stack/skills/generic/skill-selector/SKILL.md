@@ -56,7 +56,7 @@ if no README.md:
 ## Install
 
 ```bash
-python3 ~/nix-config/ai-stack/scripts/install-skill.py list
-python3 ~/nix-config/ai-stack/scripts/install-skill.py i <name> --to cursor   # or opencode / claude; repeat --to for symlinks
-python3 ~/nix-config/ai-stack/scripts/install-skill.py bootstrap -h          # bootstrap needs explicit --md / --agents / --skills / …
+python3 "${AI_STACK_DIR:-$HOME/nix-config/ai-stack}/scripts/install-skill.py" list
+python3 "${AI_STACK_DIR:-$HOME/nix-config/ai-stack}/scripts/install-skill.py" i <name> --to cursor   # or opencode / claude; repeat --to for symlinks
+python3 "${AI_STACK_DIR:-$HOME/nix-config/ai-stack}/scripts/install-skill.py" bootstrap -h          # bootstrap needs explicit --md / --agents / --skills / …
 ```

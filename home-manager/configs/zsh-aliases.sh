@@ -72,14 +72,11 @@ _ai_compose() {
 }
 
 ai-up() {
-  bash "$AI_STACK_DIR/scripts/apply-stack-models.sh"
-  _ai_compose up -d
+  bash "$AI_STACK_DIR/bin/ai-stack" up
 }
 
-# Include profile vllm so the vLLM OpenAI server starts (HF models on :8000/v1)
 ai-up-vllm() {
-  bash "$AI_STACK_DIR/scripts/apply-stack-models.sh"
-  _ai_compose --profile vllm up -d
+  bash "$AI_STACK_DIR/bin/ai-stack" up --vllm
 }
 
 ai-down() { _ai_compose down; }

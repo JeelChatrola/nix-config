@@ -7,26 +7,7 @@
       "options": {
         "baseURL": "http://localhost:11434/v1"
       },
-      "models": {
-        "qwen3.5:35b": {
-          "name": "qwen3.5:35b"
-        },
-        "gemma4:31b": {
-          "name": "gemma4:31b"
-        },
-        "nemotron-cascade-2:latest": {
-          "name": "nemotron-cascade-2:latest"
-        },
-        "qwen3.5:35b-a3b-q4_K_M": {
-          "name": "qwen3.5:35b-a3b-q4_K_M"
-        },
-        "hf.co/Qwen/Qwen3-14B-GGUF:Q5_K_M": {
-          "name": "hf.co/Qwen/Qwen3-14B-GGUF:Q5_K_M"
-        },
-        "qwen3-coder:30b-a3b-q4_K_M": {
-          "name": "Qwen3 Coder 30B-A3B — best coder, 578 tok/s, 262k ctx"
-        }
-      }
+      "models": {}
     },
     "vllm": {
       "npm": "@ai-sdk/openai-compatible",
@@ -37,7 +18,7 @@
       },
       "models": {
         "Qwen/Qwen2.5-3B-Instruct": {
-          "name": "Qwen/Qwen2.5-3B-Instruct (vLLM)"
+          "name": "Qwen2.5 3B Instruct (vLLM)"
         }
       }
     }
@@ -48,7 +29,7 @@
       "command": [
         "npx",
         "-y",
-        "@modelcontextprotocol/server-memory"
+        "@modelcontextprotocol/server-memory@0.6.3"
       ]
     },
     "sequential-thinking": {
@@ -56,7 +37,7 @@
       "command": [
         "npx",
         "-y",
-        "@modelcontextprotocol/server-sequential-thinking"
+        "@modelcontextprotocol/server-sequential-thinking@0.6.2"
       ]
     },
     "searxng": {
@@ -67,7 +48,7 @@
         "run",
         "searxng-mcp-server",
         "--searxng-url",
-        "http://127.0.0.1:8080"
+        "__SEARXNG_URL__"
       ]
     },
     "code-review-graph": {
@@ -114,10 +95,7 @@
       "fd *": "allow",
       "jq *": "allow",
       "yq *": "allow",
-      "tree *": "allow",
-      "curl *": "allow",
-      "wget *": "allow",
-      "nix *": "allow"
+      "tree *": "allow"
     },
     "read": "allow",
     "edit": "allow",
