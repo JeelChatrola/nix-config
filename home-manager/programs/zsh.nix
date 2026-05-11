@@ -131,6 +131,8 @@
         #   exact command in the Ctrl+R picker so repeated commands do not spam
         # - display only command text so line numbers never clutter the list
         # - flatten embedded newlines so pasted multi-line commands stay readable
+        # NOTE: zsh does not treat $'\t' inside double quotes as a tab (unlike bash).
+        # Use a real tab from Nix (${"\t"}) in the --delimiter argument so fzf splits fields.
         if (( $+functions[__fzfcmd] && $+functions[__fzf_defaults] )); then
           fzf-history-widget() {
             local selected num entry
@@ -151,7 +153,7 @@
 
             selected="$(
               print -r -l -- ''${entries[@]} |
-                FZF_DEFAULT_OPTS=$(__fzf_defaults "" "--delimiter=$'\t' --with-nth=2.. --scheme=history --highlight-line ''${FZF_CTRL_R_OPTS-} --query=''${(qqq)LBUFFER} +m") \
+                FZF_DEFAULT_OPTS=$(__fzf_defaults "" "--delimiter=${"\t"} --with-nth=2.. --scheme=history --highlight-line ''${FZF_CTRL_R_OPTS-} --query=''${(qqq)LBUFFER} +m") \
                 FZF_DEFAULT_OPTS_FILE= $(__fzfcmd)
             )"
             local ret=$?
