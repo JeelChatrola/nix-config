@@ -90,6 +90,9 @@ do_hermes() {
   echo "    First time: hermes setup   (config in ~/.hermes/)"
   echo "    Chat:       hermes  or  hermes chat"
   echo "    Ephemeral:  ${ROOT}/bin/hermes setup"
+  if [[ -f "${HOME}/.config/systemd/user/hermes-gateway.service" ]]; then
+    bash "${ROOT}/scripts/fix-hermes-gateway-service.sh"
+  fi
 }
 
 do_searxng_mcp() {
