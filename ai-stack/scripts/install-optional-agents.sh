@@ -82,10 +82,10 @@ do_hermes() {
   fi
   if command -v hermes >/dev/null 2>&1; then
     echo "    hermes already on PATH ($(command -v hermes))"
-  elif nix profile list 2>/dev/null | grep -q 'hermes-agent'; then
-    echo "    hermes-agent already in nix profile"
+  elif nix profile list 2>/dev/null | grep -q 'hermes'; then
+    echo "    hermes already in nix profile"
   else
-    nix profile install github:NousResearch/hermes-agent
+    nix profile install "${ROOT}/..#hermes"
   fi
   echo "    First time: hermes setup   (config in ~/.hermes/)"
   echo "    Chat:       hermes  or  hermes chat"

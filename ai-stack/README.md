@@ -4,7 +4,7 @@ You can use this directory **without Nix**: install [Docker](https://docs.docker
 
 There are two layers:
 
-1. **Agents / MCP / commands** (portable): templates in `config/*.template.json` render to `generated/*.json` (gitignored). `bin/ai-stack sync` applies `stack-models.json` and live Ollama tags. Optional: **Nix / home-manager** (flake output `*-ai`) installs `claude` / `opencode` / `hermes` wrappers, copies commands and agents from the flake, runs `ai-stack sync` on switch, and symlinks `~/.config/...` to `generated/*.json` under your checkout (`AI_STACK_DIR`). **Hermes** is `bin/hermes` (Nix flake) plus optional `install-optional-agents.sh --hermes` (`nix profile install`).
+1. **Agents / MCP / commands** (portable): templates in `config/*.template.json` render to `generated/*.json` (gitignored). `bin/ai-stack sync` applies `stack-models.json` and live Ollama tags. Optional: **Nix / home-manager** (flake output `*-ai`) installs `claude` / `opencode` / `hermes` wrappers, copies commands and agents from the flake, runs `ai-stack sync` on switch, and symlinks `~/.config/...` to `generated/*.json` under your checkout (`AI_STACK_DIR`). **Hermes** is `bin/hermes` (`nix run` from repo root `#hermes`, includes `messaging` for Discord/Telegram) or `install-optional-agents.sh --hermes` (`nix profile install` from the same flake output).
 2. **Docker Compose**: Ollama, LobeChat, SearXNG, and an optional vLLM profile (OpenAI-compatible API on port 8000).
 
 To deploy only the Home Manager side, set `AI_STACK_DOCKER=0` in `ai-stack/.env` or use `./deploy.sh --ai --no-docker`. `./deploy.sh --ai` still runs `bin/ai-stack sync` first so `generated/` exists before `home-manager switch`. Use `ai-up` when you want the containers. You can add services in `docker-compose.yml`; the same Docker on/off switch applies to the whole stack from deploy.
@@ -90,6 +90,7 @@ VRAM limits still apply: on a 16 GiB class GPU, prefer smaller checkpoints, supp
 - SearXNG / search MCP errors: ensure `ai-up` (or compose) is running, `searxng-mcp-server` is installed (`uv tool install searxng-mcp-server` or `./deploy.sh --ai`), and MCP URLs match `SEARXNG_PORT` (default 8080 on host).
 - MCP changes not visible: redeploy and fully quit/restart the agent.
 - vLLM exits or OOM: reduce `vllm.max_model_len` / `vllm.gpu_memory_utilization`, pick a smaller `vllm.model`, or bump `vllm.image_tag` in `stack-models.json`, run `apply-stack-models.sh`, then `ai-up-vllm`. Check `docker logs vllm-openai`.
+- Hermes gateway: `No adapter available for discord` — use this repo's `ai-stack/bin/hermes` (`nix run` from `#hermes`, messaging extra). Plain `github:NousResearch/hermes-agent` or `hermes gateway install --force` alone points systemd at the inner Python venv without `HERMES_BUNDLED_PLUGINS`, so Discord connects only in manual tests then dies on restart. Fix: set `ExecStart` in `~/.config/systemd/user/hermes-gateway.service` to `$(nix build ~/nix-config#hermes --no-link --print-out-paths)/bin/hermes gateway run --replace`, then `systemctl --user daemon-reload && systemctl --user restart hermes-gateway`. Confirm in `~/.hermes/logs/gateway.log`: `✓ discord connected`, not `No adapter available`.
 
 ## Scripts: machine-wide vs per repo
 

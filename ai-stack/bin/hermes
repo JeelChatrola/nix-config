@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
-# Hermes Agent via official Nix flake (no curl installer). First run may build the flake.
+# Hermes Agent via this repo's flake (messaging extra includes discord.py).
 set -euo pipefail
-exec nix run github:NousResearch/hermes-agent -- "$@"
+REPO_ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
+exec nix run "path:${REPO_ROOT}#hermes" -- "$@"
