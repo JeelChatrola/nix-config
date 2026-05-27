@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+# Hermes Agent via official Nix flake (no curl installer). First run may build the flake.
+set -euo pipefail
+exec nix run github:NousResearch/hermes-agent -- "$@"

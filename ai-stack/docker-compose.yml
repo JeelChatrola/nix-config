@@ -7,7 +7,7 @@ services:
   #   docker compose -f ai-stack/docker-compose.yml pull ollama && docker compose -f ai-stack/docker-compose.yml up -d ollama
   # ---------------------------------------------------------------------------
   ollama:
-    image: ollama/ollama:0.20.2
+    image: ollama/ollama:0.24.0
     container_name: ollama
     restart: unless-stopped
     ports:

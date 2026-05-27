@@ -3,7 +3,7 @@
     "pull": [
       "qwen3.6:35b",
       "gemma4:31b",
-      "nemotron-cascade-2:latest"
+      "nemotron3:33b"
     ]
   },
   "vllm": {

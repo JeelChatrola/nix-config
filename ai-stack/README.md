@@ -4,7 +4,7 @@ You can use this directory **without Nix**: install [Docker](https://docs.docker
 
 There are two layers:
 
-1. **Agents / MCP / commands** (portable): templates in `config/*.template.json` render to `generated/*.json` (gitignored). `bin/ai-stack sync` applies `stack-models.json` and live Ollama tags. Optional: **Nix / home-manager** (flake output `*-ai`) installs `claude` / `opencode` wrappers, copies commands and agents from the flake, runs `ai-stack sync` on switch, and symlinks `~/.config/...` to `generated/*.json` under your checkout (`AI_STACK_DIR`).
+1. **Agents / MCP / commands** (portable): templates in `config/*.template.json` render to `generated/*.json` (gitignored). `bin/ai-stack sync` applies `stack-models.json` and live Ollama tags. Optional: **Nix / home-manager** (flake output `*-ai`) installs `claude` / `opencode` / `hermes` wrappers, copies commands and agents from the flake, runs `ai-stack sync` on switch, and symlinks `~/.config/...` to `generated/*.json` under your checkout (`AI_STACK_DIR`). **Hermes** is `bin/hermes` (Nix flake) plus optional `install-optional-agents.sh --hermes` (`nix profile install`).
 2. **Docker Compose**: Ollama, LobeChat, SearXNG, and an optional vLLM profile (OpenAI-compatible API on port 8000).
 
 To deploy only the Home Manager side, set `AI_STACK_DOCKER=0` in `ai-stack/.env` or use `./deploy.sh --ai --no-docker`. `./deploy.sh --ai` still runs `bin/ai-stack sync` first so `generated/` exists before `home-manager switch`. Use `ai-up` when you want the containers. You can add services in `docker-compose.yml`; the same Docker on/off switch applies to the whole stack from deploy.
@@ -54,7 +54,7 @@ Web search for agents uses SearXNG plus PyPI `searxng-mcp-server` (same script p
 |--------|----------------|
 | Start / stop stack | `ai-up` / `ai-down` (or `docker compose -f ai-stack/docker-compose.yml …`) |
 | Start stack including vLLM | `ai-up-vllm` (compose `--profile vllm`) |
-| CLI agents | `opencode`, `claude` |
+| CLI agents | `opencode`, `claude`, `hermes` ([Hermes Agent](https://github.com/NousResearch/hermes-agent) via Nix; `hermes setup` once) |
 | Chat UI | http://localhost:3210 |
 | Ollama API | http://localhost:11434 |
 | vLLM OpenAI API (optional) | http://localhost:8000/v1 (`VLLM_PORT` in `ai-stack/.env`) |
@@ -98,7 +98,7 @@ Machine-wide scripts change your user environment or this nix-config tree. Per-r
 | Script | Scope | Role |
 |--------|--------|------|
 | `install-skill.py` | Per repo | Skills via `--to`. `--agents` follows `--to`; only `opencode` / `claude` install agent markdown dirs. |
-| `install-optional-agents.sh` | User / global | Third-party CLIs (uv) and GSD via npx into `~/.claude/` and `~/.config/opencode/`. |
+| `install-optional-agents.sh` | User / global | Third-party CLIs (uv), GSD via npx, Hermes via `nix profile install`. |
 | `apply-stack-models.sh` | This checkout | Reads `stack-models.json` → `models.compose.env` + `provider.vllm` in `generated/opencode.json`; `ollama pull` when ollama container exists (skipped with `SKIP_OLLAMA_PULL=1` or `--no-pull`). Prefer `bin/ai-stack sync` (no pull) or `bin/ai-stack up` (full). |
 | `ai-stack-docker-wanted.sh` | `./deploy.sh --ai` | Exit 0 if Docker compose should start; respects `AI_STACK_DOCKER` in `ai-stack/.env` and `--no-docker`. |
 | `sync-opencode-ollama-models.sh` | This checkout | Rewrites `provider.ollama.models` in `generated/opencode.json` from local Ollama; `./deploy.sh --ai` may re-run `home-manager switch` if that file changes. |
@@ -143,7 +143,7 @@ Commit `.cursor/`, `.opencode/`, `.claude/`, `AGENTS.md`, and `CLAUDE.md` in tha
 
 ### install-optional-agents.sh (user / global)
 
-Run from `ai-stack/` or with the script path. `./deploy.sh --ai` runs `--code-review-graph`, `--arxiv`, and `--searxng-mcp` (uv tools expected by MCP entries). `--gsd` installs [Get Shit Done](https://github.com/gsd-build/get-shit-done) via npx; `--all` for everything. See `--help`.
+Run from `ai-stack/` or with the script path. `./deploy.sh --ai` runs `--code-review-graph`, `--arxiv`, `--searxng-mcp`, and `--hermes`. `--hermes` installs [Hermes Agent](https://github.com/NousResearch/hermes-agent) from its Nix flake (`hermes setup` for `~/.hermes/`). You can also run `bin/hermes` without profile install (`nix run` each time). `--gsd` installs [Get Shit Done](https://github.com/gsd-build/get-shit-done) via npx; `--all` for everything. See `--help`.
 
 ### apply-stack-models.sh
 

@@ -11,7 +11,7 @@ uv_tool_present() {
 }
 
 usage() {
-  echo "Usage: $0 [--gsd] [--code-review-graph] [--arxiv] [--searxng-mcp] [--all]"
+  echo "Usage: $0 [--gsd] [--code-review-graph] [--arxiv] [--searxng-mcp] [--hermes] [--all]"
   echo ""
   echo "  --gsd                  Get Shit Done — spec-driven workflow for Claude Code + OpenCode"
   echo "                         https://github.com/gsd-build/get-shit-done"
@@ -20,7 +20,9 @@ usage() {
   echo "  --arxiv                arXiv search/read MCP (uv)"
   echo "                         https://github.com/blazickjp/arxiv-mcp-server"
   echo "  --searxng-mcp          Web search MCP via local SearXNG (PyPI: searxng-mcp-server)"
-  echo "  --all                  All of the above"
+  echo "  --hermes               Hermes Agent CLI (Nix flake; needs nix on PATH)"
+  echo "                         https://github.com/NousResearch/hermes-agent"
+  echo "  --all                  All of the above (including --hermes)"
   echo ""
   echo "GSD: installs into ~/.claude/ and ~/.config/opencode/ via upstream npx installer."
   echo "code-review-graph: uv tool install + registers MCP (merges with your Claude config)."
@@ -72,6 +74,24 @@ do_arxiv() {
   echo "    MCP wired in generated/*.json. Papers cache: ~/.arxiv-mcp-server/papers (or ARXIV_STORAGE_PATH)"
 }
 
+do_hermes() {
+  echo "==> Hermes Agent (NousResearch/hermes-agent Nix flake)..."
+  if ! command -v nix >/dev/null 2>&1; then
+    echo "nix not found. Install Nix with flakes enabled." >&2
+    exit 1
+  fi
+  if command -v hermes >/dev/null 2>&1; then
+    echo "    hermes already on PATH ($(command -v hermes))"
+  elif nix profile list 2>/dev/null | grep -q 'hermes-agent'; then
+    echo "    hermes-agent already in nix profile"
+  else
+    nix profile install github:NousResearch/hermes-agent
+  fi
+  echo "    First time: hermes setup   (config in ~/.hermes/)"
+  echo "    Chat:       hermes  or  hermes chat"
+  echo "    Ephemeral:  ${ROOT}/bin/hermes setup"
+}
+
 do_searxng_mcp() {
   echo "==> Installing searxng-mcp-server (uv tool)..."
   if ! command -v uv >/dev/null 2>&1; then
@@ -99,11 +119,13 @@ for arg in "$@"; do
     --code-review-graph) do_crg ;;
     --arxiv) do_arxiv ;;
     --searxng-mcp) do_searxng_mcp ;;
+    --hermes) do_hermes ;;
     --all)
       do_gsd
       do_crg
       do_arxiv
       do_searxng_mcp
+      do_hermes
       ;;
     -h|--help) usage; exit 0 ;;
     *) echo "Unknown: $arg"; usage; exit 1 ;;

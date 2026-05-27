@@ -57,11 +57,16 @@ let
     export OLLAMA_HOST="''${OLLAMA_HOST:-http://127.0.0.1:11434}"
     exec ${pkgs.nodejs_22}/bin/npx -y opencode-ai "$@"
   '';
+
+  hermesWrapper = pkgs.writeShellScriptBin "hermes" ''
+    exec "${aiStackDir}/bin/hermes" "$@"
+  '';
 in
 {
   home.packages = [
     claudeWrapper
     opencodeWrapper
+    hermesWrapper
   ];
 
   home.file = commandDeployment // opencodeAgentDeployment // claudeAgentDeployment;

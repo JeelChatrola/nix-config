@@ -26,8 +26,8 @@ echo "Building home-manager configuration ($FLAKE_TARGET)..."
 hm_switch
 
 echo ""
-echo "Installing MCP helper CLIs (code-review-graph, arxiv, searxng-mcp via uv)..."
-bash ai-stack/scripts/install-optional-agents.sh --code-review-graph --arxiv --searxng-mcp
+echo "Installing optional agent CLIs (MCP helpers + Hermes)..."
+bash ai-stack/scripts/install-optional-agents.sh --code-review-graph --arxiv --searxng-mcp --hermes
 echo ""
 
 if bash ai-stack/scripts/ai-stack-docker-wanted.sh; then
@@ -62,7 +62,7 @@ else
 fi
 
 echo ""
-echo "CLI agents:    claude, opencode"
+echo "CLI agents:    claude, opencode, hermes  (hermes setup once for ~/.hermes/)"
 
 echo ""
 echo "Done. Restart your terminal or run: exec zsh"
