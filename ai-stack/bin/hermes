@@ -1,4 +1,14 @@
 #!/usr/bin/env bash
-# Hermes Agent via official Nix flake (no curl installer). First run may build the flake.
+# Hermes Agent via this repo's flake (messaging extra includes discord.py).
 set -euo pipefail
-exec nix run github:NousResearch/hermes-agent -- "$@"
+REPO_ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
+FIX_SCRIPT="${REPO_ROOT}/ai-stack/scripts/fix-hermes-gateway-service.sh"
+
+# gateway install/restart regenerates a unit that calls the inner venv without
+# HERMES_BUNDLED_PLUGINS; re-point systemd at the flake wrapper afterward.
+if [[ "${1:-}" == "gateway" && ( "${2:-}" == "install" || "${2:-}" == "restart" ) ]]; then
+  nix run "path:${REPO_ROOT}#hermes" -- "$@"
+  exec "$FIX_SCRIPT"
+fi
+
+exec nix run "path:${REPO_ROOT}#hermes" -- "$@"
