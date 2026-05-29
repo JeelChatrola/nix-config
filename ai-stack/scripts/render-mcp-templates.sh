@@ -66,3 +66,7 @@ jq --slurpfile sm "$SM_TMP" '
 ' "$TMP1" >"$GEN_DIR/opencode.json"
 rm -f "$TMP1"
 echo "render-mcp-templates: wrote generated/opencode.json"
+
+if [[ -x "$SCRIPT_DIR/sync-hermes-searxng.sh" ]]; then
+  bash "$SCRIPT_DIR/sync-hermes-searxng.sh"
+fi

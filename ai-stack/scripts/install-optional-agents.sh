@@ -93,6 +93,9 @@ do_hermes() {
   if [[ -f "${HOME}/.config/systemd/user/hermes-gateway.service" ]]; then
     bash "${ROOT}/scripts/fix-hermes-gateway-service.sh"
   fi
+  if [[ -f "${ROOT}/.env" ]] && [[ -x "${ROOT}/scripts/sync-hermes-searxng.sh" ]]; then
+    bash "${ROOT}/scripts/sync-hermes-searxng.sh" || true
+  fi
 }
 
 do_searxng_mcp() {
