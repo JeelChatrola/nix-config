@@ -37,11 +37,18 @@ subst_url() {
   jq --arg url "$SEARXNG_URL" 'walk(if . == "__SEARXNG_URL__" then $url else . end)' "$1"
 }
 
+subst_text_url() {
+  sed "s|__SEARXNG_URL__|$SEARXNG_URL|g" "$1"
+}
+
 subst_url "$STACK_DIR/config/claude-settings.template.json" >"$GEN_DIR/claude-settings.json"
 echo "render-mcp-templates: wrote generated/claude-settings.json (SEARXNG_URL=$SEARXNG_URL)"
 
 subst_url "$STACK_DIR/config/mcpo.template.json" >"$GEN_DIR/mcpo-config.json"
 echo "render-mcp-templates: wrote generated/mcpo-config.json"
+
+subst_text_url "$STACK_DIR/config/hermes-mcp.template.yaml" >"$GEN_DIR/hermes-mcp.yaml"
+echo "render-mcp-templates: wrote generated/hermes-mcp.yaml"
 
 TMP1="$GEN_DIR/opencode.step1.json"
 subst_url "$STACK_DIR/config/opencode.template.json" >"$TMP1"
@@ -66,6 +73,10 @@ jq --slurpfile sm "$SM_TMP" '
 ' "$TMP1" >"$GEN_DIR/opencode.json"
 rm -f "$TMP1"
 echo "render-mcp-templates: wrote generated/opencode.json"
+
+if [[ -f "$SCRIPT_DIR/sync-hermes-mcp.sh" ]]; then
+  bash "$SCRIPT_DIR/sync-hermes-mcp.sh"
+fi
 
 if [[ -x "$SCRIPT_DIR/sync-hermes-searxng.sh" ]]; then
   bash "$SCRIPT_DIR/sync-hermes-searxng.sh"

@@ -58,6 +58,16 @@
       "command": "uv",
       "args": ["tool", "run", "arxiv-mcp-server"],
       "description": "arXiv MCP (uv tool install arxiv-mcp-server)"
+    },
+    "context7": {
+      "command": "npx",
+      "args": ["-y", "@upstash/context7-mcp@3.0.0"],
+      "description": "Current library documentation and examples from Context7 (optional CONTEXT7_API_KEY for higher limits)"
+    },
+    "deepwiki": {
+      "type": "http",
+      "url": "https://mcp.deepwiki.com/mcp",
+      "description": "DeepWiki remote MCP for public GitHub repository documentation"
     }
   }
 }

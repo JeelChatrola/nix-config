@@ -75,7 +75,7 @@ in
   home.activation.aiStackGeneratedAndLinks = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
     set -euo pipefail
     export AI_STACK_DIR="${aiStackDir}"
-    export PATH="${lib.makeBinPath [ pkgs.jq pkgs.curl ]}:$PATH"
+    export PATH="${lib.makeBinPath [ pkgs.jq pkgs.yq-go pkgs.curl ]}:$PATH"
     if [[ -x "${aiStackDir}/bin/ai-stack" ]]; then
       "${aiStackDir}/bin/ai-stack" sync
     else

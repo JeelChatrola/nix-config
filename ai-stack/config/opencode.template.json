@@ -71,6 +71,19 @@
         "run",
         "arxiv-mcp-server"
       ]
+    },
+    "context7": {
+      "type": "local",
+      "command": [
+        "npx",
+        "-y",
+        "@upstash/context7-mcp@3.0.0"
+      ]
+    },
+    "deepwiki": {
+      "type": "remote",
+      "url": "https://mcp.deepwiki.com/mcp",
+      "enabled": true
     }
   },
   "permission": {

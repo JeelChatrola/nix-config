@@ -25,6 +25,14 @@
     "arxiv": {
       "command": "uv",
       "args": ["tool", "run", "arxiv-mcp-server"]
+    },
+    "context7": {
+      "command": "npx",
+      "args": ["-y", "@upstash/context7-mcp@3.0.0"]
+    },
+    "deepwiki": {
+      "type": "streamable-http",
+      "url": "https://mcp.deepwiki.com/mcp"
     }
   }
 }

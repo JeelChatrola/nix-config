@@ -1,10 +1,10 @@
 # AI stack
 
-You can use this directory **without Nix**: install [Docker](https://docs.docker.com/engine/install/), `jq`, `curl`, `uv`, Node/`npx`, Python 3, then run `bin/ai-stack doctor`, `bin/ai-stack sync`, and `bin/ai-stack up`. For user-level symlinks into `~/.config`, run `bin/ai-stack install`.
+You can use this directory **without Nix**: install [Docker](https://docs.docker.com/engine/install/), `jq`, `yq`, `curl`, `uv`, Node/`npx`, Python 3, then run `bin/ai-stack doctor`, `bin/ai-stack sync`, and `bin/ai-stack up`. For user-level symlinks into `~/.config`, run `bin/ai-stack install`.
 
 There are two layers:
 
-1. **Agents / MCP / commands** (portable): templates in `config/*.template.json` render to `generated/*.json` (gitignored). `bin/ai-stack sync` applies `stack-models.json` and live Ollama tags. Optional: **Nix / home-manager** (flake output `*-ai`) installs `claude` / `opencode` / `hermes` wrappers, copies commands and agents from the flake, runs `ai-stack sync` on switch, and symlinks `~/.config/...` to `generated/*.json` under your checkout (`AI_STACK_DIR`). **Hermes** is `bin/hermes` (`nix run` from repo root `#hermes`, includes `messaging` for Discord/Telegram) or `install-optional-agents.sh --hermes` (`nix profile install` from the same flake output).
+1. **Agents / MCP / commands** (portable): templates in `config/*.template.json` and `config/hermes-mcp.template.yaml` render to `generated/` (gitignored). `bin/ai-stack sync` applies `stack-models.json`, merges generated Hermes MCP servers into `~/.hermes/config.yaml`, and syncs live Ollama tags. Optional: **Nix / home-manager** (flake output `*-ai`) installs `claude` / `opencode` / `hermes` wrappers, copies commands and agents from the flake, runs `ai-stack sync` on switch, and symlinks `~/.config/...` to `generated/*.json` under your checkout (`AI_STACK_DIR`). **Hermes** is `bin/hermes` (`nix run` from repo root `#hermes`, includes `messaging` for Discord/Telegram) or `install-optional-agents.sh --hermes` (`nix profile install` from the same flake output).
 2. **Docker Compose**: Ollama, LobeChat, SearXNG, and an optional vLLM profile (OpenAI-compatible API on port 8000).
 
 To deploy only the Home Manager side, set `AI_STACK_DOCKER=0` in `ai-stack/.env` or use `./deploy.sh --ai --no-docker`. `./deploy.sh --ai` still runs `bin/ai-stack sync` first so `generated/` exists before `home-manager switch`. Use `ai-up` when you want the containers. You can add services in `docker-compose.yml`; the same Docker on/off switch applies to the whole stack from deploy.
@@ -30,7 +30,7 @@ To deploy only the Home Manager side, set `AI_STACK_DOCKER=0` in `ai-stack/.env`
 
 5. **Models:** Edit `stack-models.json`: add Ollama tags to `ollama.pull` and optionally set `vllm.model` (and `vllm.image_tag`, `max_model_len`, etc.). Run `bin/ai-stack sync` or `bash ai-stack/scripts/apply-stack-models.sh` or use `ai-up` / `./deploy.sh --ai`. Ad-hoc: `ollama-pull <tag>`. Prefer tool-calling coder models for agents; small chat-only weights often skip tools.
 
-After changing `ai-stack/config/*.template.json` or agents: `bin/ai-stack sync` and restart Claude Code / OpenCode (or `./deploy.sh` / `home-manager switch` if you use Nix).
+After changing `ai-stack/config/*.template.json`, `ai-stack/config/hermes-mcp.template.yaml`, or agents: `bin/ai-stack sync` and restart Claude Code / OpenCode. In Hermes, run `/reload-mcp` or restart the chat.
 
 ## API keys (optional)
 
@@ -42,11 +42,12 @@ Nothing is required for local Ollama only. Add keys only for the features below.
 | Provider keys (`OPENAI_API_KEY`, `ANTHROPIC_API_KEY`, …) | OpenCode cloud models | OpenCode `/connect` or provider setup; export in shell if needed. `generated/opencode.json` configures Ollama and optional vLLM (`http://localhost:8000/v1`); add more per [OpenCode config](https://opencode.ai/docs/config). |
 | `OPENAI_API_KEY`, `ANTHROPIC_API_KEY`, … | LobeChat web UI with hosted models | `ai-stack/.env` (copy from `.env.example`), then `docker compose … up -d` again; finish provider setup in Lobe if needed. |
 | — | searxng MCP | SearXNG must be running (`ai-up`). Set `SEARXNG_PORT` in `ai-stack/.env`; `bin/ai-stack sync` injects the URL into `generated/*.json`. Install with `./deploy.sh --ai` or `install-optional-agents.sh --searxng-mcp`. |
+| `CONTEXT7_API_KEY` | Higher Context7 rate limits | Optional. Export in the shell before starting Claude/OpenCode, or put it in `~/.hermes/.env` for Hermes. Context7 works without it for basic usage. |
 | `HF_TOKEN` | Gated Hugging Face weights (Ollama pulls, vLLM download) | `ai-stack/.env` (passed into `ollama` and `vllm` services). |
 | `stack-models.json` | vLLM HF id, image tag, port, context, GPU util; Ollama pull list | `stack-models.json` → `apply-stack-models.sh` → `models.compose.env`. Used with `docker compose --env-file models.compose.env` (`ai-up`, `ai-up-vllm`). |
 | `ALPHAXIV_API_KEY` | alphaxiv skill | Shell env; see `skills/learning/alphaxiv/SKILL.md`. |
 
-Web search for agents uses SearXNG plus PyPI `searxng-mcp-server` (same script path as arxiv/code-review-graph). MCP entries live in `config/*.template.json` and appear in `generated/opencode.json` / `generated/claude-settings.json` after `bin/ai-stack sync`.
+Web search for agents uses SearXNG plus PyPI `searxng-mcp-server` (same script path as arxiv/code-review-graph). MCP entries live in `config/*.template.json` and `config/hermes-mcp.template.yaml`; after `bin/ai-stack sync`, they appear in generated Claude/OpenCode/MCPO JSON and are merged into Hermes config.
 
 ## Day-to-day
 
@@ -88,7 +89,7 @@ VRAM limits still apply: on a 16 GiB class GPU, prefer smaller checkpoints, supp
 
 - Agent ignores tools: model may not be tool-capable; try another Ollama tag or a cloud model in OpenCode.
 - SearXNG / search MCP errors: ensure `ai-up` (or compose) is running, `searxng-mcp-server` is installed (`uv tool install searxng-mcp-server` or `./deploy.sh --ai`), and MCP URLs match `SEARXNG_PORT` (default 8080 on host).
-- MCP changes not visible: redeploy and fully quit/restart the agent.
+- MCP changes not visible: redeploy and fully quit/restart Claude/OpenCode. In Hermes, run `/reload-mcp` or restart the chat.
 - vLLM exits or OOM: reduce `vllm.max_model_len` / `vllm.gpu_memory_utilization`, pick a smaller `vllm.model`, or bump `vllm.image_tag` in `stack-models.json`, run `apply-stack-models.sh`, then `ai-up-vllm`. Check `docker logs vllm-openai`.
 - Hermes gateway: `No adapter available for discord` — Nix bundles platform plugins outside the inner venv; Hermes's systemd unit omits `HERMES_BUNDLED_PLUGINS`. Run `bash ai-stack/scripts/fix-hermes-gateway-service.sh` once (installs a systemd drop-in). Use `ai-stack/bin/hermes` for `gateway install` / `gateway restart` so the drop-in is refreshed automatically. Confirm `~/.hermes/logs/gateway.log` shows `✓ discord connected`.
 
@@ -144,7 +145,7 @@ Commit `.cursor/`, `.opencode/`, `.claude/`, `AGENTS.md`, and `CLAUDE.md` in tha
 
 ### install-optional-agents.sh (user / global)
 
-Run from `ai-stack/` or with the script path. `./deploy.sh --ai` runs `--code-review-graph`, `--arxiv`, `--searxng-mcp`, and `--hermes`. `--hermes` installs [Hermes Agent](https://github.com/NousResearch/hermes-agent) from its Nix flake (`hermes setup` for `~/.hermes/`). You can also run `bin/hermes` without profile install (`nix run` each time). `--gsd` installs [Get Shit Done](https://github.com/gsd-build/get-shit-done) via npx; `--all` for everything. See `--help`.
+Run from `ai-stack/` or with the script path. `./deploy.sh --ai` runs `--code-review-graph`, `--arxiv`, `--searxng-mcp`, and `--hermes`. `--hermes` installs [Hermes Agent](https://github.com/NousResearch/hermes-agent) from its Nix flake (`hermes setup` for `~/.hermes/`). Context7 runs through pinned `npx`; DeepWiki is a remote MCP, so neither needs a local installer. You can also run `bin/hermes` without profile install (`nix run` each time). `--gsd` installs [Get Shit Done](https://github.com/gsd-build/get-shit-done) via npx; `--all` for everything. See `--help`.
 
 ### apply-stack-models.sh
 
@@ -154,9 +155,13 @@ Reads `ai-stack/stack-models.json`. Writes `ai-stack/models.compose.env` (gitign
 
 Updates `provider.ollama.models` in `generated/opencode.json` only. Invoked after Docker Ollama starts when using `./deploy.sh --ai` or `bin/ai-stack up`, or run manually when Ollama is up.
 
+### sync-hermes-mcp.sh
+
+Merges `generated/hermes-mcp.yaml` into `~/.hermes/config.yaml` under `mcp_servers`. It keeps a first-run backup at `~/.hermes/config.yaml.ai-stack.bak` and is invoked by `bin/ai-stack sync`.
+
 ## Reference
 
-Templates in git: `ai-stack/config/*.template.json`. Runtime output: `ai-stack/generated/*.json` (symlinked from `~/.config/opencode/opencode.json` and `~/.config/claude/settings.json` when using Nix, or via `bin/ai-stack install`). OpenCode reads MCP from `opencode.json` (`mcp` + `type: "local"` + `command` array); see [OpenCode MCP docs](https://opencode.ai/docs/mcp-servers). Keep Claude (`mcpServers` in `claude-settings`) and OpenCode (`mcp` in `opencode`) aligned when you add a server.
+Templates in git: `ai-stack/config/*.template.json` and `ai-stack/config/hermes-mcp.template.yaml`. Runtime output: `ai-stack/generated/` (JSON is symlinked from `~/.config/opencode/opencode.json` and `~/.config/claude/settings.json` when using Nix, or via `bin/ai-stack install`; Hermes YAML is merged into `~/.hermes/config.yaml`). OpenCode reads MCP from `opencode.json` (`mcp` + `type: "local"` / `"remote"`); Claude reads `mcpServers`; Hermes reads `mcp_servers`. Keep these aligned when you add a server.
 
 **Bash permissions:** OpenCode `permission.bash` and Claude `permissions.allow` both use an ask-by-default policy for arbitrary commands; only common dev tools are pre-approved. Network-heavy tools (`curl`, `wget`, `nix`) are not allow-listed in OpenCode to match Claude’s narrower stance.
 

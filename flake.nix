@@ -23,6 +23,8 @@
       pkgs = import nixpkgs {
         inherit system;
         overlays = import ./overlays/default.nix;
+        config.allowUnfreePredicate = pkg:
+          builtins.elem (nixpkgs.lib.getName pkg) [ "vim-polyglot" ];
       };
       # Gateway needs discord.py; upstream default Nix package is [all] only (no messaging extra).
       hermesMessaging = hermes-agent.packages.${system}.default.override {

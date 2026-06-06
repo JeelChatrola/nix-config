@@ -11,8 +11,8 @@ usage() {
 Usage: ai-stack <command> [options]
 
 Commands:
-  doctor              Check prerequisites (docker, jq, curl, uv, npx, python3)
-  sync                Render MCP templates → generated/, apply stack-models (--no-pull), sync Ollama tags
+  doctor              Check prerequisites (docker, jq, yq, curl, uv, npx, python3)
+  sync                Render MCP templates → generated/, merge Hermes MCP, apply stack-models (--no-pull), sync Ollama tags
   install [--copy] [--dry-run]
                       Symlink (default) or copy commands/agents + link generated/*.json into ~/.config
   up [--vllm]         sync + docker compose up -d; then apply (with pull) + sync Ollama
@@ -30,7 +30,7 @@ EOF
 
 doctor() {
   local missing=0
-  for c in docker jq curl uv npx python3; do
+  for c in docker jq yq curl uv npx python3; do
     if command -v "$c" >/dev/null 2>&1; then
       echo "  ok: $c"
     else
