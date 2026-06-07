@@ -1,27 +1,37 @@
-# Ignore Nix build artifacts and temporary files
+# Nix build artifacts and temporary files
 result
 .direnv
 .envrc
 
-# Ignore backup files
+# Backup files
 *.backup
 *.bak
 *.tmp
 
-# Ignore editor files
+# Editor and IDE
 *~
 .*.swp
 .*.swo
 .vscode/
 .idea/
+.cursor/
 __pycache__/
 
-# Ignore OS files
+# OS files
 .DS_Store
 Thumbs.db
 
-# AI stack secrets - never commit API keys
+# Local agent planning scratch (not ~/.hermes runtime config)
+.hermes/
+
+# code-review-graph MCP local database (absolute paths, machine-specific)
+.code-review-graph/
+
+# AI stack secrets — never commit API keys
 ai-stack/.env
 
-# AI stack generated at runtime (MCP JSON, compose env from stack-models)
+# AI stack runtime output (rendered MCP JSON/YAML, stale Claude/vLLM artifacts)
 ai-stack/generated/
+
+# Legacy compose env from removed vLLM stack (safe to delete locally)
+ai-stack/models.compose.env

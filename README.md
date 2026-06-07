@@ -53,6 +53,14 @@ Generated files (Nix manages these):
 
 Key concept: you edit files in this repo. Nix generates the dotfiles in your home directory. Never edit generated files directly.
 
+Gitignored in this repo (see `.gitignore`):
+
+- `ai-stack/.env` — API keys and deploy toggles (copy from `.env.example`)
+- `ai-stack/generated/` — rendered MCP JSON/YAML from templates
+- `.hermes/` — local planning notes (not `~/.hermes/` runtime config)
+- `.code-review-graph/` — code-review-graph MCP database
+- `result`, `.direnv`, editor caches
+
 ## Repository Structure
 
 ```
