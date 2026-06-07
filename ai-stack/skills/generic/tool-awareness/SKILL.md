@@ -12,8 +12,8 @@ Use them directly instead of writing scripts that replicate their functionality.
 - `rg` (ripgrep) -- fast recursive grep. Use instead of `grep -r`.
 - `fd` -- fast file finder. Use instead of `find`.
 - `fzf` -- fuzzy finder. Pipe anything into it for interactive selection.
-- `zoxide` (`z`, `zi`) -- frecent directory jumps; `zi` is the official interactive picker (uses fzf).
-- `broot` (`br`) -- tree navigator for paths you have not visited; Alt+Enter to `cd`.
+- `zoxide` (`cd`, `zi`) -- `cd` is zoxide-powered (frecent); `zi` is the interactive picker.
+- `broot` (`br`) -- when zoxide does not know the path yet; Alt+Enter to `cd`.
 - `bat` -- cat with syntax highlighting. Use for displaying file contents.
 - `eza` -- modern ls with git status and icons.
 - `tree` -- directory structure display.

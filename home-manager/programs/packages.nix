@@ -57,8 +57,8 @@
     git-lfs           # Git Large File Storage (handle large files in git)
     nodejs_22         # Node.js runtime for opencode, MCP servers, and general JS tooling
     zsh               # Z shell (alternative to bash)
-    zoxide            # Smart cd: z (frecent), zi (interactive fzf picker)
-    broot             # Tree navigator: br, then Alt+Enter to cd anywhere on disk
+    zoxide            # Replaces cd (frecent); zi = interactive picker
+    broot             # br + Alt+Enter when cd/zi do not know the path yet
     tmux              # Terminal multiplexer (split terminals, sessions)
 
     # =============================================================================

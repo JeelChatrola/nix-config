@@ -112,12 +112,11 @@
         # GUI-style line editor keys (Ctrl+arrow, Ctrl+C copy, Ctrl+Enter, etc.)
         ${builtins.readFile ../configs/zsh-keybindings.sh}
 
-        # Directory navigation (proper tools, not custom wrappers):
-        #   z / zi  — zoxide (frecent jumps; zi = official interactive fzf UI)
-        #   br      — broot (tree finder for any path, Alt+Enter to cd)
-        #   Alt+C   — fzf directory jump (programs.fzf zsh integration)
+        # Directory navigation:
+        #   cd / zi — zoxide (--cmd cd): frecent jumps on paths you have used
+        #   br      — broot: tree search for paths you have never visited; Alt+Enter to cd
         export _ZO_FZF_OPTS="--height 40% --layout=reverse --border rounded --preview 'eza -1 --color=always {} 2>/dev/null || ls -la {}'"
-        eval "$(zoxide init zsh)"
+        eval "$(zoxide init zsh --cmd cd)"
         if command -v broot >/dev/null 2>&1; then
           eval "$(broot --print-shell-function zsh 2>/dev/null)" || true
         fi
