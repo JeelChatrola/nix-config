@@ -112,8 +112,15 @@
         # GUI-style line editor keys (Ctrl+arrow, Ctrl+C copy, Ctrl+Enter, etc.)
         ${builtins.readFile ../configs/zsh-keybindings.sh}
 
-        # zoxide: `z` / `zi` for frequent dirs; smart `cd` (below) handles new paths via fzf+fd
+        # Directory navigation (proper tools, not custom wrappers):
+        #   z / zi  — zoxide (frecent jumps; zi = official interactive fzf UI)
+        #   br      — broot (tree finder for any path, Alt+Enter to cd)
+        #   Alt+C   — fzf directory jump (programs.fzf zsh integration)
+        export _ZO_FZF_OPTS="--height 40% --layout=reverse --border rounded --preview 'eza -1 --color=always {} 2>/dev/null || ls -la {}'"
         eval "$(zoxide init zsh)"
+        if command -v broot >/dev/null 2>&1; then
+          eval "$(broot --print-shell-function zsh 2>/dev/null)" || true
+        fi
       '')
       (lib.mkOrder 1200 ''
         # Force Ctrl+R widget options explicitly. In some HM/fzf setups the

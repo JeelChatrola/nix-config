@@ -124,54 +124,6 @@ ai-boot() {
 }
 
 # =============================================================================
-# SMART CD (zoxide + fzf + fd)
-# =============================================================================
-# z / zi  — zoxide: jump to dirs you have visited before
-# cd      — alone: pick any dir under $HOME via fzf
-# cd foo  — normal cd; if path missing, fuzzy-find dirs matching foo (incl. never visited)
-# cdf     — always open the fzf dir picker (alias)
-
-_pick_dir() {
-  local query="${1:-}"
-  local -a fzf_args=(
-    --prompt='cd> '
-    --height 40%
-    --layout=reverse
-    --border rounded
-    --preview 'eza -1 --color=always {} 2>/dev/null || ls -la {}'
-    --exit-0
-  )
-  [[ -n "$query" ]] && fzf_args+=(--query "$query" --select-1)
-
-  {
-    fd --type d --max-depth 5 . 2>/dev/null
-    fd --type d --hidden --follow --max-depth 7 \
-      --exclude .git --exclude node_modules --exclude .cache --exclude .local/share/Trash \
-      "$HOME" 2>/dev/null
-  } | awk '!seen[$0]++' | fzf "${fzf_args[@]}"
-}
-
-cd() {
-  local dest
-  if (( $# == 0 )); then
-    dest="$(_pick_dir)" || return $?
-    builtin cd -- "$dest"
-  elif (( $# == 1 )) && [[ ! -d "$1" ]]; then
-    dest="$(_pick_dir "$1")" || return $?
-    builtin cd -- "$dest"
-  else
-    builtin cd -- "$@" || return $?
-  fi
-  command zoxide add -- "$(pwd -P)" 2>/dev/null
-}
-
-cdf() {
-  local dest
-  dest="$(_pick_dir "$@")" || return $?
-  cd -- "$dest"
-}
-
-# =============================================================================
 # CUSTOM FUNCTIONS
 # =============================================================================
 # Quick directory navigation
