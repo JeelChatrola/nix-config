@@ -2,7 +2,6 @@
 
 <!-- Copy this template into your project root and fill in the sections. -->
 <!-- Delete sections that don't apply. Read by OpenCode at session start. -->
-<!-- Also read by Claude Code (as fallback if no CLAUDE.md). -->
 
 ## Project
 

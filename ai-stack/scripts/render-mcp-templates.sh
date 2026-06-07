@@ -41,12 +41,6 @@ subst_text_url() {
   sed "s|__SEARXNG_URL__|$SEARXNG_URL|g" "$1"
 }
 
-subst_url "$STACK_DIR/config/claude-settings.template.json" >"$GEN_DIR/claude-settings.json"
-echo "render-mcp-templates: wrote generated/claude-settings.json (SEARXNG_URL=$SEARXNG_URL)"
-
-subst_url "$STACK_DIR/config/mcpo.template.json" >"$GEN_DIR/mcpo-config.json"
-echo "render-mcp-templates: wrote generated/mcpo-config.json"
-
 subst_text_url "$STACK_DIR/config/hermes-mcp.template.yaml" >"$GEN_DIR/hermes-mcp.yaml"
 echo "render-mcp-templates: wrote generated/hermes-mcp.yaml"
 

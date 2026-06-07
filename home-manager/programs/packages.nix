@@ -23,19 +23,12 @@
     jq                # JSON processor and query tool
     yq-go             # YAML processor (like jq but for YAML)
     fastfetch         # System information display tool
+    xclip             # X11 clipboard (zsh copy/cut widgets)
     rsync             # Remote file synchronization
     rclone            # Cloud storage management (sync, copy, mount cloud storage)
     lf                # Terminal file manager (fast, simple, vi-like)
     gping             # Ping with a graph (visual network latency)
     
-    # =============================================================================
-    # AI / LLM TOOLS
-    # =============================================================================
-    # 0.9.2 via flake overlays/llmfit.nix until nixpkgs-unstable ships it
-    pkgsUnstable.llmfit
-    magika                        # file type detection (locked nixpkgs has magika; magika-cli attr is newer)
-    python313Packages.markitdown  # Convert files and office documents to Markdown
-
     # =============================================================================
     # PRODUCTIVITY & KNOWLEDGE TOOLS
     # =============================================================================
@@ -44,13 +37,25 @@
     buku              # Powerful bookmark manager for URLs
 
     # =============================================================================
+    # DATA & DOCUMENT TOOLS
+    # =============================================================================
+    magika                        # AI-powered file type detection (works standalone, not just for AI)
+    python313Packages.markitdown  # Convert files and office documents to Markdown
+
+    # =============================================================================
+    # LLM UTILITIES
+    # =============================================================================
+    # 0.9.2 via flake overlays/llmfit.nix until nixpkgs-unstable ships it
+    pkgsUnstable.llmfit
+
+    # =============================================================================
     # CORE DEVELOPMENT TOOLS
     # =============================================================================
     curl              # Transfer data with URLs (HTTP, FTP, etc.)
     wget              # Non-interactive network downloader
     git               # Distributed version control system
     git-lfs           # Git Large File Storage (handle large files in git)
-    nodejs_22         # Node.js runtime for Claude Code, opencode, and MCP servers
+    nodejs_22         # Node.js runtime for opencode, MCP servers, and general JS tooling
     zsh               # Z shell (alternative to bash)
     zoxide            # Fast directory jumper (replaces oh-my-zsh "z" plugin)
     tmux              # Terminal multiplexer (split terminals, sessions)

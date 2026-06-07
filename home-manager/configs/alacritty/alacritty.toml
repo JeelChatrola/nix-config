@@ -2,3 +2,11 @@
 dimensions = { columns = 120, lines = 35 }
 position = { x = 700, y = 350 }
 startup_mode = "Windowed"
+
+# GUI-style clipboard: Ctrl+V paste at terminal level.
+# Ctrl+C copy is handled in zsh (copy-or-interrupt widget) so line-editor
+# selections work; use Ctrl+Shift+C to copy mouse-selected scrollback text.
+[keyboard]
+bindings = [
+  { key = "V", mods = "Control", action = "Paste" },
+]

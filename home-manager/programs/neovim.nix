@@ -6,7 +6,9 @@
 {
   programs.neovim = {
     enable = true;
-    
+    withRuby = false;
+    withPython3 = false;
+
     # Use a custom neovim configuration
     defaultEditor = true;
     

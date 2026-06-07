@@ -109,6 +109,9 @@
         # Import aliases and environment from external file
         ${builtins.readFile ../configs/zsh-aliases.sh}
 
+        # GUI-style line editor keys (Ctrl+arrow, Ctrl+C copy, Ctrl+Enter, etc.)
+        ${builtins.readFile ../configs/zsh-keybindings.sh}
+
         # Initialize zoxide (fast directory jumper)
         # --cmd cd: Replace 'cd' command so zoxide learns directories automatically
         eval "$(zoxide init zsh --cmd cd)"

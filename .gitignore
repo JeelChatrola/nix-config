@@ -25,4 +25,3 @@ ai-stack/.env
 
 # AI stack generated at runtime (MCP JSON, compose env from stack-models)
 ai-stack/generated/
-ai-stack/models.compose.env

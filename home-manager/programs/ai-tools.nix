@@ -13,18 +13,12 @@ let
 
   commandsDir = aiRoot + "/commands";
   opencodeAgentsDir = aiRoot + "/agents/opencode";
-  claudeAgentsDir = aiRoot + "/agents/claude";
 
   commandNames = mdFiles commandsDir;
   opencodeAgentNames = mdFiles opencodeAgentsDir;
-  claudeAgentNames = mdFiles claudeAgentsDir;
 
   commandDeployment = builtins.listToAttrs (
     builtins.concatMap (name: [
-      {
-        name = ".claude/commands/${name}";
-        value.source = aiRoot + "/commands/" + name;
-      }
       {
         name = ".config/opencode/commands/${name}";
         value.source = aiRoot + "/commands/" + name;
@@ -39,20 +33,6 @@ let
     }) opencodeAgentNames
   );
 
-  claudeAgentDeployment = builtins.listToAttrs (
-    map (name: {
-      name = ".claude/agents/${name}";
-      value.source = aiRoot + "/agents/claude/" + name;
-    }) claudeAgentNames
-  );
-
-  claudeWrapper = pkgs.writeShellScriptBin "claude" ''
-    export OLLAMA_HOST="''${OLLAMA_HOST:-http://127.0.0.1:11434}"
-    export ANTHROPIC_BASE_URL="''${ANTHROPIC_BASE_URL:-http://localhost:11434}"
-    export ANTHROPIC_AUTH_TOKEN="''${ANTHROPIC_AUTH_TOKEN:-ollama}"
-    exec ${pkgs.nodejs_22}/bin/npx -y @anthropic-ai/claude-code "$@"
-  '';
-
   opencodeWrapper = pkgs.writeShellScriptBin "opencode" ''
     export OLLAMA_HOST="''${OLLAMA_HOST:-http://127.0.0.1:11434}"
     exec ${pkgs.nodejs_22}/bin/npx -y opencode-ai "$@"
@@ -64,12 +44,13 @@ let
 in
 {
   home.packages = [
-    claudeWrapper
     opencodeWrapper
     hermesWrapper
   ];
 
-  home.file = commandDeployment // opencodeAgentDeployment // claudeAgentDeployment;
+  home.file = commandDeployment // opencodeAgentDeployment;
+
+  home.sessionVariables.AI_STACK_DIR = aiStackDir;
 
   # Generated MCP JSON under ai-stack/generated/ (mutable, gitignored). Refresh on switch, symlink into ~/.config.
   home.activation.aiStackGeneratedAndLinks = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
@@ -82,8 +63,7 @@ in
       echo "home-manager: missing ${aiStackDir}/bin/ai-stack" >&2
       exit 1
     fi
-    mkdir -p "${config.home.homeDirectory}/.config/opencode" "${config.home.homeDirectory}/.config/claude"
+    mkdir -p "${config.home.homeDirectory}/.config/opencode"
     ln -sfn "${aiStackDir}/generated/opencode.json" "${config.home.homeDirectory}/.config/opencode/opencode.json"
-    ln -sfn "${aiStackDir}/generated/claude-settings.json" "${config.home.homeDirectory}/.config/claude/settings.json"
   '';
 }

@@ -3,12 +3,6 @@
 
 { config, pkgs, lib, enableAI ? false, aiConfigRoot ? null, userProfile, ... }:
 
-let
-  # Mutable checkout: default ~/nix-config (matches historical zsh-aliases). Override aiConfigRoot in flake extraSpecialArgs if needed.
-  nixConfigRepo =
-    if aiConfigRoot != null then aiConfigRoot else config.home.homeDirectory + "/nix-config";
-  aiStackDir = nixConfigRepo + "/ai-stack";
-in
 {
   # =============================================================================
   # BASIC CONFIGURATION
@@ -16,7 +10,7 @@ in
   home.username = userProfile.username;
   home.homeDirectory = userProfile.homeDirectory;
   # Pin stateVersion; only bump when you intend to migrate Home Manager state (see home-manager release notes).
-  home.stateVersion = "23.05";
+  home.stateVersion = "26.05";
 
   # Enable home-manager
   programs.home-manager.enable = true;
@@ -34,8 +28,6 @@ in
     EDITOR = "nvim";
     BROWSER = "firefox";
     SHELL = "zsh";
-    # ai-up / ai-proj / deploy.sh expect this repo’s ai-stack/; set from flake path at switch time.
-    AI_STACK_DIR = aiStackDir;
   };
 
   # =============================================================================

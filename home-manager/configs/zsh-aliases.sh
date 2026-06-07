@@ -8,6 +8,14 @@ export TERM=xterm-256color
 export EDITOR='nvim'
 export PATH="$HOME/.local/bin:$PATH"
 
+# Quick rebuild — works from any directory.
+#   nix-refresh              base home-manager only
+#   nix-refresh --ai         base + AI stack (opencode, hermes, Docker, Hermes gateway restart)
+#   nix-refresh --ai --no-docker   AI without Docker (gateway still restarted if installed)
+nix-refresh() {
+  bash "$HOME/nix-config/deploy.sh" "$@"
+}
+
 # =============================================================================
 # GENERAL ALIASES
 # =============================================================================
@@ -65,18 +73,13 @@ alias ssh='ssh -o ServerAliveInterval=60'
 # Set by home-manager (~/nix-config/ai-stack by default; change aiConfigRoot in flake.nix if cloned elsewhere).
 : "${AI_STACK_DIR:=$HOME/nix-config/ai-stack}"
 
-# docker compose needs models.compose.env for vLLM variable substitution (even when
-# not using the vllm profile). Generated from stack-models.json by apply-stack-models.sh.
+# docker compose for ai-stack; reads ai-stack/.env when present (copy from .env.example).
 _ai_compose() {
-  docker compose --env-file "$AI_STACK_DIR/models.compose.env" -f "$AI_STACK_DIR/docker-compose.yml" "$@"
+  bash "$AI_STACK_DIR/scripts/docker-compose.sh" "$@"
 }
 
 ai-up() {
   bash "$AI_STACK_DIR/bin/ai-stack" up
-}
-
-ai-up-vllm() {
-  bash "$AI_STACK_DIR/bin/ai-stack" up --vllm
 }
 
 ai-down() { _ai_compose down; }
@@ -115,9 +118,9 @@ alias ollama-list='ai-ollama list'
 
 # install-skill.py: skills, templates, agents (see ai-stack/README.md). bootstrap needs explicit flags.
 alias ai-proj='python3 "$AI_STACK_DIR/scripts/install-skill.py"'
-# Opinionated: full bootstrap = templates + opencode+claude agent .md + all skills -> cursor, opencode, claude roots.
+# Opinionated: full bootstrap = templates + opencode agent .md + all skills -> cursor, opencode roots.
 ai-boot() {
-  python3 "$AI_STACK_DIR/scripts/install-skill.py" bootstrap -y --all --to cursor --to opencode --to claude "$@"
+  python3 "$AI_STACK_DIR/scripts/install-skill.py" bootstrap -y --all --to cursor --to opencode "$@"
 }
 
 # =============================================================================

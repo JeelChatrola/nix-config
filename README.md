@@ -62,7 +62,7 @@ nix-config/
 ├── deploy.sh                 # Runs home-manager switch; optional --ai for AI stack
 ├── overlays/
 │   └── llmfit.nix            # Example overlay (pinned llmfit version)
-├── ai-stack/                 # Claude/OpenCode/MCP, Docker stack (see ai-stack/README.md)
+├── ai-stack/                 # OpenCode/MCP, Docker stack (see ai-stack/README.md)
 │   ├── README.md
 │   ├── docker-compose.yml
 │   └── ...
@@ -106,17 +106,19 @@ nix-config/
 
    ```bash
    ./deploy.sh
+   # or from any directory after shell init: nix-refresh
    ```
 
    Home Manager uses flake outputs named after your Unix login (see `users` in `flake.nix`). By default `./deploy.sh` switches `.#$USER`. Override with `./deploy.sh --user LOGIN` if needed.
 
-   Optional **AI stack** (Claude Code, OpenCode, MCP configs, optional Docker for Ollama/Lobe/SearXNG):
+   Optional **AI stack** (OpenCode, Hermes, MCP configs, optional Docker for Ollama/SearXNG):
 
    ```bash
    ./deploy.sh --ai
+   # or: nix-refresh --ai
    ```
 
-   That selects `.#${USER}-ai` (or `.#${LOGIN}-ai` with `--user LOGIN`).
+   That selects `.#${USER}-ai` (or `.#${LOGIN}-ai` with `--user LOGIN`). If you have run `hermes gateway install` once, deploy restarts the gateway at the end so MCP config and Nix plugin paths are live.
 
    Skip Docker on that run:
 

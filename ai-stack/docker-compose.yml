@@ -25,84 +25,16 @@ services:
       - HF_TOKEN=${HF_TOKEN:-}
 
   # ---------------------------------------------------------------------------
-  # SearXNG - self-hosted search backend for Lobe online search
+  # SearXNG - self-hosted search backend for MCP web search
   # ---------------------------------------------------------------------------
   searxng:
     image: searxng/searxng:2026.4.13-ee66b070a
-    container_name: lobe-searxng
+    container_name: searxng
     restart: unless-stopped
     ports:
-      # Host MCP (Claude / OpenCode) uses this URL; Lobe uses docker network SEARXNG_URL
       - "${SEARXNG_PORT:-8080}:8080"
     volumes:
       - ./searxng-settings.yml:/etc/searxng/settings.yml:ro
 
-  # ---------------------------------------------------------------------------
-  # LobeChat - client mode (data stored in browser IndexedDB)
-  # Access: http://localhost:3210
-  # ---------------------------------------------------------------------------
-  lobe:
-    image: lobehub/lobe-chat:1.143.3
-    container_name: lobechat
-    restart: unless-stopped
-    ports:
-      - "${LOBE_PORT:-3210}:3210"
-    depends_on:
-      - ollama
-      - searxng
-    environment:
-      - OLLAMA_PROXY_URL=http://ollama:11434
-      - SEARXNG_URL=http://searxng:8080
-      - SEARCH_PROVIDERS=searxng
-      - CRAWLER_IMPLS=naive
-    env_file:
-      - path: .env
-        required: false
-
-  # ---------------------------------------------------------------------------
-  # vLLM — OpenAI-compatible API for Hugging Face model ids (optional profile)
-  # API: http://localhost:${VLLM_PORT:-8000}/v1  (start with: ai-up-vllm)
-  # ---------------------------------------------------------------------------
-  # vLLM image/ports/command use variables from models.compose.env — pass
-  #   docker compose --env-file models.compose.env
-  # (see zsh aliases ai-up / ai-up-vllm and apply-stack-models.sh).
-  vllm:
-    profiles:
-      - vllm
-    image: vllm/vllm-openai:${VLLM_IMAGE_TAG}
-    container_name: vllm-openai
-    ipc: host
-    shm_size: "4gb"
-    restart: unless-stopped
-    env_file:
-      - path: .env
-        required: false
-    ports:
-      - "${VLLM_PORT}:8000"
-    volumes:
-      - vllm-hf-cache:/root/.cache/huggingface
-    environment:
-      HUGGING_FACE_HUB_TOKEN: ${HF_TOKEN:-}
-      HF_TOKEN: ${HF_TOKEN:-}
-    command:
-      - --model
-      - ${VLLM_MODEL}
-      - --host
-      - "0.0.0.0"
-      - --port
-      - "8000"
-      - --max-model-len
-      - ${VLLM_MAX_MODEL_LEN}
-      - --gpu-memory-utilization
-      - ${VLLM_GPU_MEMORY_UTILIZATION}
-    deploy:
-      resources:
-        reservations:
-          devices:
-            - driver: nvidia
-              count: all
-              capabilities: [gpu]
-
 volumes:
   ollama-models:
-  vllm-hf-cache:

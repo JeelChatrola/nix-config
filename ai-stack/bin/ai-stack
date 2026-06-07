@@ -15,7 +15,7 @@ Commands:
   sync                Render MCP templates → generated/, merge Hermes MCP, apply stack-models (--no-pull), sync Ollama tags
   install [--copy] [--dry-run]
                       Symlink (default) or copy commands/agents + link generated/*.json into ~/.config
-  up [--vllm]         sync + docker compose up -d; then apply (with pull) + sync Ollama
+  up                  sync + docker compose up -d; then apply (with pull) + sync Ollama tags
   down                docker compose down
   bootstrap-project   Pass-through to install-skill.py bootstrap (same args after this word)
 
@@ -55,21 +55,14 @@ cmd_sync() {
 }
 
 cmd_up() {
-  local extra=()
-  while [[ $# -gt 0 ]]; do
-    case "$1" in
-      --vllm) extra+=(--profile vllm); shift ;;
-      *) break ;;
-    esac
-  done
   cmd_sync
-  docker compose --env-file "$AI_STACK_DIR/models.compose.env" -f "$AI_STACK_DIR/docker-compose.yml" "${extra[@]}" up -d "$@"
+  bash "$SCRIPTS/docker-compose.sh" up -d "$@"
   bash "$SCRIPTS/apply-stack-models.sh"
   bash "$SCRIPTS/sync-opencode-ollama-models.sh"
 }
 
 cmd_down() {
-  docker compose --env-file "$AI_STACK_DIR/models.compose.env" -f "$AI_STACK_DIR/docker-compose.yml" down "$@"
+  bash "$SCRIPTS/docker-compose.sh" down "$@"
 }
 
 cmd_install() {
@@ -96,7 +89,6 @@ cmd_install() {
     for f in "$AI_STACK_DIR/commands"/*.md; do
       [[ -e "$f" ]] || continue
       link_one "$f" "$HOME/.config/opencode/commands/$(basename "$f")"
-      link_one "$f" "$HOME/.claude/commands/$(basename "$f")"
     done
   fi
   if [[ -d "$AI_STACK_DIR/agents/opencode" ]]; then
@@ -105,16 +97,9 @@ cmd_install() {
       link_one "$f" "$HOME/.config/opencode/agents/$(basename "$f")"
     done
   fi
-  if [[ -d "$AI_STACK_DIR/agents/claude" ]]; then
-    for f in "$AI_STACK_DIR/agents/claude"/*.md; do
-      [[ -e "$f" ]] || continue
-      link_one "$f" "$HOME/.claude/agents/$(basename "$f")"
-    done
-  fi
   if ! $dry; then
-    mkdir -p "$HOME/.config/opencode" "$HOME/.config/claude"
+    mkdir -p "$HOME/.config/opencode"
     link_one "$AI_STACK_DIR/generated/opencode.json" "$HOME/.config/opencode/opencode.json"
-    link_one "$AI_STACK_DIR/generated/claude-settings.json" "$HOME/.config/claude/settings.json"
   fi
   echo "ai-stack install: done (copy=$copy dry_run=$dry)"
 }

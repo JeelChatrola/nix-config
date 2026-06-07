@@ -5,15 +5,5 @@
       "gemma4:31b",
       "nemotron3:33b"
     ]
-  },
-  "vllm": {
-    "model": "Qwen/Qwen2.5-3B-Instruct",
-    "image_tag": "v0.19.0",
-    "port": 8000,
-    "max_model_len": 8192,
-    "gpu_memory_utilization": 0.9
-  },
-  "opencode": {
-    "vllm_display_name": "Qwen2.5 3B Instruct (vLLM)"
   }
 }
