@@ -70,7 +70,7 @@
         "command-not-found"
         "ssh-agent"
       ];
-      theme = "robbyrussell";  # Simple, clean prompt
+      theme = "";  # Starship prompt (programs/starship.nix)
     };
     
     # Shell init: ordered fragments (replaces deprecated initExtra; see HM zsh module)
@@ -112,19 +112,10 @@
         # GUI-style line editor keys (Ctrl+arrow, Ctrl+C copy, Ctrl+Enter, etc.)
         ${builtins.readFile ../configs/zsh-keybindings.sh}
 
-        # Initialize zoxide (fast directory jumper)
-        # --cmd cd: Replace 'cd' command so zoxide learns directories automatically
-        eval "$(zoxide init zsh --cmd cd)"
+        # zoxide: `z` / `zi` for frequent dirs; smart `cd` (below) handles new paths via fzf+fd
+        eval "$(zoxide init zsh)"
       '')
       (lib.mkOrder 1200 ''
-        # End of zshrc (was initExtra): load theme after HM/plugin setup
-        if [[ -n "$CURSOR_AGENT" ]]; then
-          # Skip Powerlevel10k when Cursor Agent runs
-          :
-        else
-          [[ -r ~/.p10k.zsh ]] && source ~/.p10k.zsh
-        fi
-
         # Force Ctrl+R widget options explicitly. In some HM/fzf setups the
         # dedicated historyWidgetOptions don't reliably surface in live zsh.
         export FZF_CTRL_R_OPTS="--height=80% --layout=reverse --border=rounded --bind 'ctrl-r:toggle-sort' --header 'Ctrl-R: toggle sort'"

@@ -1,12 +1,35 @@
+# Alacritty — native Linux terminal feel (selection, mouse paste, standard shortcuts).
+# GPU binary comes from the system package manager; home-manager only manages this file.
+
+[general]
+live_config_reload = true
+
 [window]
 dimensions = { columns = 120, lines = 35 }
-position = { x = 700, y = 350 }
-startup_mode = "Windowed"
+dynamic_padding = true
+padding = { x = 6, y = 6 }
 
-# GUI-style clipboard: Ctrl+V paste at terminal level.
-# Ctrl+C copy is handled in zsh (copy-or-interrupt widget) so line-editor
-# selections work; use Ctrl+Shift+C to copy mouse-selected scrollback text.
+[font]
+size = 11.0
+normal = { family = "JetBrainsMono Nerd Font", style = "Regular" }
+bold = { family = "JetBrainsMono Nerd Font", style = "Bold" }
+italic = { family = "JetBrainsMono Nerd Font", style = "Italic" }
+
+[selection]
+save_to_clipboard = true
+
+[mouse]
+bindings = [
+  { mouse = "Right", action = "Paste" },
+  { mouse = "Middle", action = "PasteSelection" },
+]
+
+# Terminal-level clipboard (does not steal Ctrl+C from running programs).
 [keyboard]
 bindings = [
+  { key = "C", mods = "Control|Shift", action = "Copy" },
+  { key = "V", mods = "Control|Shift", action = "Paste" },
   { key = "V", mods = "Control", action = "Paste" },
+  { key = "Insert", mods = "Shift", action = "Paste" },
+  { key = "Insert", mods = "Control", action = "Copy" },
 ]

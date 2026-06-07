@@ -41,6 +41,7 @@
     ./programs/tmux.nix
     ./programs/ssh.nix
     ./programs/fzf.nix
+    ./programs/starship.nix
     ./programs/neovim.nix
     ./programs/lf.nix
     ./programs/alacritty.nix
