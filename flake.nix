@@ -42,7 +42,10 @@
       };
     in
     {
-      packages.${system}.hermes = hermesMessaging;
+      packages.${system} = {
+        hermes = hermesMessaging;
+        rtk = pkgs.rtk;
+      };
 
       apps.${system}.hermes = {
         type = "app";

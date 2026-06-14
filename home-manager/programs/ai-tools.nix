@@ -46,6 +46,7 @@ in
   home.packages = [
     opencodeWrapper
     hermesWrapper
+    pkgs.rtk
   ];
 
   home.file = commandDeployment // opencodeAgentDeployment;
@@ -53,6 +54,13 @@ in
   home.sessionVariables.AI_STACK_DIR = aiStackDir;
 
   # Generated MCP JSON under ai-stack/generated/ (mutable, gitignored). Refresh on switch, symlink into ~/.config.
+  home.activation.rtkHermes = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+    set -euo pipefail
+    mkdir -p "${config.home.homeDirectory}/.local/bin"
+    ln -sfn "${pkgs.rtk}/bin/rtk" "${config.home.homeDirectory}/.local/bin/rtk"
+    "${pkgs.rtk}/bin/rtk" init --agent hermes
+  '';
+
   home.activation.aiStackGeneratedAndLinks = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
     set -euo pipefail
     export AI_STACK_DIR="${aiStackDir}"

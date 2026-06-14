@@ -7,7 +7,7 @@ services:
   #   docker compose -f ai-stack/docker-compose.yml pull ollama && docker compose -f ai-stack/docker-compose.yml up -d ollama
   # ---------------------------------------------------------------------------
   ollama:
-    image: ollama/ollama:0.24.0
+    image: ollama/ollama:0.30.8
     container_name: ollama
     restart: unless-stopped
     ports:
@@ -23,6 +23,9 @@ services:
               capabilities: [gpu]
     environment:
       - HF_TOKEN=${HF_TOKEN:-}
+      - OLLAMA_CONTEXT_LENGTH=131072  # 128k
+      - OLLAMA_FLASH_ATTENTION=1
+      - OLLAMA_KV_CACHE_TYPE=q8_0
 
   # ---------------------------------------------------------------------------
   # SearXNG - self-hosted search backend for MCP web search
