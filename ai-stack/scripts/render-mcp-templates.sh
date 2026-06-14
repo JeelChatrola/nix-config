@@ -72,6 +72,10 @@ if [[ -f "$SCRIPT_DIR/sync-hermes-mcp.sh" ]]; then
   bash "$SCRIPT_DIR/sync-hermes-mcp.sh"
 fi
 
+if [[ -x "$SCRIPT_DIR/sync-hermes-model-catalog.sh" ]]; then
+  bash "$SCRIPT_DIR/sync-hermes-model-catalog.sh"
+fi
+
 if [[ -x "$SCRIPT_DIR/sync-hermes-searxng.sh" ]]; then
   bash "$SCRIPT_DIR/sync-hermes-searxng.sh"
 fi
