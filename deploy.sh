@@ -6,6 +6,10 @@ DEPLOY_USER="${USER}"
 WITH_AI=false
 DEPLOY_AI_NO_DOCKER=0
 : "${AI_STACK_DIR:=$HOME/ai-stack}"
+# Ignore stale session var from when ai-stack lived inside nix-config/
+if [[ ! -x "$AI_STACK_DIR/bin/ai-stack" ]]; then
+  AI_STACK_DIR="$HOME/ai-stack"
+fi
 
 usage() {
   echo "Usage: ./deploy.sh [--user LOGIN] [--ai] [--no-docker]"
