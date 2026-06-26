@@ -16,9 +16,9 @@ Modular, declarative configuration for development tools and CLI utilities using
 
 ### New machine
 
-1. Run `system-setup` (`./install.sh` or `./scripts/bootstrap-repos.sh`).
-2. Clone private ai-stack: `git clone git@github.com:JeelChatrola/ai-stack.git ~/ai-stack`
-3. Deploy base: `./deploy.sh`
+1. Run `system-setup` (`./install.sh`).
+2. Set up git/SSH, then clone your **nix-config** and **ai-stack** repos yourself.
+3. Deploy base: `cd ~/nix-config && ./deploy.sh`
 4. Deploy with AI: `./deploy.sh --ai` (requires `~/ai-stack` checkout)
 
 ### Daily
