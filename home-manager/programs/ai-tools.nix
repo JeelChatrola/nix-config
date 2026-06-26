@@ -44,7 +44,8 @@ in
     set -euo pipefail
     export AI_STACK_DIR="${aiStackDir}"
     export NIX_CONFIG_DIR="${nixConfigDir}"
-    export PATH="${lib.makeBinPath [ pkgs.jq pkgs.yq-go pkgs.curl ]}:$PATH"
+    export PATH="${lib.makeBinPath [ pkgs.jq pkgs.yq-go pkgs.curl pkgs.python3 ]}:$PATH"
+    export RENDER_PYTHON="${pkgs.python3}/bin/python3"
     if [[ ! -x "${aiStackDir}/bin/ai-stack" ]]; then
       echo "home-manager: clone private ai-stack to ${aiStackDir}" >&2
       echo "  git clone git@github.com:JeelChatrola/ai-stack.git ${aiStackDir}" >&2
