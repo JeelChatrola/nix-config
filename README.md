@@ -58,7 +58,7 @@ Hermes runs from the nix-config flake (`#hermes`); `~/ai-stack/bin/hermes` deleg
 
 ## Terminal
 
-Ghostty config is managed at `~/.config/ghostty/config`. Install Ghostty via system-setup or `nix profile install nixpkgs#ghostty`.
+Ghostty config is managed at `~/.config/ghostty/config`. Install the Ghostty binary via system-setup (`./install.sh ghostty` — apt or PPA, not Nix).
 
 tmux is installed and configured directly (no oh-my-zsh tmux plugin).
 

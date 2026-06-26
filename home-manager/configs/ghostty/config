@@ -1,5 +1,5 @@
 # Ghostty — normal terminal interaction (context menu, explicit copy/paste).
-# Install Ghostty via system-setup or: nix profile install nixpkgs#ghostty
+# Install Ghostty via system-setup: ./install.sh ghostty (apt or PPA)
 
 font-family = JetBrainsMono Nerd Font
 font-size = 11

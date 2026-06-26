@@ -1,4 +1,4 @@
-# Ghostty terminal config (GPU binary from system-setup or nix profile).
+# Ghostty terminal config (GPU binary from system-setup apt/PPA; not Nix).
 
 { ... }:
 
