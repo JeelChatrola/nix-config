@@ -1,22 +1,22 @@
 #!/usr/bin/env bash
-# Merge ai-stack Discord channel prompts + skill filters into ~/.hermes/config.yaml.
+# Merge ai-stack Hermes profile templates into ~/.hermes/config.yaml.
 # Copy versioned SOUL.md into ~/.hermes/SOUL.md.
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 STACK_DIR="${AI_STACK_DIR:-$(cd "$SCRIPT_DIR/.." && pwd)}"
-SRC="${HERMES_DISCORD_TEMPLATE:-$STACK_DIR/config/hermes-discord.template.yaml}"
-SOUL_SRC="${HERMES_SOUL_SRC:-$STACK_DIR/config/hermes-SOUL.md}"
 DEST="${HERMES_CONFIG:-$HOME/.hermes/config.yaml}"
+SOUL_SRC="${HERMES_SOUL_SRC:-$STACK_DIR/config/hermes-SOUL.md}"
 SOUL_DEST="${HERMES_SOUL_DEST:-$HOME/.hermes/SOUL.md}"
 
-if [[ ! -f "$SRC" ]]; then
-  echo "sync-hermes-discord: missing $SRC" >&2
-  exit 1
-fi
+TEMPLATES=(
+  "$STACK_DIR/config/hermes-skills.template.yaml"
+  "$STACK_DIR/config/hermes-tools.template.yaml"
+  "$STACK_DIR/config/hermes-discord.template.yaml"
+)
 
 if ! command -v yq >/dev/null 2>&1; then
-  echo "sync-hermes-discord: yq not found; template at $SRC but did not merge into $DEST" >&2
+  echo "sync-hermes-discord: yq not found; templates not merged into $DEST" >&2
   exit 0
 fi
 
@@ -32,14 +32,25 @@ fi
 
 TMP="$(mktemp)"
 trap 'rm -f "$TMP"' EXIT
+cp "$DEST" "$TMP"
 
-yq eval-all '. as $item ireduce ({}; . * $item)' "$DEST" "$SRC" >"$TMP"
+for src in "${TEMPLATES[@]}"; do
+  if [[ ! -f "$src" ]]; then
+    echo "sync-hermes-discord: missing $src" >&2
+    exit 1
+  fi
+  yq eval-all '. as $item ireduce ({}; . * $item)' "$TMP" "$src" >"${TMP}.next"
+  mv "${TMP}.next" "$TMP"
+done
+
+# Drop legacy per-platform skill filter so global skills.disabled applies everywhere.
+yq eval -i 'del(.skills.platform_disabled)' "$TMP"
 
 if cmp -s "$TMP" "$DEST"; then
   echo "sync-hermes-discord: $DEST already up to date"
 else
   mv "$TMP" "$DEST"
-  echo "sync-hermes-discord: merged hermes-discord.template.yaml into $DEST"
+  echo "sync-hermes-discord: merged Hermes profile templates into $DEST"
 fi
 
 if [[ -f "$SOUL_SRC" ]]; then

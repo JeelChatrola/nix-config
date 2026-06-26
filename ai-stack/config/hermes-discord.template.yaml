@@ -1,18 +1,4 @@
 # Merged into ~/.hermes/config.yaml by ai-stack/scripts/sync-hermes-discord.sh
-skills:
-  platform_disabled:
-    discord:
-      - apple
-      - gaming
-      - gifs
-      - smart-home
-      - social-media
-      - media
-      - email
-      - yuanbao
-      - inference-sh
-      - dogfood
-      - red-teaming
 discord:
   free_response_channels: 1508997380362469518,1509394130625888276
   allowed_channels: 1508997380362469518,1509394130625888276,1519887751388991639,1519887785610444850,1519888330366652467,1519889026637758636
