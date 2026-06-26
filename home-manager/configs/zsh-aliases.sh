@@ -111,12 +111,9 @@ ollama-rm() {
 
 alias ollama-list='ai-ollama list'
 
-# install-skill.py: skills, templates, agents (see ai-stack/README.md). bootstrap needs explicit flags.
-alias ai-proj='python3 "$AI_STACK_DIR/scripts/install-skill.py"'
-# Opinionated: full bootstrap = templates + opencode agent .md + all skills -> cursor, opencode roots.
-ai-boot() {
-  python3 "$AI_STACK_DIR/scripts/install-skill.py" bootstrap -y --all --to cursor --to opencode "$@"
-}
+# Per-project skills via npx skills (see ai-stack/bin/skills)
+alias ai-skills='$AI_STACK_DIR/bin/skills'
+ai-boot() { "$AI_STACK_DIR/bin/skills" --skill '*' -a cursor -a opencode -y "$@"; }
 
 # =============================================================================
 # CUSTOM FUNCTIONS

@@ -51,6 +51,6 @@ in
       exit 1
     fi
     "${aiStackDir}/bin/ai-stack" sync
-    "${aiStackDir}/bin/ai-stack" install
+    "${aiStackDir}/bin/agent-sync" opencode
   '';
 }

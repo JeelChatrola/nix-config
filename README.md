@@ -50,9 +50,9 @@ When `enableAI` is true (flake output `*-ai`), `ai-tools.nix` installs:
 
 - `opencode`, `hermes`, `ai-stack` wrappers on PATH
 - `AI_STACK_DIR` and `NIX_CONFIG_DIR` session variables
-- Activation: `~/ai-stack/bin/ai-stack sync` + `install`
+- Activation: `~/ai-stack/bin/ai-stack sync` + `~/ai-stack/bin/agent-sync opencode`
 
-Commands, agents, MCP templates, and Docker compose are maintained in the private **ai-stack** repo. Shell aliases (`ai-up`, `ai-boot`, …) call `$AI_STACK_DIR/bin/ai-stack`.
+Skills, MCP catalog, agent profiles, and Docker compose live in the private **ai-stack** repo. Shell aliases (`ai-up`, `ai-skills`, `ai-boot`, …) call `$AI_STACK_DIR/bin/ai-stack` or `bin/skills`.
 
 Hermes runs from the nix-config flake (`#hermes`); `~/ai-stack/bin/hermes` delegates to it.
 
