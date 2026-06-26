@@ -11,7 +11,8 @@
       url = "path:./ai-stack";
       flake = false;
     };
-    hermes-agent.url = "github:NousResearch/hermes-agent";
+    # Pin: 0.17.0 hermes-web/tui npm build fails in Nix sandbox (esbuild @esbuild/linux-x64).
+    hermes-agent.url = "github:NousResearch/hermes-agent/6b76284c7769e0ca80012a5a4b7e22b1cea05b6b";
   };
 
   outputs =
