@@ -68,25 +68,20 @@ alias f='fzf'
 alias ssh='ssh -o ServerAliveInterval=60'
 
 # =============================================================================
-# AI STACK
+# AI STACK (private repo at ~/ai-stack)
 # =============================================================================
-# Set by home-manager (~/nix-config/ai-stack by default; change aiConfigRoot in flake.nix if cloned elsewhere).
-: "${AI_STACK_DIR:=$HOME/nix-config/ai-stack}"
+: "${AI_STACK_DIR:=$HOME/ai-stack}"
 
-# docker compose for ai-stack; reads ai-stack/.env when present (copy from .env.example).
-_ai_compose() {
-  bash "$AI_STACK_DIR/scripts/docker-compose.sh" "$@"
+_ai_stack() {
+  bash "$AI_STACK_DIR/bin/ai-stack" "$@"
 }
 
-ai-up() {
-  bash "$AI_STACK_DIR/bin/ai-stack" up
-}
-
-ai-down() { _ai_compose down; }
-ai-restart() { _ai_compose restart; }
-ai-logs() { _ai_compose logs -f; }
-ai-ps() { _ai_compose ps; }
-ai-pull() { _ai_compose pull; }
+ai-up() { _ai_stack up; }
+ai-down() { _ai_stack down; }
+ai-restart() { _ai_stack down; _ai_stack up; }
+ai-logs() { _ai_stack logs; }
+ai-ps() { _ai_stack ps; }
+ai-pull() { bash "$AI_STACK_DIR/scripts/docker-compose.sh" pull; }
 
 # Run the Ollama CLI inside the stack container from the host.
 # -it only in a real terminal; piping (e.g. ollama-list | grep) must not use -t.
