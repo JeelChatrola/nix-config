@@ -63,7 +63,6 @@
         "python"
         "node"
         "npm"
-        "tmux"
         "sudo"
         "extract"
         "colored-man-pages"

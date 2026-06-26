@@ -26,12 +26,3 @@ Thumbs.db
 
 # code-review-graph MCP local database (absolute paths, machine-specific)
 .code-review-graph/
-
-# AI stack secrets — never commit API keys
-ai-stack/.env
-
-# AI stack runtime output (rendered MCP JSON/YAML, stale Claude/vLLM artifacts)
-ai-stack/generated/
-
-# Legacy compose env from removed vLLM stack (safe to delete locally)
-ai-stack/models.compose.env

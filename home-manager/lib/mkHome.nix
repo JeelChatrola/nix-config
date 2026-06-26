@@ -1,16 +1,14 @@
-{ home-manager, pkgs, pkgsUnstable, aiStack }:
+{ home-manager, pkgs, pkgsUnstable }:
 
 {
   userProfile,
   enableAI ? false,
-  aiConfigRoot ? null,
 }:
 
 home-manager.lib.homeManagerConfiguration {
   inherit pkgs;
   extraSpecialArgs = {
-    inherit enableAI pkgsUnstable aiConfigRoot userProfile;
-    aiStackSrc = aiStack;
+    inherit enableAI pkgsUnstable userProfile;
   };
   modules = [
     ../home.nix

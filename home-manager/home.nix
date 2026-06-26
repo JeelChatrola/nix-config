@@ -1,7 +1,7 @@
 # Main home-manager configuration
 # This file imports all program configurations and sets up the environment
 
-{ config, pkgs, lib, enableAI ? false, aiConfigRoot ? null, userProfile, ... }:
+{ config, pkgs, lib, enableAI ? false, userProfile, ... }:
 
 {
   # =============================================================================
@@ -44,7 +44,7 @@
     ./programs/starship.nix
     ./programs/neovim.nix
     ./programs/lf.nix
-    ./programs/alacritty.nix
+    ./programs/ghostty.nix
   ] ++ lib.optionals enableAI [
     ./programs/ai-tools.nix
   ];
