@@ -9,10 +9,20 @@ let
     exec ${pkgs.nodejs_22}/bin/npx -y opencode-ai "$@"
   '';
 
+  codexWrapper = pkgs.writeShellScriptBin "codex" ''
+    export CODEX_HOME="''${CODEX_HOME:-$HOME/.codex}"
+    exec ${pkgs.nodejs_22}/bin/npx -y @openai/codex "$@"
+  '';
+
   hermesWrapper = pkgs.writeShellScriptBin "hermes" ''
     export AI_STACK_DIR="${aiStackDir}"
-    export NIX_CONFIG_DIR="${nixConfigDir}"
     exec "${aiStackDir}/bin/hermes" "$@"
+  '';
+
+  deeptutorWrapper = pkgs.writeShellScriptBin "deeptutor" ''
+    export AI_STACK_DIR="${aiStackDir}"
+    export DEEPTUTOR_HOME="''${DEEPTUTOR_HOME:-$HOME/deeptutor}"
+    exec "${aiStackDir}/bin/deeptutor" "$@"
   '';
 
   aiStackWrapper = pkgs.writeShellScriptBin "ai-stack" ''
@@ -23,7 +33,9 @@ in
 {
   home.packages = [
     opencodeWrapper
+    codexWrapper
     hermesWrapper
+    deeptutorWrapper
     aiStackWrapper
     pkgs.rtk
   ];
@@ -31,6 +43,8 @@ in
   home.sessionVariables = {
     AI_STACK_DIR = aiStackDir;
     NIX_CONFIG_DIR = nixConfigDir;
+    CODEX_HOME = config.home.homeDirectory + "/.codex";
+    DEEPTUTOR_HOME = config.home.homeDirectory + "/deeptutor";
   };
 
   home.activation.rtkHermes = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
@@ -40,18 +54,12 @@ in
     "${pkgs.rtk}/bin/rtk" init --agent hermes
   '';
 
-  home.activation.aiStackSetup = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+  home.activation.aiStackAgents = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
     set -euo pipefail
-    export AI_STACK_DIR="${aiStackDir}"
-    export NIX_CONFIG_DIR="${nixConfigDir}"
-    export PATH="${lib.makeBinPath [ pkgs.jq pkgs.yq-go pkgs.curl pkgs.python3 ]}:$PATH"
-    export RENDER_PYTHON="${pkgs.python3}/bin/python3"
-    if [[ ! -x "${aiStackDir}/bin/ai-stack" ]]; then
-      echo "home-manager: clone private ai-stack to ${aiStackDir}" >&2
-      echo "  git clone git@github.com:JeelChatrola/ai-stack.git ${aiStackDir}" >&2
-      exit 1
-    fi
-    "${aiStackDir}/bin/ai-stack" sync
-    "${aiStackDir}/bin/agent-sync" opencode
+    mkdir -p "${config.home.homeDirectory}/.local/bin"
+    # ~/.local/bin is first on PATH (zsh-aliases.sh) — beats stale nix-store hermes from old HM gens.
+    ln -sfn "${aiStackDir}/bin/hermes" "${config.home.homeDirectory}/.local/bin/hermes"
+    ln -sfn "${aiStackDir}/bin/deeptutor" "${config.home.homeDirectory}/.local/bin/deeptutor"
+    ln -sfn "${aiStackDir}/bin/ai-stack" "${config.home.homeDirectory}/.local/bin/ai-stack"
   '';
 }

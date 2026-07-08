@@ -55,7 +55,7 @@
     wget              # Non-interactive network downloader
     git               # Distributed version control system
     git-lfs           # Git Large File Storage (handle large files in git)
-    nodejs_22         # Node.js runtime for opencode, MCP servers, and general JS tooling
+    nodejs_22         # Node.js runtime for opencode, codex, MCP servers, and general JS tooling
     zsh               # Z shell (alternative to bash)
     zoxide            # Replaces cd (frecent); zi = interactive picker
     broot             # br + Alt+Enter when cd/zi do not know the path yet

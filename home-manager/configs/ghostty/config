@@ -1,5 +1,6 @@
-# Ghostty — normal terminal interaction (context menu, explicit copy/paste).
-# Install Ghostty via system-setup: ./install.sh ghostty (apt or PPA)
+# Ghostty — minimal terminal for tmux + nvim + agents.
+# Install: ./system-setup/install.sh ghostty
+# Apply:   home-manager switch
 
 font-family = JetBrainsMono Nerd Font
 font-size = 11
@@ -7,13 +8,34 @@ font-size = 11
 window-padding-x = 6
 window-padding-y = 6
 
+# Keep native titlebar (drag/close); hide tab bar since tmux owns layout.
+window-show-tab-bar = never
+gtk-titlebar-hide-when-maximized = true
+
 # Right-click opens context menu (not forced paste).
 right-click-action = context-menu
 copy-on-select = false
 
-# Avoid fighting tmux/shell title updates.
+# Don't fight tmux/shell title updates; keep ssh integration.
 shell-integration-features = no-title,ssh-env,ssh-terminfo
 
+# Agent-friendly: desktop notify when a long command finishes in background.
+notify-on-command-finish = unfocused
+notify-on-command-finish-action = notify
+notify-on-command-finish-after = 3s
+
+# Visual bell without GNOME system alert sound.
+bell-features = no-system,attention,border
+
+# More scrollback for agent/tool output (bytes; lazy-allocated).
+scrollback-limit = 50000000
+
+mouse-hide-while-typing = true
+cursor-style = bar
+cursor-click-to-move = true
+focus-follows-mouse = true
+
+# Clipboard
 keybind = ctrl+shift+c=copy_to_clipboard
 keybind = ctrl+shift+v=paste_from_clipboard
 keybind = ctrl+insert=copy_to_clipboard
