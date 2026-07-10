@@ -1,4 +1,4 @@
-{ config, pkgs, userProfile, ... }:
+{ config, lib, pkgs, userProfile, ... }:
 
 let
   aiStackDir = userProfile.aiStackDir;
@@ -46,4 +46,13 @@ in
     CODEX_HOME = config.home.homeDirectory + "/.codex";
     DEEPTUTOR_HOME = config.home.homeDirectory + "/deeptutor";
   };
+
+  home.activation.removeLegacyAiEntrypoints = lib.hm.dag.entryBefore [ "checkLinkTargets" ] ''
+    for name in ai-stack hermes deeptutor; do
+      path="${config.home.homeDirectory}/.local/bin/$name"
+      if [ -L "$path" ] && [ "$(${pkgs.coreutils}/bin/readlink "$path")" = "${aiStackDir}/bin/$name" ]; then
+        $DRY_RUN_CMD rm "$path"
+      fi
+    done
+  '';
 }
