@@ -1,17 +1,17 @@
-{ config, pkgs, lib, ... }:
+{ config, pkgs, userProfile, ... }:
 
 let
-  aiStackDir = config.home.homeDirectory + "/ai-stack";
-  nixConfigDir = config.home.homeDirectory + "/nix-config";
+  aiStackDir = userProfile.aiStackDir;
+  nixConfigDir = userProfile.nixConfigDir;
 
   opencodeWrapper = pkgs.writeShellScriptBin "opencode" ''
     export OLLAMA_HOST="''${OLLAMA_HOST:-http://127.0.0.1:11434}"
-    exec ${pkgs.nodejs_22}/bin/npx -y opencode-ai "$@"
+    exec ${pkgs.nodejs_22}/bin/npx -y opencode-ai@1.17.18 "$@"
   '';
 
   codexWrapper = pkgs.writeShellScriptBin "codex" ''
     export CODEX_HOME="''${CODEX_HOME:-$HOME/.codex}"
-    exec ${pkgs.nodejs_22}/bin/npx -y @openai/codex "$@"
+    exec ${pkgs.nodejs_22}/bin/npx -y @openai/codex@0.144.1 "$@"
   '';
 
   hermesWrapper = pkgs.writeShellScriptBin "hermes" ''
@@ -46,20 +46,4 @@ in
     CODEX_HOME = config.home.homeDirectory + "/.codex";
     DEEPTUTOR_HOME = config.home.homeDirectory + "/deeptutor";
   };
-
-  home.activation.rtkHermes = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
-    set -euo pipefail
-    mkdir -p "${config.home.homeDirectory}/.local/bin"
-    ln -sfn "${pkgs.rtk}/bin/rtk" "${config.home.homeDirectory}/.local/bin/rtk"
-    "${pkgs.rtk}/bin/rtk" init --agent hermes
-  '';
-
-  home.activation.aiStackAgents = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
-    set -euo pipefail
-    mkdir -p "${config.home.homeDirectory}/.local/bin"
-    # ~/.local/bin is first on PATH (zsh-aliases.sh) — beats stale nix-store hermes from old HM gens.
-    ln -sfn "${aiStackDir}/bin/hermes" "${config.home.homeDirectory}/.local/bin/hermes"
-    ln -sfn "${aiStackDir}/bin/deeptutor" "${config.home.homeDirectory}/.local/bin/deeptutor"
-    ln -sfn "${aiStackDir}/bin/ai-stack" "${config.home.homeDirectory}/.local/bin/ai-stack"
-  '';
 }
