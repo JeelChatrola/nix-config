@@ -4,7 +4,7 @@ rec {
   fullName = "JeelChatrola";
   email = "jeelchatrola046@gmail.com";
 
-  repoRoot = "${homeDirectory}/personal_setup";
+  repoRoot = homeDirectory;
   aiStackDir = "${repoRoot}/ai-stack";
   nixConfigDir = "${repoRoot}/nix-config";
 }

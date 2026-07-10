@@ -50,7 +50,7 @@ When `enableAI` is true (flake output `*-ai`), `ai-tools.nix` installs:
 
 - `opencode`, `codex`, `hermes`, `deeptutor`, `ai-stack` wrappers on PATH
 - `AI_STACK_DIR` and `NIX_CONFIG_DIR` session variables
-- Local symlinks for ai-stack entrypoints
+- Nix-store wrappers for ai-stack entrypoints
 
 Skills, MCP catalog, agent profiles, and Docker compose live in the private **ai-stack** repo. Shell aliases (`ai-up`, `ai-skills`, `ai-boot`, …) call `$AI_STACK_DIR/bin/ai-stack` or `bin/skills`.
 
