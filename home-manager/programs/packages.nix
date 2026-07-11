@@ -19,6 +19,14 @@ let
     ];
     text = builtins.readFile ../../bin/workflow-help;
   };
+  tmuxMetrics = pkgs.writeShellApplication {
+    name = "tmux-metrics";
+    runtimeInputs = with pkgs; [
+      gawk
+      procps
+    ];
+    text = builtins.readFile ../../bin/tmux-metrics;
+  };
 in
 {
   home.packages = with pkgs; [    
@@ -77,8 +85,8 @@ in
     nh                # Clean Home Manager/Nix build output and package diffs
     tmux              # Terminal multiplexer (split terminals, sessions)
     sesh              # Maintained tmux project/session manager using zoxide
-    tmux-mem-cpu-load # Maintained RAM used/total and CPU status monitor
     nixRefresh
+    tmuxMetrics
     workflowHelp
 
     # =============================================================================

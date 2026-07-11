@@ -8,7 +8,7 @@
     enable = true;
     shortcut = "a";
     baseIndex = 1;
-    clock24 = false;
+    clock24 = true;
     keyMode = "vi";
     mouse = true;
     
@@ -50,10 +50,6 @@
       }
     ];
     
-    # tmux-cpu interpolates status tokens when sourced, so it must run after
-    # the external config defines status-right.
-    extraConfig = builtins.readFile ../configs/tmux.conf + ''
-      run-shell ${pkgs.tmuxPlugins.cpu}/share/tmux-plugins/cpu/cpu.tmux
-    '';
+    extraConfig = builtins.readFile ../configs/tmux.conf;
   };
 }

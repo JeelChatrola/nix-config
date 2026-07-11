@@ -1,25 +1,28 @@
 "$schema" = "https://starship.rs/config-schema.json"
 
-format = "$directory$git_branch$git_status$character"
-right_format = "$cmd_duration$python$nodejs$bun$rust$golang"
-palette = "tokyo_night"
-add_newline = true
-continuation_prompt = "[∙](bright-black) "
+format = """
+[░▒▓](#a3aed2)\
+$os\
+[](bg:#769ff0 fg:#a3aed2)\
+$directory\
+[](fg:#769ff0 bg:#394260)\
+$git_branch\
+$git_status\
+[](fg:#394260 bg:#212736)\
+$nodejs\
+$bun\
+$rust\
+$golang\
+$php\
+[](fg:#212736 bg:#1d2230)\
+$time\
+[ ](fg:#1d2230)\
 
-[palettes.tokyo_night]
-blue = "#7aa2f7"
-cyan = "#7dcfff"
-green = "#9ece6a"
-orange = "#ff9e64"
-purple = "#bb9af7"
-red = "#f7768e"
-yellow = "#e0af68"
-foreground = "#c0caf5"
-muted = "#565f89"
+$character"""
 
 [directory]
-format = "[$path]($style) "
-style = "bold blue"
+style = "fg:#e3e5e5 bg:#769ff0"
+format = "[ $path ]($style)"
 truncation_length = 3
 truncation_symbol = "…/"
 
@@ -30,39 +33,70 @@ truncation_symbol = "…/"
 "Pictures" = " "
 
 [git_branch]
-format = "[$symbol$branch]($style) "
-symbol = " "
-style = "purple"
+symbol = ""
+style = "bg:#394260"
+format = "[[ $symbol $branch ](fg:#769ff0 bg:#394260)]($style)"
 
 [git_status]
-format = "[$all_status$ahead_behind]($style) "
-style = "orange"
-
-[character]
-success_symbol = "[❯](bold green)"
-error_symbol = "[❯](bold red)"
-vimcmd_symbol = "[❮](bold green)"
-
-[cmd_duration]
-format = "[$duration](yellow) "
-min_time = 2000
-
-[python]
-format = "[$symbol$version](yellow) "
-symbol = " "
+style = "bg:#394260"
+format = "[[($all_status$ahead_behind )](fg:#769ff0 bg:#394260)]($style)"
 
 [nodejs]
-format = "[$symbol$version](green) "
-symbol = " "
+symbol = ""
+style = "bg:#212736"
+format = "[[ $symbol ($version) ](fg:#769ff0 bg:#212736)]($style)"
 
 [bun]
-format = "[$symbol$version](orange) "
-symbol = " "
+symbol = ""
+style = "bg:#212736"
+format = "[[ $symbol ($version) ](fg:#769ff0 bg:#212736)]($style)"
 
 [rust]
-format = "[$symbol$version](orange) "
-symbol = " "
+symbol = ""
+style = "bg:#212736"
+format = "[[ $symbol ($version) ](fg:#769ff0 bg:#212736)]($style)"
 
 [golang]
-format = "[$symbol$version](cyan) "
-symbol = " "
+symbol = ""
+style = "bg:#212736"
+format = "[[ $symbol ($version) ](fg:#769ff0 bg:#212736)]($style)"
+
+[php]
+symbol = ""
+style = "bg:#212736"
+format = "[[ $symbol ($version) ](fg:#769ff0 bg:#212736)]($style)"
+
+[time]
+disabled = false
+time_format = "%R"
+style = "bg:#1d2230"
+format = "[[  $time ](fg:#a0a9cb bg:#1d2230)]($style)"
+
+[os]
+style = "bg:#a3aed2 fg:#090c0c"
+format = "[ $symbol ]($style)"
+disabled = false
+
+[os.symbols]
+Windows = "󰍲"
+Ubuntu = "󰕈"
+SUSE = ""
+Raspbian = "󰐿"
+Mint = "󰣭"
+Macos = "󰀵"
+Manjaro = ""
+Linux = "󰌽"
+Gentoo = "󰣨"
+Fedora = "󰣛"
+Alpine = ""
+Amazon = ""
+Android = ""
+AOSC = ""
+Arch = "󰣇"
+Artix = "󰣇"
+EndeavourOS = ""
+CentOS = ""
+Debian = "󰣚"
+Redhat = "󱄛"
+RedHatEnterprise = "󱄛"
+Pop = ""
