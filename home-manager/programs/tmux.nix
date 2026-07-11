@@ -34,12 +34,12 @@
           set -g @thumbs-unique enabled
           set -g @thumbs-contrast 1
           set -g @thumbs-osc52 1
-          set -g @thumbs-bg-color '#1d2021'
+          set -g @thumbs-bg-color '#282828'
           set -g @thumbs-fg-color '#98971a'
           set -g @thumbs-hint-bg-color '#83a598'
-          set -g @thumbs-hint-fg-color '#1d2021'
+          set -g @thumbs-hint-fg-color '#282828'
           set -g @thumbs-select-bg-color '#d3869b'
-          set -g @thumbs-select-fg-color '#1d2021'
+          set -g @thumbs-select-fg-color '#282828'
         '';
       }
       {
