@@ -60,6 +60,8 @@ Runtime setup is explicit: use `./deploy.sh --ai` or `ai-stack deploy` after Hom
 
 Ghostty config is managed at `~/.config/ghostty/config`. Install the Ghostty binary via system-setup (`./install.sh ghostty` — apt or PPA, not Nix).
 
+Ghostty, tmux, Starship, and LazyVim share the Tokyo Night color scheme.
+
 tmux is installed and configured directly (no oh-my-zsh tmux plugin).
 
 Project navigation:
