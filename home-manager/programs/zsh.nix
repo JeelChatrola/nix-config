@@ -72,7 +72,7 @@
         "command-not-found"
         "ssh-agent"
       ];
-      theme = "";  # Starship prompt (programs/starship.nix)
+      theme = "";  # Oh My Posh prompt (programs/oh-my-posh.nix)
     };
     
     # Shell init: ordered fragments (replaces deprecated initExtra; see HM zsh module)
@@ -94,21 +94,21 @@
           ssh-add ~/.ssh/github_auth 2>/dev/null
         fi
         setopt CORRECT
-        # Tokyo Night colors for zsh-syntax-highlighting
+        # Gruvbox colors for zsh-syntax-highlighting
         # Declare associative array before assignments: initContent runs before the plugin is sourced.
         typeset -gA ZSH_HIGHLIGHT_STYLES
         ZSH_HIGHLIGHT_HIGHLIGHTERS=(main brackets pattern cursor)
-        ZSH_HIGHLIGHT_STYLES[default]='fg=#c0caf5'
-        ZSH_HIGHLIGHT_STYLES[command]='fg=#9ece6a'
-        ZSH_HIGHLIGHT_STYLES[alias]='fg=#9ece6a'
-        ZSH_HIGHLIGHT_STYLES[builtin]='fg=#e0af68'
-        ZSH_HIGHLIGHT_STYLES[function]='fg=#7dcfff'
-        ZSH_HIGHLIGHT_STYLES[path]='fg=#7aa2f7,underline'
-        ZSH_HIGHLIGHT_STYLES[globbing]='fg=#bb9af7'
-        ZSH_HIGHLIGHT_STYLES[history-expansion]='fg=#bb9af7'
-        ZSH_HIGHLIGHT_STYLES[single-hyphen-option]='fg=#ff9e64'
-        ZSH_HIGHLIGHT_STYLES[double-hyphen-option]='fg=#ff9e64'
-        ZSH_HIGHLIGHT_STYLES[back-quoted-argument]='fg=#bb9af7'
+        ZSH_HIGHLIGHT_STYLES[default]='fg=#ebdbb2'
+        ZSH_HIGHLIGHT_STYLES[command]='fg=#b8bb26'
+        ZSH_HIGHLIGHT_STYLES[alias]='fg=#b8bb26'
+        ZSH_HIGHLIGHT_STYLES[builtin]='fg=#fabd2f'
+        ZSH_HIGHLIGHT_STYLES[function]='fg=#8ec07c'
+        ZSH_HIGHLIGHT_STYLES[path]='fg=#83a598,underline'
+        ZSH_HIGHLIGHT_STYLES[globbing]='fg=#d3869b'
+        ZSH_HIGHLIGHT_STYLES[history-expansion]='fg=#d3869b'
+        ZSH_HIGHLIGHT_STYLES[single-hyphen-option]='fg=#fe8019'
+        ZSH_HIGHLIGHT_STYLES[double-hyphen-option]='fg=#fe8019'
+        ZSH_HIGHLIGHT_STYLES[back-quoted-argument]='fg=#d3869b'
 
         # Import aliases and environment from external file
         ${builtins.readFile ../configs/zsh-aliases.sh}
