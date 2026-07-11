@@ -10,7 +10,7 @@ export PATH="$HOME/.local/bin:$PATH"
 
 # Quick rebuild — works from any directory.
 #   nix-refresh              base home-manager only
-#   nix-refresh --ai         base + AI stack (opencode, hermes, Docker, Hermes gateway restart)
+#   nix-refresh --ai         base + AI stack (opencode, codex, hermes, Docker, Hermes gateway restart)
 #   nix-refresh --ai --no-docker   AI without Docker (gateway still restarted if installed)
 nix-refresh() {
   bash "$HOME/nix-config/deploy.sh" "$@"

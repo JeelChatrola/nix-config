@@ -48,13 +48,13 @@ nix-config/
 
 When `enableAI` is true (flake output `*-ai`), `ai-tools.nix` installs:
 
-- `opencode`, `hermes`, `ai-stack` wrappers on PATH
+- `opencode`, `codex`, `hermes`, `deeptutor`, `ai-stack` wrappers on PATH
 - `AI_STACK_DIR` and `NIX_CONFIG_DIR` session variables
-- Activation: `~/ai-stack/bin/ai-stack sync` + `~/ai-stack/bin/agent-sync opencode`
+- Nix-store wrappers for ai-stack entrypoints
 
 Skills, MCP catalog, agent profiles, and Docker compose live in the private **ai-stack** repo. Shell aliases (`ai-up`, `ai-skills`, `ai-boot`, …) call `$AI_STACK_DIR/bin/ai-stack` or `bin/skills`.
 
-Hermes runs from the nix-config flake (`#hermes`); `~/ai-stack/bin/hermes` delegates to it.
+Runtime setup is explicit: use `./deploy.sh --ai` or `ai-stack deploy` after Home Manager has installed the wrappers. Hermes and DeepTutor install via uv (`bin/ai-stack install-agents`); config/data in `~/.hermes` and `~/deeptutor`.
 
 ## Terminal
 

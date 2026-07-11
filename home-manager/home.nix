@@ -14,6 +14,9 @@
 
   # Enable home-manager
   programs.home-manager.enable = true;
+  # Avoid the generated options.json derivation, which loses Nix store context
+  # under current Nix and is not needed on this workstation.
+  manual.manpages.enable = false;
 
   # =============================================================================
   # FONTS & DISPLAY

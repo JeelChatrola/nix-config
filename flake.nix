@@ -7,12 +7,10 @@
       url = "github:nix-community/home-manager";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-    # Pin: 0.17.0 hermes-web/tui npm build fails in Nix sandbox (esbuild @esbuild/linux-x64).
-    hermes-agent.url = "github:NousResearch/hermes-agent/6b76284c7769e0ca80012a5a4b7e22b1cea05b6b";
   };
 
   outputs =
-    { nixpkgs, home-manager, hermes-agent, ... }:
+    { nixpkgs, home-manager, ... }:
     let
       system = "x86_64-linux";
       pkgs = import nixpkgs {
@@ -20,9 +18,6 @@
         overlays = import ./overlays/default.nix;
         config.allowUnfreePredicate = pkg:
           builtins.elem (nixpkgs.lib.getName pkg) [ "vim-polyglot" ];
-      };
-      hermesMessaging = hermes-agent.packages.${system}.default.override {
-        extraDependencyGroups = [ "messaging" ];
       };
       lib = nixpkgs.lib;
 
@@ -37,13 +32,7 @@
     in
     {
       packages.${system} = {
-        hermes = hermesMessaging;
         rtk = pkgs.rtk;
-      };
-
-      apps.${system}.hermes = {
-        type = "app";
-        program = "${hermesMessaging}/bin/hermes";
       };
 
       homeConfigurations =

@@ -52,6 +52,10 @@ hm_switch() {
   fi
 }
 
+stage() {
+  printf '\n==> [%s/%s] %s\n' "$1" "$2" "$3"
+}
+
 if $WITH_AI; then
   if [[ ! -x "$AI_STACK_DIR/bin/ai-stack" ]]; then
     echo "Missing ai-stack at $AI_STACK_DIR" >&2
@@ -59,30 +63,31 @@ if $WITH_AI; then
     exit 1
   fi
   export AI_STACK_DIR DEPLOY_AI_NO_DOCKER
-  echo "Syncing AI stack ($AI_STACK_DIR)..."
+  stage 1 3 "Sync AI configuration"
+  echo "    $AI_STACK_DIR"
   "$AI_STACK_DIR/bin/ai-stack" sync
-  echo ""
-  echo "Building home-manager configuration ($FLAKE_TARGET)..."
+
+  stage 2 3 "Apply Home Manager ($FLAKE_TARGET)"
   hm_switch
-  echo ""
-  echo "Running ai-stack deploy..."
+
+  stage 3 3 "Deploy AI services"
   set +e
   "$AI_STACK_DIR/bin/ai-stack" deploy
   deploy_rc=$?
   set -e
   if [[ "$deploy_rc" -eq 10 ]]; then
-    echo "Re-applying home-manager after generated opencode.json changed..."
+    echo "    Re-applying Home Manager after generated OpenCode config changed..."
     hm_switch
   elif [[ "$deploy_rc" -ne 0 ]]; then
     exit "$deploy_rc"
   fi
-  echo ""
-  echo "Done. Restart your terminal or run: exec zsh"
+  printf '\n==> Deploy complete\n'
+  echo "    Restart your terminal or run: exec zsh"
   exit 0
 fi
 
-echo "Building home-manager configuration ($FLAKE_TARGET)..."
+stage 1 1 "Apply Home Manager ($FLAKE_TARGET)"
 hm_switch
 
-echo ""
-echo "Done. Restart your terminal or run: exec zsh"
+printf '\n==> Deploy complete\n'
+echo "    Restart your terminal or run: exec zsh"
