@@ -69,6 +69,7 @@ in
     navi              # Interactive cheat sheet tool (command examples)
     tldr              # Simplified man pages (community-driven examples)
     buku              # Powerful bookmark manager for URLs
+    numbat            # Unit-aware scientific calculator and scripting language
 
     # =============================================================================
     # DATA & DOCUMENT TOOLS

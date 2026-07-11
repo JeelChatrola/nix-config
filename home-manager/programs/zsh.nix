@@ -34,10 +34,13 @@
     # Set zsh as default shell
     defaultKeymap = "emacs";
     
-    # Zsh plugins (order matters!)
-    # 1. zsh-autosuggestions
-    # 2. zsh-syntax-highlighting
+    # Zsh plugins (order matters): fzf-tab must load before plugins that wrap ZLE widgets.
     plugins = [
+      {
+        name = "fzf-tab";
+        src = pkgs.zsh-fzf-tab;
+        file = "share/fzf-tab/fzf-tab.plugin.zsh";
+      }
       {
         name = "zsh-autosuggestions";
         src = pkgs.zsh-autosuggestions;
@@ -175,29 +178,27 @@
         if (( $+functions[fzf-history-widget] )); then
           bindkey '^R' fzf-history-widget
         fi
+
+        # Home Manager's fzf integration loads after normal plugins and also
+        # claims Tab. Give Tab back to the richer, grouped fzf-tab completer.
+        if (( ''${+widgets[fzf-tab-complete]} )); then
+          bindkey -M emacs '^I' fzf-tab-complete
+        fi
       '')
     ];
     
     # Completion configuration - runs after compinit and plugins
     completionInit = ''
       # fzf-tab configuration
-      # Disable sort when completing git checkout
       zstyle ':completion:*:git-checkout:*' sort false
-      
-      # Set descriptions format to enable group support
       zstyle ':completion:*:descriptions' format '[%d]'
-      
-      # Set list-colors to enable filename colorizing
       zstyle ':completion:*' list-colors ''${(s.:.)LS_COLORS}
-      
-      # Force zsh not to show completion menu (let fzf-tab handle it)
       zstyle ':completion:*' menu no
-      
-      # Preview directory contents with eza when completing cd
-      zstyle ':fzf-tab:complete:cd:*' fzf-preview 'eza -1 --color=always $realpath'
-      
-      # Switch group using '<' and '>'
+      zstyle ':fzf-tab:*' fzf-flags --height=80% --layout=reverse --border=sharp
       zstyle ':fzf-tab:*' switch-group '<' '>'
+      zstyle ':fzf-tab:*' continuous-trigger '/'
+      zstyle ':fzf-tab:complete:*:*' fzf-preview \
+        'if [[ -d $realpath ]]; then eza -1 --color=always --icons $realpath; elif [[ -f $realpath ]]; then bat --color=always --style=numbers --line-range=:200 $realpath; fi'
     '';
   };
 }

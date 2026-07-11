@@ -6,6 +6,22 @@ cpu_usage=$(
 )
 printf ' CPU %s%%' "${cpu_usage:-?}"
 
+memory_usage=$(
+  awk '
+    /^MemTotal:/ { total = $2 }
+    /^MemAvailable:/ { available = $2 }
+    END {
+      used = total - available
+      if (total >= 1048576) {
+        printf "%.1f/%.1f GiB", used / 1048576, total / 1048576
+      } else {
+        printf "%.0f/%.0f MiB", used / 1024, total / 1024
+      }
+    }
+  ' /proc/meminfo
+)
+printf '   RAM %s' "${memory_usage:-?}"
+
 if command -v nvidia-smi >/dev/null 2>&1; then
   gpu_usage=$(
     nvidia-smi --query-gpu=utilization.gpu --format=csv,noheader,nounits 2>/dev/null |
