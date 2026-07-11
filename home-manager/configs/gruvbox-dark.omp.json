@@ -3,12 +3,12 @@
   "version": 4,
   "final_space": true,
   "console_title_template": "{{ .Folder }}",
-  "terminal_background": "p:bg-hard",
+  "terminal_background": "p:bg",
   "palette": {
-    "bg-hard": "#1d2021",
     "bg": "#282828",
-    "bg0-soft": "#32302f",
-    "bg-soft": "#3c3836",
+    "bg0_h": "#1d2021",
+    "bg0_s": "#32302f",
+    "bg1": "#3c3836",
     "bg2": "#504945",
     "bg3": "#665c54",
     "bg4": "#7c6f64",
@@ -41,7 +41,7 @@
         {
           "type": "os",
           "style": "powerline",
-          "background": "p:bg-soft",
+          "background": "p:bg1",
           "foreground": "p:fg",
           "template": "{{ if .WSL }}WSL at{{ end }} {{ .Icon }} "
         },
@@ -50,7 +50,7 @@
           "style": "powerline",
           "powerline_symbol": "\ue0b0",
           "background": "p:blue",
-          "foreground": "p:bg-hard",
+          "foreground": "p:bg",
           "options": {
             "style": "full"
           },
@@ -69,7 +69,7 @@
             "{{ if gt .Ahead 0 }}p:purple{{ end }}",
             "{{ if gt .Behind 0 }}p:blue{{ end }}"
           ],
-          "foreground": "p:bg-hard",
+          "foreground": "p:bg",
           "options": {
             "branch_template": "{{ trunc 25 .Branch }}",
             "fetch_status": true,
@@ -83,35 +83,12 @@
           "style": "powerline",
           "powerline_symbol": "\ue0b0",
           "background": "p:yellow",
-          "foreground": "p:bg-hard",
+          "foreground": "p:bg",
           "options": {
             "display_mode": "files",
             "fetch_virtual_env": false
           },
           "template": " \ue235 {{ if .Error }}{{ .Error }}{{ else }}{{ .Full }}{{ end }} "
-        }
-      ]
-    },
-    {
-      "type": "prompt",
-      "alignment": "right",
-      "segments": [
-        {
-          "type": "executiontime",
-          "style": "powerline",
-          "powerline_symbol": "\ue0b0",
-          "background": "p:aqua",
-          "foreground": "p:bg-hard",
-          "template": " \uf252 {{ .FormattedMs }} "
-        },
-        {
-          "type": "time",
-          "style": "plain",
-          "leading_powerline_symbol": "\ue0b2",
-          "powerline_symbol": "\ue0b0",
-          "background": "p:purple",
-          "foreground": "p:bg-hard",
-          "template": " \uf017 {{ .CurrentDate | date .Format }} "
         }
       ]
     },
