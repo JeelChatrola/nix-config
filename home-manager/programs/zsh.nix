@@ -94,7 +94,6 @@
           ssh-add ~/.ssh/github_auth 2>/dev/null
         fi
         setopt CORRECT
-        setopt CORRECT_ALL
         # Tokyo Night colors for zsh-syntax-highlighting
         # Declare associative array before assignments: initContent runs before the plugin is sourced.
         typeset -gA ZSH_HIGHLIGHT_STYLES
@@ -114,13 +113,13 @@
         # Import aliases and environment from external file
         ${builtins.readFile ../configs/zsh-aliases.sh}
 
-        # GUI-style line editor keys (Ctrl+arrow, Ctrl+C copy, Ctrl+Enter, etc.)
+        # GUI-style word movement and Ctrl+Enter; Ctrl+C remains interrupt.
         ${builtins.readFile ../configs/zsh-keybindings.sh}
 
         # Directory navigation:
         #   cd / zi — zoxide (--cmd cd): frecent jumps on paths you have used
         #   br      — broot: tree search for paths you have never visited; Alt+Enter to cd
-        export _ZO_FZF_OPTS="--height 40% --layout=reverse --border rounded --preview 'eza -1 --color=always {} 2>/dev/null || ls -la {}'"
+        export _ZO_FZF_OPTS="--height 40% --layout=reverse --border sharp --preview 'eza -1 --color=always {} 2>/dev/null || ls -la {}'"
         eval "$(zoxide init zsh --cmd cd)"
         if command -v broot >/dev/null 2>&1; then
           eval "$(broot --print-shell-function zsh 2>/dev/null)" || true
@@ -129,7 +128,7 @@
       (lib.mkOrder 1200 ''
         # Force Ctrl+R widget options explicitly. In some HM/fzf setups the
         # dedicated historyWidgetOptions don't reliably surface in live zsh.
-        export FZF_CTRL_R_OPTS="--height=80% --layout=reverse --border=rounded --bind 'ctrl-r:toggle-sort' --header 'Ctrl-R: toggle sort'"
+        export FZF_CTRL_R_OPTS="--height=80% --layout=reverse --border=sharp --bind 'ctrl-r:toggle-sort' --header 'Ctrl-R: toggle sort'"
 
         # Replace fzf's default history widget:
         # - keep history storage intact, but show only the newest copy of each
@@ -198,7 +197,7 @@
       zstyle ':fzf-tab:*' switch-group '<' '>'
       zstyle ':fzf-tab:*' continuous-trigger '/'
       zstyle ':fzf-tab:complete:*:*' fzf-preview \
-        'if [[ -d $realpath ]]; then eza -1 --color=always --icons $realpath; elif [[ -f $realpath ]]; then bat --color=always --style=numbers --line-range=:200 $realpath; fi'
+        'if [[ -d $realpath ]]; then eza -1 --color=always --icons "$realpath"; elif [[ -f $realpath ]]; then bat --color=always --style=numbers --line-range=:200 "$realpath"; fi'
     '';
   };
 }

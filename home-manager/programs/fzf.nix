@@ -14,7 +14,7 @@
       "--height 40%"
       "--layout=reverse"
       "--info=inline"
-      "--border=rounded"
+      "--border=sharp"
       "--prompt='> '"
       "--pointer=▶"
       "--marker=✓"

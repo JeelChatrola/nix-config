@@ -2,42 +2,22 @@
 # This file contains all the packages you want to install
 
 {
-  config,
-  lib,
   pkgs,
   pkgsUnstable,
   userProfile,
   ...
 }:
 let
-  projectRoots = lib.concatStringsSep ":" userProfile.projectRoots;
   nixRefresh = pkgs.writeShellScriptBin "nix-refresh" ''
     exec ${pkgs.bash}/bin/bash "${userProfile.nixConfigDir}/deploy.sh" "$@"
   '';
-  tmuxProject = pkgs.writeShellApplication {
-    name = "tmux-project";
+  workflowHelp = pkgs.writeShellApplication {
+    name = "workflow-help";
     runtimeInputs = with pkgs; [
       coreutils
-      fd
-      findutils
       fzf
-      git
-      gnused
-      tmux
-      zoxide
     ];
-    text = ''
-      export PROJECT_ROOTS="''${PROJECT_ROOTS:-${projectRoots}}"
-      ${builtins.readFile ../../bin/tmux-project}
-    '';
-  };
-  tmuxMetrics = pkgs.writeShellApplication {
-    name = "tmux-metrics";
-    runtimeInputs = with pkgs; [
-      gawk
-      procps
-    ];
-    text = builtins.readFile ../../bin/tmux-metrics;
+    text = builtins.readFile ../../bin/workflow-help;
   };
 in
 {
@@ -96,9 +76,10 @@ in
     broot             # br + Alt+Enter when cd/zi do not know the path yet
     nh                # Clean Home Manager/Nix build output and package diffs
     tmux              # Terminal multiplexer (split terminals, sessions)
+    sesh              # Maintained tmux project/session manager using zoxide
+    tmux-mem-cpu-load # Maintained RAM used/total and CPU status monitor
     nixRefresh
-    tmuxMetrics
-    tmuxProject
+    workflowHelp
 
     # =============================================================================
     # DOCKER & CONTAINER TOOLS

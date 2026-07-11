@@ -37,6 +37,7 @@ Skip Docker: `./deploy.sh --ai --no-docker`
 nix-config/
 ├── flake.nix
 ├── deploy.sh
+├── docs/              # Workflow and keyboard guide
 ├── home-manager/
 │   ├── home.nix
 │   ├── programs/       # zsh, tmux, ghostty, ai-tools.nix (*-ai only)
@@ -60,18 +61,11 @@ Runtime setup is explicit: use `./deploy.sh --ai` or `ai-stack deploy` after Hom
 
 Ghostty config is managed at `~/.config/ghostty/config`. Install the Ghostty binary via system-setup (`./install.sh ghostty` — apt or PPA, not Nix).
 
-Ghostty, tmux, Starship, and LazyVim share the Tokyo Night color scheme.
+Ghostty, tmux, Starship, FZF, and LazyVim share the Tokyo Night color scheme. The tmux status uses maintained plugins for RAM/CPU/GPU metrics; Sesh manages project sessions; Resurrect and Continuum persist layouts.
 
-tmux is installed and configured directly (no oh-my-zsh tmux plugin).
-Its Tokyo Night window bar is shown at the top with CPU and optional NVIDIA GPU utilization.
+Press `Ctrl+a ?` inside tmux or run `workflow-help` from any shell to search shortcuts across tmux, Zsh, Neovim, Harpoon, previews, and Ghostty.
 
-Project navigation:
-
-- `cd NAME` uses zoxide's learned directory ranking; `zi` opens its interactive picker.
-- `prefix + f` chooses or creates a tmux project session.
-- `prefix + F` does the same and starts `nvim .` in a new session.
-
-Neovim uses LazyVim with Snacks picker/explorer and Harpoon 2. Useful defaults include `<leader><space>` for files, `<leader>/` for grep, `<leader>e` for the explorer, `<leader>H` to harpoon a file, and `<leader>h` for the Harpoon menu.
+Read [Keyboard Workflow](docs/KEYBOARD_WORKFLOW.md) for the mental model, complete shortcut tables, and practice guidance.
 
 ## Adding packages
 

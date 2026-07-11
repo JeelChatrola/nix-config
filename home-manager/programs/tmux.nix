@@ -1,14 +1,14 @@
 # Tmux program configuration
 # This file configures tmux with custom settings
 
-{ config, pkgs, ... }:
+{ pkgs, ... }:
 
 {
   programs.tmux = {
     enable = true;
     shortcut = "a";
     baseIndex = 1;
-    clock24 = true;
+    clock24 = false;
     keyMode = "vi";
     mouse = true;
     
@@ -16,6 +16,7 @@
     plugins = with pkgs.tmuxPlugins; [
       sensible          # Basic tmux settings everyone can agree on
       yank              # Copy to system clipboard
+      vim-tmux-navigator # Shared Ctrl+h/j/k/l movement with Neovim
       resurrect         # Prefix+Ctrl-s saves; Prefix+Ctrl-r restores
       {
         plugin = continuum;
@@ -49,7 +50,10 @@
       }
     ];
     
-    # Import tmux config from external file
-    extraConfig = builtins.readFile ../configs/tmux.conf;
+    # tmux-cpu interpolates status tokens when sourced, so it must run after
+    # the external config defines status-right.
+    extraConfig = builtins.readFile ../configs/tmux.conf + ''
+      run-shell ${pkgs.tmuxPlugins.cpu}/share/tmux-plugins/cpu/cpu.tmux
+    '';
   };
 }
