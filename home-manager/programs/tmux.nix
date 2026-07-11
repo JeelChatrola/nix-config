@@ -3,34 +3,7 @@
 
 { config, pkgs, ... }:
 
-let
-  marmonitor = pkgs.buildNpmPackage {
-    pname = "marmonitor";
-    version = "0.2.6";
-    src = pkgs.fetchFromGitHub {
-      owner = "mjjo16";
-      repo = "marmonitor";
-      rev = "v0.2.6";
-      hash = "sha256-Oaw8ahspeXdXEFARxkxtanfMyBaRuG5BzMtAM0CNQsY=";
-    };
-    npmDepsHash = "sha256-DW6R/5ISeOOyv1p/OHpSddXRNnQqKdOk99Cchn2GOq8=";
-    npmFlags = [ "--ignore-scripts" ];
-  };
-  marmonitorTmux = pkgs.tmuxPlugins.mkTmuxPlugin {
-    pluginName = "marmonitor";
-    version = "unstable-2026-07-10";
-    src = pkgs.fetchFromGitHub {
-      owner = "mjjo16";
-      repo = "marmonitor-tmux";
-      rev = "d13bfef026cf6787da4318a12da465532ed96713";
-      hash = "sha256-1JnYCm2mLg33EwEKh+wsxPOrNka+9EzjEK9vR+FPjVo=";
-    };
-    rtpFilePath = "marmonitor.tmux";
-  };
-in
 {
-  home.packages = [ marmonitor ];
-
   programs.tmux = {
     enable = true;
     shortcut = "a";
@@ -74,31 +47,9 @@ in
           set -g @fzf-url-bind 'u'
         '';
       }
-      {
-        plugin = marmonitorTmux;
-        extraConfig = ''
-          set -g @marmonitor-format 'tmux-badges'
-          set -g @marmonitor-status-line '1'
-          set -g @marmonitor-interval '5'
-        '';
-      }
     ];
     
     # Import tmux config from external file
     extraConfig = builtins.readFile ../configs/tmux.conf;
-  };
-
-  systemd.user.services.marmonitor = {
-    Unit = {
-      Description = "Monitor AI coding agents for tmux";
-      After = [ "graphical-session-pre.target" ];
-    };
-    Service = {
-      Type = "oneshot";
-      ExecStart = "${marmonitor}/bin/marmonitor start";
-      ExecStop = "${marmonitor}/bin/marmonitor stop";
-      RemainAfterExit = true;
-    };
-    Install.WantedBy = [ "default.target" ];
   };
 }
