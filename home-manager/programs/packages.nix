@@ -3,10 +3,36 @@
 
 {
   config,
+  lib,
   pkgs,
   pkgsUnstable,
+  userProfile,
   ...
-}: {
+}:
+let
+  projectRoots = lib.concatStringsSep ":" userProfile.projectRoots;
+  nixRefresh = pkgs.writeShellScriptBin "nix-refresh" ''
+    exec ${pkgs.bash}/bin/bash "${userProfile.nixConfigDir}/deploy.sh" "$@"
+  '';
+  tmuxProject = pkgs.writeShellApplication {
+    name = "tmux-project";
+    runtimeInputs = with pkgs; [
+      coreutils
+      fd
+      findutils
+      fzf
+      git
+      gnused
+      tmux
+      zoxide
+    ];
+    text = ''
+      export PROJECT_ROOTS="''${PROJECT_ROOTS:-${projectRoots}}"
+      ${builtins.readFile ../../bin/tmux-project}
+    '';
+  };
+in
+{
   home.packages = with pkgs; [    
     # =============================================================================
     # SYSTEM UTILITIES
@@ -59,7 +85,10 @@
     zsh               # Z shell (alternative to bash)
     zoxide            # Replaces cd (frecent); zi = interactive picker
     broot             # br + Alt+Enter when cd/zi do not know the path yet
+    nh                # Clean Home Manager/Nix build output and package diffs
     tmux              # Terminal multiplexer (split terminals, sessions)
+    nixRefresh
+    tmuxProject
 
     # =============================================================================
     # DOCKER & CONTAINER TOOLS

@@ -1,0 +1,99 @@
+set -euo pipefail
+
+open_editor=0
+list_only=0
+selected=""
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --editor) open_editor=1 ;;
+    --list) list_only=1 ;;
+    -h|--help)
+      echo "Usage: tmux-project [--editor] [--list] [DIRECTORY]"
+      exit 0
+      ;;
+    -*)
+      echo "tmux-project: unknown option: $1" >&2
+      exit 2
+      ;;
+    *)
+      if [[ -n "$selected" ]]; then
+        echo "tmux-project: only one directory may be selected" >&2
+        exit 2
+      fi
+      selected="$1"
+      ;;
+  esac
+  shift
+done
+
+candidates=$(mktemp)
+trap 'rm -f "$candidates"' EXIT
+
+IFS=: read -r -a roots <<< "${PROJECT_ROOTS:-$HOME/Projects:$HOME/personal_setup:$HOME/Downloads}"
+for root in "${roots[@]}"; do
+  [[ -d "$root" ]] || continue
+  if git -C "$root" rev-parse --show-toplevel >/dev/null 2>&1; then
+    git -C "$root" rev-parse --show-toplevel >> "$candidates"
+  fi
+  while IFS= read -r marker; do
+    dirname "$marker"
+  done < <(fd --hidden --max-depth 5 --exclude node_modules --exclude .cache '^\.git$' "$root" 2>/dev/null) \
+    >> "$candidates"
+done
+
+if command -v zoxide >/dev/null 2>&1; then
+  while IFS= read -r path; do
+    git -C "$path" rev-parse --show-toplevel 2>/dev/null || true
+  done < <(zoxide query --list 2>/dev/null || true) >> "$candidates"
+fi
+
+sorted=$(mktemp)
+trap 'rm -f "$candidates" "$sorted"' EXIT
+sort -u "$candidates" | while IFS= read -r path; do
+  [[ -d "$path" ]] && printf '%s\n' "$path"
+done > "$sorted"
+
+if [[ "$list_only" == 1 ]]; then
+  command cat "$sorted"
+  exit 0
+fi
+
+if [[ -z "$selected" ]]; then
+  selected=$(fzf --height=80% --layout=reverse --border=rounded --prompt='Project> ' < "$sorted") || exit 0
+fi
+selected=$(realpath "$selected")
+if [[ ! -d "$selected" ]]; then
+  echo "tmux-project: not a directory: $selected" >&2
+  exit 1
+fi
+
+session_name=""
+while IFS= read -r candidate; do
+  session_path=$(tmux show-option -qv -t "=$candidate" @project_root)
+  if [[ "$session_path" == "$selected" ]]; then
+    session_name="$candidate"
+    break
+  fi
+done < <(tmux list-sessions -F '#{session_name}' 2>/dev/null || true)
+
+if [[ -z "$session_name" ]]; then
+  session_name=$(basename "$selected" | tr '.:' '__')
+  if tmux has-session -t "=$session_name" 2>/dev/null; then
+    session_name="${session_name}_$(printf '%s' "$selected" | cksum | cut -d' ' -f1)"
+  fi
+fi
+
+if ! tmux has-session -t "=$session_name" 2>/dev/null; then
+  tmux new-session -d -s "$session_name" -c "$selected"
+  tmux set-option -q -t "=$session_name" @project_root "$selected"
+  if [[ "$open_editor" == 1 ]]; then
+    tmux send-keys -t "=$session_name" 'nvim .' Enter
+  fi
+fi
+
+if [[ -n "${TMUX:-}" ]]; then
+  tmux switch-client -t "=$session_name"
+else
+  exec tmux attach-session -t "=$session_name"
+fi

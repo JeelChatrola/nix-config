@@ -8,20 +8,14 @@ export TERM=xterm-256color
 export EDITOR='nvim'
 export PATH="$HOME/.local/bin:$PATH"
 
-# Quick rebuild — works from any directory.
-#   nix-refresh              base home-manager only
-#   nix-refresh --ai         base + AI stack (opencode, codex, hermes, Docker, Hermes gateway restart)
-#   nix-refresh --ai --no-docker   AI without Docker (gateway still restarted if installed)
-nix-refresh() {
-  bash "$HOME/nix-config/deploy.sh" "$@"
-}
-
 # =============================================================================
 # GENERAL ALIASES
 # =============================================================================
-alias ll='ls -alF'
-alias la='ls -A'
-alias l='ls -CF'
+alias ls='eza'
+alias ll='eza -alF'
+alias la='eza -A'
+alias l='eza -F'
+alias cat='bat --paging=never'
 alias ..='cd ..'
 alias ...='cd ../..'
 alias grep='grep --color=auto'
@@ -66,54 +60,6 @@ alias v='nvim'
 alias nv='nvim'
 alias f='fzf'
 alias ssh='ssh -o ServerAliveInterval=60'
-
-# =============================================================================
-# AI STACK (private repo at ~/ai-stack)
-# =============================================================================
-: "${AI_STACK_DIR:=$HOME/ai-stack}"
-
-_ai_stack() {
-  bash "$AI_STACK_DIR/bin/ai-stack" "$@"
-}
-
-ai-up() { _ai_stack up; }
-ai-down() { _ai_stack down; }
-ai-restart() { _ai_stack down; _ai_stack up; }
-ai-logs() { _ai_stack logs; }
-ai-ps() { _ai_stack ps; }
-ai-pull() { bash "$AI_STACK_DIR/scripts/docker-compose.sh" pull; }
-
-# Run the Ollama CLI inside the stack container from the host.
-# -it only in a real terminal; piping (e.g. ollama-list | grep) must not use -t.
-ai-ollama() {
-  if [[ -t 0 && -t 1 ]]; then
-    docker exec -it ollama ollama "$@"
-  else
-    docker exec ollama ollama "$@"
-  fi
-}
-
-ollama-pull() {
-  ai-ollama pull "$@"
-}
-
-ollama-run() {
-  ai-ollama run "$@"
-}
-
-ollama-show() {
-  ai-ollama show "$@"
-}
-
-ollama-rm() {
-  ai-ollama rm "$@"
-}
-
-alias ollama-list='ai-ollama list'
-
-# Per-project skills via npx skills (see ai-stack/bin/skills)
-alias ai-skills='$AI_STACK_DIR/bin/skills'
-ai-boot() { "$AI_STACK_DIR/bin/skills" --skill '*' -a cursor -a opencode -y "$@"; }
 
 # =============================================================================
 # CUSTOM FUNCTIONS

@@ -7,4 +7,9 @@ rec {
   repoRoot = homeDirectory;
   aiStackDir = "${repoRoot}/ai-stack";
   nixConfigDir = "${repoRoot}/nix-config";
+  projectRoots = [
+    "${homeDirectory}/Projects"
+    "${homeDirectory}/personal_setup"
+    "${homeDirectory}/Downloads"
+  ];
 }

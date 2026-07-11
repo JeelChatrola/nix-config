@@ -1,10 +1,12 @@
 #!/bin/bash
 set -euo pipefail
-cd "$(dirname "$0")"
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+cd "$ROOT"
 
 DEPLOY_USER="${USER}"
 WITH_AI=false
 DEPLOY_AI_NO_DOCKER=0
+FLAKE_PATH="${NIX_CONFIG_DIR:-$ROOT}"
 : "${AI_STACK_DIR:=$HOME/ai-stack}"
 # Ignore stale session var from when ai-stack lived inside nix-config/
 if [[ ! -x "$AI_STACK_DIR/bin/ai-stack" ]]; then
@@ -15,7 +17,7 @@ usage() {
   echo "Usage: ./deploy.sh [--user LOGIN] [--ai] [--no-docker]"
   echo ""
   echo "  --user LOGIN  Home Manager flake output base name (default: \$USER). Targets .#\$LOGIN or .#\$LOGIN-ai."
-  echo "  --ai          Home Manager *-ai, then \$AI_STACK_DIR/bin/ai-stack sync + deploy."
+  echo "  --ai          Home Manager *-ai, then \$AI_STACK_DIR/bin/ai-stack deploy."
   echo "  --no-docker   With --ai: skip Docker compose (Ollama, SearXNG)."
   echo ""
   echo "  AI_STACK_DIR  Default: \$HOME/ai-stack (private ai-stack clone)."
@@ -45,10 +47,10 @@ if $WITH_AI; then
 fi
 
 hm_switch() {
-  if command -v home-manager >/dev/null 2>&1; then
-    home-manager switch --flake ".#${FLAKE_TARGET}" --impure
+  if command -v nh >/dev/null 2>&1; then
+    nh home switch "$FLAKE_PATH" --configuration "$FLAKE_TARGET" --impure
   else
-    nix run nixpkgs#home-manager -- switch --flake ".#${FLAKE_TARGET}" --impure
+    nix run nixpkgs#nh -- home switch "$FLAKE_PATH" --configuration "$FLAKE_TARGET" --impure
   fi
 }
 
@@ -63,24 +65,11 @@ if $WITH_AI; then
     exit 1
   fi
   export AI_STACK_DIR DEPLOY_AI_NO_DOCKER
-  stage 1 3 "Sync AI configuration"
-  echo "    $AI_STACK_DIR"
-  "$AI_STACK_DIR/bin/ai-stack" sync
-
-  stage 2 3 "Apply Home Manager ($FLAKE_TARGET)"
+  stage 1 2 "Apply Home Manager ($FLAKE_TARGET)"
   hm_switch
 
-  stage 3 3 "Deploy AI services"
-  set +e
+  stage 2 2 "Deploy AI services"
   "$AI_STACK_DIR/bin/ai-stack" deploy
-  deploy_rc=$?
-  set -e
-  if [[ "$deploy_rc" -eq 10 ]]; then
-    echo "    Re-applying Home Manager after generated OpenCode config changed..."
-    hm_switch
-  elif [[ "$deploy_rc" -ne 0 ]]; then
-    exit "$deploy_rc"
-  fi
   printf '\n==> Deploy complete\n'
   echo "    Restart your terminal or run: exec zsh"
   exit 0

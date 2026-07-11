@@ -26,7 +26,7 @@ Modular, declarative configuration for development tools and CLI utilities using
 ```bash
 ./deploy.sh              # Home Manager only (.#$USER)
 ./deploy.sh --ai         # .#$USER-ai + ~/ai-stack/bin/ai-stack deploy
-nix-refresh --ai         # same from any directory (zsh alias)
+nix-refresh --ai         # same from any directory (Home Manager-installed command)
 ```
 
 Skip Docker: `./deploy.sh --ai --no-docker`
@@ -52,7 +52,7 @@ When `enableAI` is true (flake output `*-ai`), `ai-tools.nix` installs:
 - `AI_STACK_DIR` and `NIX_CONFIG_DIR` session variables
 - Nix-store wrappers for ai-stack entrypoints
 
-Skills, MCP catalog, agent profiles, and Docker compose live in the private **ai-stack** repo. Shell aliases (`ai-up`, `ai-skills`, `ai-boot`, …) call `$AI_STACK_DIR/bin/ai-stack` or `bin/skills`.
+Skills, MCP catalog, agent profiles, Docker compose, and Ollama commands live in the private **ai-stack** repo. Use `ai-stack --help`; Nix only installs its wrapper and environment.
 
 Runtime setup is explicit: use `./deploy.sh --ai` or `ai-stack deploy` after Home Manager has installed the wrappers. Hermes and DeepTutor install via uv (`bin/ai-stack install-agents`); config/data in `~/.hermes` and `~/deeptutor`.
 
@@ -61,6 +61,14 @@ Runtime setup is explicit: use `./deploy.sh --ai` or `ai-stack deploy` after Hom
 Ghostty config is managed at `~/.config/ghostty/config`. Install the Ghostty binary via system-setup (`./install.sh ghostty` — apt or PPA, not Nix).
 
 tmux is installed and configured directly (no oh-my-zsh tmux plugin).
+
+Project navigation:
+
+- `cd NAME` uses zoxide's learned directory ranking; `zi` opens its interactive picker.
+- `prefix + f` chooses or creates a tmux project session.
+- `prefix + F` does the same and starts `nvim .` in a new session.
+
+Neovim uses LazyVim with Snacks picker/explorer and Harpoon 2. Useful defaults include `<leader><space>` for files, `<leader>/` for grep, `<leader>e` for the explorer, `<leader>H` to harpoon a file, and `<leader>h` for the Harpoon menu.
 
 ## Adding packages
 
