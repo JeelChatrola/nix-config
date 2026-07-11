@@ -78,6 +78,9 @@
         # Enable useful shell options
         setopt AUTO_CD
 
+        # Refresh inherited session state so existing terminals pick up FZF theme changes.
+        export FZF_DEFAULT_OPTS=${lib.escapeShellArg (lib.concatStringsSep " " config.programs.fzf.defaultOptions)}
+
         # Auto-load SSH keys
         if [ -z "$SSH_AUTH_SOCK" ]; then
           eval "$(ssh-agent -s)" > /dev/null
@@ -89,21 +92,21 @@
         fi
         setopt CORRECT
         setopt CORRECT_ALL
-        # Gruvbox colors for zsh-syntax-highlighting
+        # Tokyo Night colors for zsh-syntax-highlighting
         # Declare associative array before assignments: initContent runs before the plugin is sourced.
         typeset -gA ZSH_HIGHLIGHT_STYLES
         ZSH_HIGHLIGHT_HIGHLIGHTERS=(main brackets pattern cursor)
-        ZSH_HIGHLIGHT_STYLES[default]='fg=#ebdbb2'
-        ZSH_HIGHLIGHT_STYLES[command]='fg=#b8bb26'
-        ZSH_HIGHLIGHT_STYLES[alias]='fg=#b8bb26'
-        ZSH_HIGHLIGHT_STYLES[builtin]='fg=#fabd2f'
-        ZSH_HIGHLIGHT_STYLES[function]='fg=#8ec07c'
-        ZSH_HIGHLIGHT_STYLES[path]='fg=#83a598,underline'
-        ZSH_HIGHLIGHT_STYLES[globbing]='fg=#d3869b'
-        ZSH_HIGHLIGHT_STYLES[history-expansion]='fg=#d3869b'
-        ZSH_HIGHLIGHT_STYLES[single-hyphen-option]='fg=#fe8019'
-        ZSH_HIGHLIGHT_STYLES[double-hyphen-option]='fg=#fe8019'
-        ZSH_HIGHLIGHT_STYLES[back-quoted-argument]='fg=#d3869b'
+        ZSH_HIGHLIGHT_STYLES[default]='fg=#c0caf5'
+        ZSH_HIGHLIGHT_STYLES[command]='fg=#9ece6a'
+        ZSH_HIGHLIGHT_STYLES[alias]='fg=#9ece6a'
+        ZSH_HIGHLIGHT_STYLES[builtin]='fg=#e0af68'
+        ZSH_HIGHLIGHT_STYLES[function]='fg=#7dcfff'
+        ZSH_HIGHLIGHT_STYLES[path]='fg=#7aa2f7,underline'
+        ZSH_HIGHLIGHT_STYLES[globbing]='fg=#bb9af7'
+        ZSH_HIGHLIGHT_STYLES[history-expansion]='fg=#bb9af7'
+        ZSH_HIGHLIGHT_STYLES[single-hyphen-option]='fg=#ff9e64'
+        ZSH_HIGHLIGHT_STYLES[double-hyphen-option]='fg=#ff9e64'
+        ZSH_HIGHLIGHT_STYLES[back-quoted-argument]='fg=#bb9af7'
 
         # Import aliases and environment from external file
         ${builtins.readFile ../configs/zsh-aliases.sh}
