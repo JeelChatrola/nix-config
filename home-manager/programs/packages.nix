@@ -31,6 +31,14 @@ let
       ${builtins.readFile ../../bin/tmux-project}
     '';
   };
+  tmuxMetrics = pkgs.writeShellApplication {
+    name = "tmux-metrics";
+    runtimeInputs = with pkgs; [
+      gawk
+      procps
+    ];
+    text = builtins.readFile ../../bin/tmux-metrics;
+  };
 in
 {
   home.packages = with pkgs; [    
@@ -88,6 +96,7 @@ in
     nh                # Clean Home Manager/Nix build output and package diffs
     tmux              # Terminal multiplexer (split terminals, sessions)
     nixRefresh
+    tmuxMetrics
     tmuxProject
 
     # =============================================================================

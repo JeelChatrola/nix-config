@@ -63,6 +63,7 @@ Ghostty config is managed at `~/.config/ghostty/config`. Install the Ghostty bin
 Ghostty, tmux, Starship, and LazyVim share the Tokyo Night color scheme.
 
 tmux is installed and configured directly (no oh-my-zsh tmux plugin).
+Its Tokyo Night window bar is shown at the top with CPU and optional NVIDIA GPU utilization.
 
 Project navigation:
 
