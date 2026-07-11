@@ -6,7 +6,7 @@ This setup uses one spatial language across Ghostty, tmux, Zsh, and Neovim. Run 
 
 | Layer | Job |
 |---|---|
-| Ghostty | Terminal window, clipboard, transparency, font |
+| Ghostty | Terminal window, clipboard, colors, font |
 | tmux | Persistent sessions, windows, and panes |
 | Sesh | Find, create, and switch project sessions |
 | Zsh | Commands, completion, history, directory jumps |
@@ -34,7 +34,7 @@ This setup uses one spatial language across Ghostty, tmux, Zsh, and Neovim. Run 
 | `Ctrl+a S` / `Ctrl+a X` | Create / confirm-kill a session |
 | `Ctrl+a r` | Reload tmux configuration |
 
-Sesh replaces the former custom `tmux-project` script. It combines active tmux sessions, configured projects, and directories learned by zoxide. Select an entry with `Ctrl+a f`; Sesh creates the session when necessary.
+Sesh replaces the former custom `tmux-project` script. It combines active tmux sessions with directories learned by zoxide. Visit a project once with `cd` or `zoxide add PATH` to make it discoverable; selecting it with `Ctrl+a f` creates the session when necessary.
 
 ## Copy, URLs, and persistence
 
@@ -86,7 +86,7 @@ Live Preview renders Markdown, KaTeX math, Mermaid diagrams, HTML, SVG, and Asci
 
 ## Status and prompt
 
-`tmux-mem-cpu-load` provides maintained RAM used/total and CPU usage. `tmux-cpu` adds NVIDIA GPU usage. The Starship prompt uses a compact Tokyo Night palette; green `❯` means the previous command succeeded and red `❯` means it failed.
+`tmux-cpu` shows CPU and NVIDIA GPU utilization in the tmux status bar. The Starship prompt uses a compact Tokyo Night palette; green `❯` means the previous command succeeded and red `❯` means it failed.
 
 ## Ghostty
 

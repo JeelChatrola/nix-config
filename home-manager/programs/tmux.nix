@@ -50,6 +50,10 @@
       }
     ];
     
-    extraConfig = builtins.readFile ../configs/tmux.conf;
+    extraConfig = builtins.readFile ../configs/tmux.conf + ''
+      # tmux-cpu interpolates status tokens when sourced, so it must run after
+      # the external config defines status-right.
+      run-shell ${pkgs.tmuxPlugins.cpu}/share/tmux-plugins/cpu/cpu.tmux
+    '';
   };
 }

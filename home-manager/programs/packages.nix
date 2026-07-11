@@ -19,14 +19,6 @@ let
     ];
     text = builtins.readFile ../../bin/workflow-help;
   };
-  tmuxMetrics = pkgs.writeShellApplication {
-    name = "tmux-metrics";
-    runtimeInputs = with pkgs; [
-      gawk
-      procps
-    ];
-    text = builtins.readFile ../../bin/tmux-metrics;
-  };
 in
 {
   home.packages = with pkgs; [    
@@ -78,7 +70,7 @@ in
     wget              # Non-interactive network downloader
     git               # Distributed version control system
     git-lfs           # Git Large File Storage (handle large files in git)
-    nodejs_22         # Node.js runtime for opencode, codex, MCP servers, and general JS tooling
+    nodejs_24         # Node.js runtime for Agent Browser, MCP servers, and general JS tooling
     zsh               # Z shell (alternative to bash)
     zoxide            # Replaces cd (frecent); zi = interactive picker
     broot             # br + Alt+Enter when cd/zi do not know the path yet
@@ -86,7 +78,6 @@ in
     tmux              # Terminal multiplexer (split terminals, sessions)
     sesh              # Maintained tmux project/session manager using zoxide
     nixRefresh
-    tmuxMetrics
     workflowHelp
 
     # =============================================================================

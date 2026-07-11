@@ -14,6 +14,10 @@ let
     exec ${pkgs.nodejs_22}/bin/npx -y @openai/codex@0.144.1 "$@"
   '';
 
+  agentBrowserWrapper = pkgs.writeShellScriptBin "agent-browser" ''
+    exec ${pkgs.nodejs_24}/bin/npx -y agent-browser@0.31.1 "$@"
+  '';
+
   hermesWrapper = pkgs.writeShellScriptBin "hermes" ''
     export AI_STACK_DIR="${aiStackDir}"
     exec "${aiStackDir}/bin/hermes" "$@"
@@ -34,6 +38,7 @@ in
   home.packages = [
     opencodeWrapper
     codexWrapper
+    agentBrowserWrapper
     hermesWrapper
     deeptutorWrapper
     aiStackWrapper
