@@ -44,10 +44,11 @@
     ./programs/tmux.nix
     ./programs/ssh.nix
     ./programs/fzf.nix
-    ./programs/starship.nix
+    ./programs/oh-my-posh.nix
     ./programs/neovim.nix
     ./programs/lf.nix
     ./programs/ghostty.nix
+    ./programs/alacritty.nix
   ] ++ lib.optionals enableAI [
     ./programs/ai-tools.nix
   ];

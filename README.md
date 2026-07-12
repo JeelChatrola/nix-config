@@ -26,7 +26,7 @@ Modular, declarative configuration for development tools and CLI utilities using
 ```bash
 ./deploy.sh              # Home Manager only (.#$USER)
 ./deploy.sh --ai         # .#$USER-ai + ~/ai-stack/bin/ai-stack deploy
-nix-refresh --ai         # same from any directory (zsh alias)
+nix-refresh --ai         # same from any directory (Home Manager-installed command)
 ```
 
 Skip Docker: `./deploy.sh --ai --no-docker`
@@ -37,6 +37,7 @@ Skip Docker: `./deploy.sh --ai --no-docker`
 nix-config/
 ├── flake.nix
 ├── deploy.sh
+├── docs/              # Workflow and keyboard guide
 ├── home-manager/
 │   ├── home.nix
 │   ├── programs/       # zsh, tmux, ghostty, ai-tools.nix (*-ai only)
@@ -48,19 +49,23 @@ nix-config/
 
 When `enableAI` is true (flake output `*-ai`), `ai-tools.nix` installs:
 
-- `opencode`, `codex`, `hermes`, `deeptutor`, `ai-stack` wrappers on PATH
+- `opencode`, `codex`, `agent-browser`, `hermes`, `deeptutor`, `ai-stack` wrappers on PATH
 - `AI_STACK_DIR` and `NIX_CONFIG_DIR` session variables
 - Nix-store wrappers for ai-stack entrypoints
 
-Skills, MCP catalog, agent profiles, and Docker compose live in the private **ai-stack** repo. Shell aliases (`ai-up`, `ai-skills`, `ai-boot`, …) call `$AI_STACK_DIR/bin/ai-stack` or `bin/skills`.
+Skills, MCP catalog, agent profiles, Docker compose, and Ollama commands live in the private **ai-stack** repo. Use `ai-stack --help`; Nix only installs its wrapper and environment.
 
-Runtime setup is explicit: use `./deploy.sh --ai` or `ai-stack deploy` after Home Manager has installed the wrappers. Hermes and DeepTutor install via uv (`bin/ai-stack install-agents`); config/data in `~/.hermes` and `~/deeptutor`.
+Runtime setup is explicit: use `./deploy.sh --ai` or `ai-stack deploy` after Home Manager has installed the wrappers. Deployment downloads Agent Browser's Chrome assets to `~/.agent-browser`; Hermes and DeepTutor install via uv (`bin/ai-stack install-agents`), with config/data in `~/.hermes` and `~/deeptutor`.
 
 ## Terminal
 
 Ghostty config is managed at `~/.config/ghostty/config`. Install the Ghostty binary via system-setup (`./install.sh ghostty` — apt or PPA, not Nix).
 
-tmux is installed and configured directly (no oh-my-zsh tmux plugin).
+Ghostty, tmux, Starship, FZF, and LazyVim share the Tokyo Night color scheme. The tmux status uses the maintained `tmux-cpu` plugin for CPU/GPU utilization. Sesh manages project sessions; Resurrect and Continuum persist layouts.
+
+Press `Ctrl+a ?` inside tmux or run `workflow-help` from any shell to search shortcuts across tmux, Zsh, Neovim, Harpoon, previews, and Ghostty.
+
+Read [Keyboard Workflow](docs/KEYBOARD_WORKFLOW.md) for the mental model, complete shortcut tables, and practice guidance.
 
 ## Adding packages
 

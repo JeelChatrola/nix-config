@@ -2,11 +2,25 @@
 # This file contains all the packages you want to install
 
 {
-  config,
   pkgs,
   pkgsUnstable,
+  userProfile,
   ...
-}: {
+}:
+let
+  nixRefresh = pkgs.writeShellScriptBin "nix-refresh" ''
+    exec ${pkgs.bash}/bin/bash "${userProfile.nixConfigDir}/deploy.sh" "$@"
+  '';
+  workflowHelp = pkgs.writeShellApplication {
+    name = "workflow-help";
+    runtimeInputs = with pkgs; [
+      coreutils
+      fzf
+    ];
+    text = builtins.readFile ../../bin/workflow-help;
+  };
+in
+{
   home.packages = with pkgs; [    
     # =============================================================================
     # SYSTEM UTILITIES
@@ -35,6 +49,7 @@
     navi              # Interactive cheat sheet tool (command examples)
     tldr              # Simplified man pages (community-driven examples)
     buku              # Powerful bookmark manager for URLs
+    numbat            # Unit-aware scientific calculator and scripting language
 
     # =============================================================================
     # DATA & DOCUMENT TOOLS
@@ -55,11 +70,15 @@
     wget              # Non-interactive network downloader
     git               # Distributed version control system
     git-lfs           # Git Large File Storage (handle large files in git)
-    nodejs_22         # Node.js runtime for opencode, codex, MCP servers, and general JS tooling
+    nodejs_24         # Node.js runtime for Agent Browser, MCP servers, and general JS tooling
     zsh               # Z shell (alternative to bash)
     zoxide            # Replaces cd (frecent); zi = interactive picker
     broot             # br + Alt+Enter when cd/zi do not know the path yet
+    nh                # Clean Home Manager/Nix build output and package diffs
     tmux              # Terminal multiplexer (split terminals, sessions)
+    sesh              # Maintained tmux project/session manager using zoxide
+    nixRefresh
+    workflowHelp
 
     # =============================================================================
     # DOCKER & CONTAINER TOOLS
