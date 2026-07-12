@@ -2,42 +2,22 @@
 # This file contains all the packages you want to install
 
 {
-  config,
-  lib,
   pkgs,
   pkgsUnstable,
   userProfile,
   ...
 }:
 let
-  projectRoots = lib.concatStringsSep ":" userProfile.projectRoots;
   nixRefresh = pkgs.writeShellScriptBin "nix-refresh" ''
     exec ${pkgs.bash}/bin/bash "${userProfile.nixConfigDir}/deploy.sh" "$@"
   '';
-  tmuxProject = pkgs.writeShellApplication {
-    name = "tmux-project";
+  workflowHelp = pkgs.writeShellApplication {
+    name = "workflow-help";
     runtimeInputs = with pkgs; [
       coreutils
-      fd
-      findutils
       fzf
-      git
-      gnused
-      tmux
-      zoxide
     ];
-    text = ''
-      export PROJECT_ROOTS="''${PROJECT_ROOTS:-${projectRoots}}"
-      ${builtins.readFile ../../bin/tmux-project}
-    '';
-  };
-  tmuxMetrics = pkgs.writeShellApplication {
-    name = "tmux-metrics";
-    runtimeInputs = with pkgs; [
-      gawk
-      procps
-    ];
-    text = builtins.readFile ../../bin/tmux-metrics;
+    text = builtins.readFile ../../bin/workflow-help;
   };
 in
 {
@@ -69,6 +49,7 @@ in
     navi              # Interactive cheat sheet tool (command examples)
     tldr              # Simplified man pages (community-driven examples)
     buku              # Powerful bookmark manager for URLs
+    numbat            # Unit-aware scientific calculator and scripting language
 
     # =============================================================================
     # DATA & DOCUMENT TOOLS
@@ -89,15 +70,15 @@ in
     wget              # Non-interactive network downloader
     git               # Distributed version control system
     git-lfs           # Git Large File Storage (handle large files in git)
-    nodejs_22         # Node.js runtime for opencode, codex, MCP servers, and general JS tooling
+    nodejs_24         # Node.js runtime for Agent Browser, MCP servers, and general JS tooling
     zsh               # Z shell (alternative to bash)
     zoxide            # Replaces cd (frecent); zi = interactive picker
     broot             # br + Alt+Enter when cd/zi do not know the path yet
     nh                # Clean Home Manager/Nix build output and package diffs
     tmux              # Terminal multiplexer (split terminals, sessions)
+    sesh              # Maintained tmux project/session manager using zoxide
     nixRefresh
-    tmuxMetrics
-    tmuxProject
+    workflowHelp
 
     # =============================================================================
     # DOCKER & CONTAINER TOOLS

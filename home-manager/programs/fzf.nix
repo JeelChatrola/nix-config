@@ -9,20 +9,20 @@
     enableZshIntegration = true;
     
     # Default options
-    # Tokyo Night color scheme
+    # Gruvbox Dark color scheme
     defaultOptions = [
       "--height 40%"
       "--layout=reverse"
       "--info=inline"
-      "--border=rounded"
+      "--border=sharp"
       "--prompt='> '"
       "--pointer=▶"
       "--marker=✓"
-      "--color=fg:#c0caf5,bg:#1a1b26,hl:#7aa2f7"
-      "--color=fg+:#c0caf5,bg+:#292e42,hl+:#bb9af7"
-      "--color=info:#7dcfff,prompt:#7aa2f7,pointer:#f7768e"
-      "--color=marker:#9ece6a,spinner:#ff9e64,header:#565f89"
-      "--color=border:#3b4261,label:#7dcfff,query:#c0caf5"
+      "--color=fg:#ebdbb2,bg:#282828,hl:#fabd2f"
+      "--color=fg+:#fbf1c7,bg+:#3c3836,hl+:#d3869b"
+      "--color=info:#8ec07c,prompt:#83a598,pointer:#fb4934"
+      "--color=marker:#b8bb26,spinner:#fe8019,header:#928374"
+      "--color=border:#504945,label:#8ec07c,query:#ebdbb2"
     ];
     
     # File finder command

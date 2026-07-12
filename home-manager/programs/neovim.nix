@@ -7,9 +7,7 @@
     withNodeJs = true;
     withPython3 = true;
     withRuby = false;
-    initLua = ''
-      require("config.lazy")
-    '';
+    initLua = builtins.readFile ../configs/nvim/init.lua;
     extraPackages = with pkgs; [
       curl
       fd
@@ -23,7 +21,7 @@
     ];
   };
 
-  # Lazy.nvim updates lazy-lock.json, so keep the source checkout writable.
+  # AstroNvim configuration and lockfile stay writable for Lazy updates.
   xdg.configFile."nvim/lua" = {
     source = config.lib.file.mkOutOfStoreSymlink "${userProfile.nixConfigDir}/home-manager/configs/nvim/lua";
     force = true;
