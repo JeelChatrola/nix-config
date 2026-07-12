@@ -1,5 +1,12 @@
 local lazypath = vim.env.LAZY
-if not lazypath or lazypath == "" then lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim" end
+if lazypath and lazypath ~= "" then
+  vim.opt.rtp:prepend(lazypath)
+  require("lazy_setup")
+  require("polish")
+  return
+end
+
+lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
 local lockfile = vim.fn.stdpath("config") .. "/lazy-lock.json"
 
 local function abort_bootstrap(message)
