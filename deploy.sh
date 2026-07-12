@@ -41,6 +41,11 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 
+if (( DEPLOY_AI_NO_DOCKER )) && ! $WITH_AI; then
+  echo "--no-docker requires --ai" >&2
+  exit 2
+fi
+
 FLAKE_TARGET="$DEPLOY_USER"
 if $WITH_AI; then
   FLAKE_TARGET="${DEPLOY_USER}-ai"

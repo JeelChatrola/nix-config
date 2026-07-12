@@ -1,7 +1,7 @@
 # SSH program configuration
 # This file configures SSH with useful settings
 
-{ config, pkgs, ... }:
+{ config, pkgs, lib, ... }:
 
 {
   programs.ssh = {
@@ -10,7 +10,6 @@
 
     settings = {
       "*" = {
-        ForwardAgent = true;
         Compression = true;
         ServerAliveInterval = 60;
         ServerAliveCountMax = 3;
@@ -44,4 +43,9 @@
       ForwardX11Trusted no
     '';
   };
+
+  home.activation.createSshControlSocketDirectory = lib.hm.dag.entryAfter [ "linkGeneration" ] ''
+    $DRY_RUN_CMD mkdir -p "$HOME/.ssh/sockets"
+    $DRY_RUN_CMD chmod 700 "$HOME/.ssh/sockets"
+  '';
 }

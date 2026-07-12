@@ -61,7 +61,7 @@ Runtime setup is explicit: use `./deploy.sh --ai` or `ai-stack deploy` after Hom
 
 Ghostty config is managed at `~/.config/ghostty/config`. Install the Ghostty binary via system-setup (`./install.sh ghostty` — apt or PPA, not Nix).
 
-Ghostty, tmux, Starship, FZF, and LazyVim share the Tokyo Night color scheme. The tmux status uses the maintained `tmux-cpu` plugin for CPU/GPU utilization. Sesh manages project sessions; Resurrect and Continuum persist layouts.
+Ghostty, tmux, Oh My Posh, FZF, and AstroNvim use Gruvbox styling. Neovim's AstroNvim configuration exposes its which-key command groups under the `Space` leader. The tmux status uses the maintained `tmux-cpu` plugin for CPU/GPU utilization. Sesh manages project sessions; Resurrect and Continuum persist layouts.
 
 Press `Ctrl+a ?` inside tmux or run `workflow-help` from any shell to search shortcuts across tmux, Zsh, Neovim, Harpoon, previews, and Ghostty.
 
