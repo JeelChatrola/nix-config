@@ -49,13 +49,13 @@ nix-config/
 
 When `enableAI` is true (flake output `*-ai`), `ai-tools.nix` installs:
 
-- `opencode`, `codex`, `agent-browser`, `hermes`, `deeptutor`, `ai-stack` wrappers on PATH
+- `opencode`, `codex`, `agent-browser`, `hermes`, `deeptutor`, `ai-stack`, and `rtk` wrappers/tools on PATH
 - `AI_STACK_DIR` and `NIX_CONFIG_DIR` session variables
 - Nix-store wrappers for ai-stack entrypoints
 
 Skills, MCP catalog, agent profiles, Docker compose, and Ollama commands live in the private **ai-stack** repo. Use `ai-stack --help`; Nix only installs its wrapper and environment.
 
-Runtime setup is explicit: use `./deploy.sh --ai` or `ai-stack deploy` after Home Manager has installed the wrappers. Deployment downloads Agent Browser's Chrome assets to `~/.agent-browser`; Hermes and DeepTutor install via uv (`bin/ai-stack install-agents`), with config/data in `~/.hermes` and `~/deeptutor`.
+Runtime setup is explicit: use `./deploy.sh --ai` or `ai-stack deploy` after Home Manager has installed the wrappers. Deployment downloads Agent Browser's Chrome assets to `~/.agent-browser`; Hermes and DeepTutor install via uv (`bin/ai-stack install-agents`), RTK configures Claude Code, OpenCode, Hermes, and Codex integrations, with config/data in `~/.hermes` and `~/deeptutor`.
 
 ## Terminal
 
