@@ -50,6 +50,7 @@ in
     tldr              # Simplified man pages (community-driven examples)
     buku              # Powerful bookmark manager for URLs
     numbat            # Unit-aware scientific calculator and scripting language
+    obsidian          # Obsidian desktop app plus official obsidian-cli
 
     # =============================================================================
     # DATA & DOCUMENT TOOLS

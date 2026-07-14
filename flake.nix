@@ -17,7 +17,10 @@
         inherit system;
         overlays = import ./overlays/default.nix;
         config.allowUnfreePredicate = pkg:
-          builtins.elem (nixpkgs.lib.getName pkg) [ "vim-polyglot" ];
+          builtins.elem (nixpkgs.lib.getName pkg) [
+            "obsidian"
+            "vim-polyglot"
+          ];
       };
       lib = nixpkgs.lib;
 
