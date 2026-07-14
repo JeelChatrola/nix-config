@@ -69,7 +69,7 @@ Continuum saves every 15 minutes and restores automatically. It restores session
 
 | Shortcut | Action |
 |---|---|
-| `Space` | Show available LazyVim command groups |
+| `Space` | Show available AstroNvim which-key command groups |
 | `Ctrl+h/j/k/l` | Move across Neovim splits and tmux panes |
 | `Space Space` | Find project files |
 | `Space /` | Search project text |
@@ -86,7 +86,7 @@ Live Preview renders Markdown, KaTeX math, Mermaid diagrams, HTML, SVG, and Asci
 
 ## Status and prompt
 
-`tmux-cpu` shows CPU and NVIDIA GPU utilization in the tmux status bar. The Starship prompt uses a compact Tokyo Night palette; green `❯` means the previous command succeeded and red `❯` means it failed.
+`tmux-cpu` shows CPU and NVIDIA GPU utilization in the tmux status bar. Oh My Posh uses the managed Gruvbox Dark configuration for the Zsh prompt.
 
 ## Ghostty
 

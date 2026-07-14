@@ -17,11 +17,11 @@ usage() {
   echo "Usage: ./deploy.sh [--user LOGIN] [--ai] [--no-docker]"
   echo ""
   echo "  --user LOGIN  Home Manager flake output base name (default: \$USER). Targets .#\$LOGIN or .#\$LOGIN-ai."
-  echo "  --ai          Home Manager *-ai, then \$AI_STACK_DIR/bin/ai-stack deploy."
+  echo "  --ai          Install AI wrappers, then deploy agents and local services."
   echo "  --no-docker   With --ai: skip Docker compose (Ollama, SearXNG)."
   echo ""
   echo "  AI_STACK_DIR  Default: \$HOME/ai-stack (private ai-stack clone)."
-  echo "  Without --ai: home-manager only for .#\$LOGIN."
+  echo "  Without --ai: home-manager only; AI commands such as hermes are not installed."
 }
 
 while [[ $# -gt 0 ]]; do
@@ -40,6 +40,11 @@ while [[ $# -gt 0 ]]; do
       ;;
   esac
 done
+
+if (( DEPLOY_AI_NO_DOCKER )) && ! $WITH_AI; then
+  echo "--no-docker requires --ai" >&2
+  exit 2
+fi
 
 FLAKE_TARGET="$DEPLOY_USER"
 if $WITH_AI; then
