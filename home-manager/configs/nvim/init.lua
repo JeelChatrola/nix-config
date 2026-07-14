@@ -11,8 +11,12 @@ local lockfile = vim.fn.stdpath("config") .. "/lazy-lock.json"
 
 local function abort_bootstrap(message)
   vim.api.nvim_echo({ { message, "ErrorMsg" } }, true, {})
-  vim.fn.getchar()
-  vim.cmd.quit()
+  if #vim.api.nvim_list_uis() > 0 then
+    vim.fn.getchar()
+    vim.cmd.quit()
+  else
+    vim.cmd("cquit 1")
+  end
   return false
 end
 
@@ -53,10 +57,16 @@ local function ensure_lazy()
     end
   end
 
-  local _, fetch_error = run_git({ "git", "-C", lazypath, "fetch", "--depth=1", "origin", commit })
-  if fetch_error then
-    if bootstrapped then vim.fn.delete(lazypath, "rf") end
-    return abort_bootstrap("Error fetching locked lazy.nvim commit:\n" .. fetch_error)
+  local head, head_error = run_git({ "git", "-C", lazypath, "rev-parse", "HEAD" })
+  if not head_error and vim.trim(head):lower() == commit then return true end
+
+  local _, object_error = run_git({ "git", "-C", lazypath, "cat-file", "-e", commit .. "^{commit}" })
+  if object_error then
+    local _, fetch_error = run_git({ "git", "-C", lazypath, "fetch", "--depth=1", "origin", commit })
+    if fetch_error then
+      if bootstrapped then vim.fn.delete(lazypath, "rf") end
+      return abort_bootstrap("Error fetching locked lazy.nvim commit:\n" .. fetch_error)
+    end
   end
 
   local _, checkout_error = run_git({ "git", "-C", lazypath, "checkout", "--detach", commit })
@@ -65,7 +75,7 @@ local function ensure_lazy()
     return abort_bootstrap("Error checking out locked lazy.nvim commit:\n" .. checkout_error)
   end
 
-  local head, head_error = run_git({ "git", "-C", lazypath, "rev-parse", "HEAD" })
+  head, head_error = run_git({ "git", "-C", lazypath, "rev-parse", "HEAD" })
   if head_error or vim.trim(head):lower() ~= commit then
     if bootstrapped then vim.fn.delete(lazypath, "rf") end
     return abort_bootstrap("lazy.nvim HEAD does not match the commit locked in lazy-lock.json")
