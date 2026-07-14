@@ -18,8 +18,8 @@ Modular, declarative configuration for development tools and CLI utilities using
 
 1. Run `system-setup` (`./install.sh`).
 2. Set up git/SSH, then clone your **nix-config** and **ai-stack** repos yourself.
-3. Deploy base: `cd ~/nix-config && ./deploy.sh`
-4. Deploy with AI: `./deploy.sh --ai` (requires `~/ai-stack` checkout)
+3. Deploy base: `cd ~/nix-config && ./deploy.sh`. The base profile excludes AI commands such as `hermes`.
+4. Deploy with AI: `./deploy.sh --ai` (requires `~/ai-stack`; its first Docker run creates a private local SearXNG secret).
 
 ### Daily
 
@@ -29,7 +29,7 @@ Modular, declarative configuration for development tools and CLI utilities using
 nix-refresh --ai         # same from any directory (Home Manager-installed command)
 ```
 
-Skip Docker: `./deploy.sh --ai --no-docker`
+Skip Docker and secret provisioning: `./deploy.sh --ai --no-docker`.
 
 ## Repository structure
 
@@ -55,7 +55,7 @@ When `enableAI` is true (flake output `*-ai`), `ai-tools.nix` installs:
 
 Skills, MCP catalog, agent profiles, Docker compose, and Ollama commands live in the private **ai-stack** repo. Use `ai-stack --help`; Nix only installs its wrapper and environment.
 
-Runtime setup is explicit: use `./deploy.sh --ai` or `ai-stack deploy` after Home Manager has installed the wrappers. Deployment downloads Agent Browser's Chrome assets to `~/.agent-browser`; Hermes and DeepTutor install via uv (`bin/ai-stack install-agents`), RTK configures Claude Code, OpenCode, Hermes, and Codex integrations, with config/data in `~/.hermes` and `~/deeptutor`.
+Runtime setup is explicit: use `./deploy.sh --ai` or `ai-stack deploy` after Home Manager has installed the wrappers. Deployment downloads Agent Browser's Chrome assets to `~/.agent-browser`; Hermes and DeepTutor install via uv (`bin/ai-stack install-agents`), RTK configures Claude Code, OpenCode, Hermes, and Codex integrations, and the ai-stack Compose wrapper creates its ignored `.env` and SearXNG secret with mode `0600` when Docker is first used. Config and data remain in `~/.hermes`, `~/deeptutor`, and `~/ai-stack`.
 
 ## Terminal
 
@@ -78,6 +78,7 @@ nix flake check
 ```
 
 - Missing ai-stack on `--ai`: clone to `~/ai-stack`
+- `hermes: command not found`: activate the AI profile with `./deploy.sh --ai`; the base profile intentionally excludes AI wrappers
 - `--impure` on deploy: allows HM to reference `~/ai-stack` paths outside the flake store
 
 ## Learning
