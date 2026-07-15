@@ -42,6 +42,7 @@ in
     hermesWrapper
     deeptutorWrapper
     aiStackWrapper
+  ] ++ lib.optionals pkgs.stdenv.isLinux [
     pkgs.rtk
   ];
 

@@ -4,6 +4,9 @@ ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$ROOT"
 
 DEPLOY_USER="${USER}"
+if [[ "$(uname -s)" == "Darwin" && "$DEPLOY_USER" == "jeel" ]]; then
+  DEPLOY_USER="jeel-mac"
+fi
 WITH_AI=false
 DEPLOY_AI_NO_DOCKER=0
 FLAKE_PATH="${NIX_CONFIG_DIR:-$ROOT}"

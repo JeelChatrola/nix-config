@@ -18,8 +18,22 @@ Modular, declarative configuration for development tools and CLI utilities using
 
 1. Run `system-setup` (`./install.sh`).
 2. Set up git/SSH, then clone your **nix-config** and **ai-stack** repos yourself.
-3. Deploy base: `cd ~/nix-config && ./deploy.sh`. The base profile excludes AI commands such as `hermes`.
+3. Deploy base: `cd ~/nix-config && ./deploy.sh`. On macOS, this automatically selects `.#jeel-mac`; on Linux, `.#$USER`.
 4. Deploy with AI: `./deploy.sh --ai` (requires `~/ai-stack`; its first Docker run creates a private local SearXNG secret).
+
+### macOS branch/profile
+
+This branch includes Apple Silicon Home Manager outputs for a 1-1 shell/editor/tmux experience:
+
+```bash
+cd ~/nix-config
+./deploy.sh                  # macOS auto-selects .#jeel-mac
+./deploy.sh --ai             # macOS auto-selects .#jeel-mac-ai
+home-manager switch --flake .#jeel-mac --impure      # explicit base target
+home-manager switch --flake .#jeel-mac-ai --impure   # explicit AI target
+```
+
+The mac profile uses `/Users/jeel`, `aarch64-darwin`, and skips Linux-only pieces (`xclip`, `gcc/gdb`, Linux man-db pages, default-shell activation, RTK binary). Docker Desktop/Colima still owns the daemon on macOS; Nix installs client CLIs and the same terminal workflow tools.
 
 ### Daily
 

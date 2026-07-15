@@ -12,34 +12,28 @@
   outputs =
     { nixpkgs, home-manager, ... }:
     let
-      system = "x86_64-linux";
-      pkgs = import nixpkgs {
-        inherit system;
-        overlays = import ./overlays/default.nix;
+      lib = nixpkgs.lib;
+      overlays = import ./overlays/default.nix;
+
+      mkPkgs = system: import nixpkgs {
+        inherit system overlays;
         config.allowUnfreePredicate = pkg:
           builtins.elem (nixpkgs.lib.getName pkg) [
             "obsidian"
             "vim-polyglot"
           ];
       };
-      lib = nixpkgs.lib;
 
-      mkHome = import ./home-manager/lib/mkHome.nix {
-        inherit home-manager pkgs;
-        pkgsUnstable = pkgs;
-      };
-
-      users = {
-        jeel = import ./home-manager/users/jeel.nix;
-      };
-    in
-    {
-      packages.${system} = {
-        rtk = pkgs.rtk;
-      };
-
-      homeConfigurations =
-        lib.concatMapAttrs (login: userProfile: {
+      mkHomeFor = login: userProfile:
+        let
+          system = userProfile.system or "x86_64-linux";
+          pkgs = mkPkgs system;
+          mkHome = import ./home-manager/lib/mkHome.nix {
+            inherit home-manager pkgs;
+            pkgsUnstable = pkgs;
+          };
+        in
+        {
           ${login} = mkHome {
             inherit userProfile;
             enableAI = false;
@@ -48,7 +42,29 @@
             inherit userProfile;
             enableAI = true;
           };
-        })
-          users;
+        };
+
+      users = {
+        jeel = import ./home-manager/users/jeel.nix;
+        jeel-mac = import ./home-manager/users/jeel-mac.nix;
+      };
+
+      packageSystems = [
+        "x86_64-linux"
+        "aarch64-darwin"
+        "x86_64-darwin"
+      ];
+    in
+    {
+      packages = lib.genAttrs packageSystems (system:
+        let
+          pkgs = mkPkgs system;
+        in
+        lib.optionalAttrs pkgs.stdenv.isLinux {
+          rtk = pkgs.rtk;
+        }
+      );
+
+      homeConfigurations = lib.concatMapAttrs mkHomeFor users;
     };
 }
