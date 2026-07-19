@@ -129,7 +129,6 @@ in
     # NETWORKING & SECURITY
     # =============================================================================
     openssh           # SSH client and tools
-    tailscale         # VPN mesh network (zero-config)
     
     # =============================================================================
     # FONTS
