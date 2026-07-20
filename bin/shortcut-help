@@ -1,0 +1,77 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+mode="${1:-auto}"
+
+shortcuts() {
+  while IFS=$'\t' read -r scope key description; do
+    printf '%-12s %-30s %s\n' "$scope" "$key" "$description"
+  done <<'EOF'
+SYSTEM	Super+/	Open this searchable shortcut guide
+TMUX	Ctrl+a c	Create a window (tmux tab)
+TMUX	Ctrl+a n / p	Go to the next / previous window
+TMUX	Ctrl+a 1..9	Jump to a numbered window
+TMUX	Ctrl+a ,	Rename the current window
+TMUX	Ctrl+a h / v	Split the current pane horizontally / vertically
+TMUX	Ctrl+h/j/k/l	Move across tmux panes and Neovim splits
+TMUX	Alt+Arrow	Move between tmux panes
+TMUX	Shift+Arrow	Resize the active pane
+TMUX	Ctrl+a z	Zoom or unzoom the active pane
+TMUX	Ctrl+a f	Search, create, or switch project sessions with Sesh
+TMUX	Ctrl+a d	Detach from tmux
+TMUX	Ctrl+a S	Create a session
+TMUX	Ctrl+a X	Confirm and kill the current session
+TMUX	Ctrl+a Space	Hint and copy terminal text with tmux-thumbs
+TMUX	Ctrl+a u	Find and open a URL from terminal output
+TMUX	Ctrl+a Ctrl+s / Ctrl+r	Save / restore sessions with Resurrect
+TMUX	Ctrl+a [	Enter copy mode
+TMUX COPY	v / y	Begin selection / copy and leave copy mode
+TMUX	Ctrl+a r	Reload the tmux configuration
+OPENCODE	Ctrl+P	Open the command list
+OPENCODE	Ctrl+Alt+K	Show available keybindings
+OPENCODE	Enter	Send the message
+OPENCODE	Shift+Enter	Insert a newline
+OPENCODE	Ctrl+X n	Create a session
+HERMES	/	Show command autocomplete
+HERMES	/help	Show help
+HERMES	Enter	Send the message
+HERMES	Shift+Enter / Alt+Enter	Insert a newline
+HERMES	Ctrl+G	Open the prompt in the editor
+SHELL	Tab	Fuzzy command, option, and path completion
+SHELL	Ctrl+R	Search command history
+SHELL	Ctrl+T	Find a file and insert its path
+SHELL	Alt+C	Find and enter a directory
+SHELL	Ctrl+Left / Right	Move one word
+SHELL	Ctrl+Enter	Insert a newline without executing
+SHELL	cd QUERY	Jump to a frecent directory with zoxide
+SHELL	zi	Interactively choose a zoxide directory
+SHELL	br	Browse directories; Alt+Enter enters one
+SHELL	shortcut-help	Open this guide from a terminal
+NEOVIM	Space	Leader key; wait to see available groups
+NEOVIM	Ctrl+h/j/k/l	Move across Neovim splits and tmux panes
+NEOVIM	Space Space	Find project files
+NEOVIM	Space /	Search text across the project
+NEOVIM	Space e	Toggle the file explorer
+NEOVIM	Space w	Save the current file
+HARPOON	Space H	Bookmark the current file
+HARPOON	Space h	Open the bookmark menu
+HARPOON	Space 1..9	Jump directly to bookmark 1..9
+PREVIEW	Space m p / Space m P	Start / stop browser preview
+GHOSTTY	Ctrl+Shift+P	Open Ghostty's command palette
+GHOSTTY	Ctrl+Shift+T	Create a Ghostty tab
+GHOSTTY	Ctrl+Tab / Ctrl+Shift+Tab	Go to the next / previous Ghostty tab
+GHOSTTY	Ctrl+Shift+C / V	Copy / paste
+GHOSTTY	Ctrl+Insert / Shift+Insert	Copy / paste alternatives
+EOF
+}
+
+if [[ "$mode" == "--gui" || ( "$mode" == "auto" && -n "${DISPLAY:-}${WAYLAND_DISPLAY:-}" && -x "$(command -v rofi || true)" ) ]]; then
+  shortcuts | rofi -dmenu -i -no-custom -matching fuzzy \
+    -p 'Shortcuts' \
+    -mesg 'Type to search | Esc closes | Enter closes'
+else
+  shortcuts | fzf --height=100% --layout=reverse --border=sharp \
+    --header='Type to search | Esc closes | Enter closes' \
+    --prompt='Shortcuts> ' --no-multi
+fi >/dev/null

@@ -2,6 +2,7 @@
 # This file contains all the packages you want to install
 
 {
+  lib,
   pkgs,
   pkgsUnstable,
   userProfile,
@@ -11,12 +12,17 @@ let
   nixRefresh = pkgs.writeShellScriptBin "nix-refresh" ''
     exec ${pkgs.bash}/bin/bash "${userProfile.nixConfigDir}/deploy.sh" "$@"
   '';
-  workflowHelp = pkgs.writeShellApplication {
-    name = "workflow-help";
+  shortcutHelp = pkgs.writeShellApplication {
+    name = "shortcut-help";
     runtimeInputs = with pkgs; [
       coreutils
       fzf
-    ];
+    ] ++ lib.optionals pkgs.stdenv.isLinux [ rofi ];
+    text = builtins.readFile ../../bin/shortcut-help;
+  };
+  workflowHelp = pkgs.writeShellApplication {
+    name = "workflow-help";
+    runtimeInputs = [ shortcutHelp ];
     text = builtins.readFile ../../bin/workflow-help;
   };
 in
@@ -79,6 +85,7 @@ in
     tmux              # Terminal multiplexer (split terminals, sessions)
     sesh              # Maintained tmux project/session manager using zoxide
     nixRefresh
+    shortcutHelp
     workflowHelp
 
     # =============================================================================

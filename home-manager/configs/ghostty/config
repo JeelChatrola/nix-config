@@ -20,3 +20,6 @@ keybind = ctrl+shift+c=copy_to_clipboard
 keybind = ctrl+shift+v=paste_from_clipboard
 keybind = ctrl+insert=copy_to_clipboard
 keybind = shift+insert=paste_from_clipboard
+
+# Preserve Shift+Enter as CSI-u instead of collapsing it to Enter.
+keybind = shift+enter=text:\x1b[13;2u
