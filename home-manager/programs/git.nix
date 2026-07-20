@@ -1,15 +1,15 @@
 # Git program configuration
 # This file configures git with custom settings
 
-{ config, pkgs, userProfile, ... }:
+{ identity, ... }:
 
 {
   programs.git = {
     enable = true;
 
     settings = {
-      user.name = userProfile.fullName;
-      user.email = userProfile.email;
+      user.name = identity.fullName;
+      user.email = identity.email;
 
       init.defaultBranch = "main";
 
