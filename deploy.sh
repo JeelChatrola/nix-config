@@ -1,42 +1,33 @@
 #!/bin/bash
 set -euo pipefail
-ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-cd "$ROOT"
 
-DEPLOY_USER="${USER}"
-if [[ "$(uname -s)" == "Darwin" && "$DEPLOY_USER" == "jeel" ]]; then
-  DEPLOY_USER="jeel-mac"
-fi
-WITH_AI=false
-DEPLOY_AI_NO_DOCKER=0
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 FLAKE_PATH="${NIX_CONFIG_DIR:-$ROOT}"
-: "${AI_STACK_DIR:=$HOME/ai-stack}"
-# Ignore stale session var from when ai-stack lived inside nix-config/
-if [[ ! -x "$AI_STACK_DIR/bin/ai-stack" ]]; then
-  AI_STACK_DIR="$HOME/ai-stack"
-fi
+DEPLOY_USER="${USER:?USER must be set}"
+HOST=""
 
 usage() {
-  echo "Usage: ./deploy.sh [--user LOGIN] [--ai] [--no-docker]"
+  echo "Usage: ./deploy.sh --host HOST"
   echo ""
-  echo "  --user LOGIN  Home Manager flake output base name (default: \$USER). Targets .#\$LOGIN or .#\$LOGIN-ai."
-  echo "  --ai          Install AI wrappers, then deploy agents and local services."
-  echo "  --no-docker   With --ai: skip Docker compose (Ollama, SearXNG)."
-  echo ""
-  echo "  AI_STACK_DIR  Default: \$HOME/ai-stack (private ai-stack clone)."
-  echo "  Without --ai: home-manager only; AI commands such as hermes are not installed."
+  echo "Applies Home Manager configuration USER@HOST (USER defaults to \$USER)."
+  echo "Set NIX_CONFIG_DIR when the checkout is not at the script location."
+  echo "AI services are deployed separately with: ai-stack deploy"
 }
 
 while [[ $# -gt 0 ]]; do
   case $1 in
-    --ai) WITH_AI=true; shift ;;
-    --no-docker) DEPLOY_AI_NO_DOCKER=1; shift ;;
-    --user)
-      if [[ -z "${2:-}" ]]; then echo "--user requires a login name" >&2; exit 1; fi
-      DEPLOY_USER="$2"
+    --host)
+      if [[ -z "${2:-}" ]]; then
+        echo "--host requires a host name" >&2
+        exit 1
+      fi
+      HOST="$2"
       shift 2
       ;;
-    -h|--help) usage; exit 0 ;;
+    -h | --help)
+      usage
+      exit 0
+      ;;
     *)
       echo "Unknown option: $1 (try --help)" >&2
       exit 1
@@ -44,47 +35,19 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 
-if (( DEPLOY_AI_NO_DOCKER )) && ! $WITH_AI; then
-  echo "--no-docker requires --ai" >&2
-  exit 2
+if [[ -z "$HOST" ]]; then
+  echo "--host is required (for example: ./deploy.sh --host main-workstation)" >&2
+  exit 1
 fi
 
-FLAKE_TARGET="$DEPLOY_USER"
-if $WITH_AI; then
-  FLAKE_TARGET="${DEPLOY_USER}-ai"
+FLAKE_TARGET="$DEPLOY_USER@$HOST"
+printf '==> Applying Home Manager (%s)\n' "$FLAKE_TARGET"
+
+if command -v nh >/dev/null 2>&1; then
+  nh home switch "$FLAKE_PATH" --configuration "$FLAKE_TARGET"
+else
+  nix run "$FLAKE_PATH#nh" -- home switch "$FLAKE_PATH" --configuration "$FLAKE_TARGET"
 fi
-
-hm_switch() {
-  if command -v nh >/dev/null 2>&1; then
-    nh home switch "$FLAKE_PATH" --configuration "$FLAKE_TARGET" --impure
-  else
-    nix run nixpkgs#nh -- home switch "$FLAKE_PATH" --configuration "$FLAKE_TARGET" --impure
-  fi
-}
-
-stage() {
-  printf '\n==> [%s/%s] %s\n' "$1" "$2" "$3"
-}
-
-if $WITH_AI; then
-  if [[ ! -x "$AI_STACK_DIR/bin/ai-stack" ]]; then
-    echo "Missing ai-stack at $AI_STACK_DIR" >&2
-    echo "Clone: git clone git@github.com:JeelChatrola/ai-stack.git \"$AI_STACK_DIR\"" >&2
-    exit 1
-  fi
-  export AI_STACK_DIR DEPLOY_AI_NO_DOCKER
-  stage 1 2 "Apply Home Manager ($FLAKE_TARGET)"
-  hm_switch
-
-  stage 2 2 "Deploy AI services"
-  "$AI_STACK_DIR/bin/ai-stack" deploy
-  printf '\n==> Deploy complete\n'
-  echo "    Restart your terminal or run: exec zsh"
-  exit 0
-fi
-
-stage 1 1 "Apply Home Manager ($FLAKE_TARGET)"
-hm_switch
 
 printf '\n==> Deploy complete\n'
 echo "    Restart your terminal or run: exec zsh"

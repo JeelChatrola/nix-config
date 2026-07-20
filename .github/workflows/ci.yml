@@ -14,6 +14,16 @@ jobs:
     steps:
       - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
       - uses: cachix/install-nix-action@a49548c11d9846ad46ecc0115273879b045f001c # v31.10.7
-      - run: nix flake check --no-build --impure
-      - run: nix build .#homeConfigurations.jeel.activationPackage
-      - run: nix build .#homeConfigurations.jeel-ai.activationPackage
+      - run: nix flake check --no-build
+      - run: nix build '.#homeConfigurations."jeel@main-workstation".activationPackage'
+
+  darwin:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+      - uses: cachix/install-nix-action@a49548c11d9846ad46ecc0115273879b045f001c # v31.10.7
+      - run: nix eval .#homeConfigurations.jeel-mac.activationPackage.drvPath
+      - run: nix eval .#homeConfigurations.jeel-mac-ai.activationPackage.drvPath
+      - run: nix eval .#darwinConfigurations.jeel-mac.system.drvPath
+      - run: nix eval .#checks.aarch64-darwin.profile-exclusions.drvPath
+      - run: nix build .#darwinConfigurations.jeel-mac.system
