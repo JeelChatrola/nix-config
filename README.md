@@ -53,7 +53,7 @@ ai-stack deploy
 
 The wrappers resolve `AI_STACK_DIR` at runtime, defaulting to `$HOME/ai-stack`.
 
-OpenCode, Codex, and Agent Browser wrappers execute packages from the nixpkgs revision in `flake.lock`; they do not download npm packages at runtime. The current locked versions are OpenCode `1.17.4`, Codex `0.139.0`, Agent Browser `0.27.0`, and `nh` `4.3.2`.
+OpenCode, Codex, and Agent Browser wrappers execute packages from the nixpkgs revision in `flake.lock`; they do not download npm packages at runtime. The current locked versions are OpenCode `1.18.3`, Codex `0.144.4`, Agent Browser `0.27.0`, and `nh` `4.4.1`.
 
 Update these tools by updating the lock file, reviewing the version changes, and running validation:
 
