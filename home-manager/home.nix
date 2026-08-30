@@ -48,6 +48,7 @@
     ./programs/neovim.nix
     ./programs/lf.nix
     ./programs/ghostty.nix
+    ./programs/rofi.nix
   ] ++ lib.optionals enableAI [
     ./programs/ai-tools.nix
   ];
