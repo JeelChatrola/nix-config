@@ -67,6 +67,10 @@ Press `Ctrl+a ?` inside tmux or run `workflow-help` from any shell to search sho
 
 Read [Keyboard Workflow](docs/KEYBOARD_WORKFLOW.md) for the mental model, complete shortcut tables, and practice guidance.
 
+## Launcher
+
+Press `Ctrl+Space` on GNOME to open the Rofi command center. The initial search combines applications, shell commands, open windows, and calculations. Use `Ctrl+Tab` and `Ctrl+Shift+Tab` to move through file browsing, emoji, and actions for clipboard history, web search, screen locking, suspend, restart, and power off. Destructive power actions require confirmation.
+
 ## Adding packages
 
 Edit `home-manager/programs/packages.nix`, then `./deploy.sh`.
