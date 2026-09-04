@@ -1,8 +1,8 @@
-{ lib, pkgs, ... }:
+{ host, lib, pkgs, ... }:
 
 {
   imports = [ ../programs/ghostty.nix ]
-    ++ lib.optionals pkgs.stdenv.isLinux [ ../programs/rofi.nix ];
+    ++ lib.optionals (lib.hasSuffix "-linux" host.system) [ ../programs/rofi.nix ];
 
   fonts.fontconfig.enable = lib.mkIf pkgs.stdenv.isLinux true;
   home.sessionVariables.BROWSER = "firefox";
