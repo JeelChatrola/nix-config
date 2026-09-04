@@ -1,5 +1,5 @@
 # Ghostty — normal terminal interaction (context menu, explicit copy/paste).
-# Install Ghostty via system-setup: ./install.sh ghostty (apt or PPA)
+# Install Ghostty via system-setup: ./install.sh --component ghostty --yes
 
 font-family = JetBrainsMono Nerd Font
 font-size = 11

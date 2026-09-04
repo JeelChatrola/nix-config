@@ -1,37 +1,34 @@
-{ config, lib, pkgs, userProfile, ... }:
+{ config, lib, pkgs, ... }:
 
 let
-  aiStackDir = userProfile.aiStackDir;
-  nixConfigDir = userProfile.nixConfigDir;
-
   opencodeWrapper = pkgs.writeShellScriptBin "opencode" ''
     export OLLAMA_HOST="''${OLLAMA_HOST:-http://127.0.0.1:11434}"
-    exec ${pkgs.nodejs_22}/bin/npx -y opencode-ai@1.17.18 "$@"
+    exec ${pkgs.opencode}/bin/opencode "$@"
   '';
 
   codexWrapper = pkgs.writeShellScriptBin "codex" ''
     export CODEX_HOME="''${CODEX_HOME:-$HOME/.codex}"
-    exec ${pkgs.nodejs_22}/bin/npx -y @openai/codex@0.144.1 "$@"
+    exec ${pkgs.codex}/bin/codex "$@"
   '';
 
   agentBrowserWrapper = pkgs.writeShellScriptBin "agent-browser" ''
-    exec ${pkgs.nodejs_24}/bin/npx -y agent-browser@0.31.1 "$@"
+    exec ${pkgs.agent-browser}/bin/agent-browser "$@"
   '';
 
   hermesWrapper = pkgs.writeShellScriptBin "hermes" ''
-    export AI_STACK_DIR="${aiStackDir}"
-    exec "${aiStackDir}/bin/hermes" "$@"
+    export AI_STACK_DIR="''${AI_STACK_DIR:-$HOME/ai-stack}"
+    exec "$AI_STACK_DIR/bin/hermes" "$@"
   '';
 
   deeptutorWrapper = pkgs.writeShellScriptBin "deeptutor" ''
-    export AI_STACK_DIR="${aiStackDir}"
+    export AI_STACK_DIR="''${AI_STACK_DIR:-$HOME/ai-stack}"
     export DEEPTUTOR_HOME="''${DEEPTUTOR_HOME:-$HOME/deeptutor}"
-    exec "${aiStackDir}/bin/deeptutor" "$@"
+    exec "$AI_STACK_DIR/bin/deeptutor" "$@"
   '';
 
   aiStackWrapper = pkgs.writeShellScriptBin "ai-stack" ''
-    export AI_STACK_DIR="${aiStackDir}"
-    exec "${aiStackDir}/bin/ai-stack" "$@"
+    export AI_STACK_DIR="''${AI_STACK_DIR:-$HOME/ai-stack}"
+    exec "$AI_STACK_DIR/bin/ai-stack" "$@"
   '';
 in
 {
@@ -42,13 +39,9 @@ in
     hermesWrapper
     deeptutorWrapper
     aiStackWrapper
-  ] ++ lib.optionals pkgs.stdenv.isLinux [
-    pkgs.rtk
   ];
 
   home.sessionVariables = {
-    AI_STACK_DIR = aiStackDir;
-    NIX_CONFIG_DIR = nixConfigDir;
     CODEX_HOME = config.home.homeDirectory + "/.codex";
     DEEPTUTOR_HOME = config.home.homeDirectory + "/deeptutor";
   };
@@ -56,7 +49,7 @@ in
   home.activation.removeLegacyAiEntrypoints = lib.hm.dag.entryBefore [ "checkLinkTargets" ] ''
     for name in ai-stack hermes deeptutor; do
       path="${config.home.homeDirectory}/.local/bin/$name"
-      if [ -L "$path" ] && [ "$(${pkgs.coreutils}/bin/readlink "$path")" = "${aiStackDir}/bin/$name" ]; then
+      if [ -L "$path" ] && [ "$(${pkgs.coreutils}/bin/readlink "$path")" = "$HOME/ai-stack/bin/$name" ]; then
         $DRY_RUN_CMD rm "$path"
       fi
     done
