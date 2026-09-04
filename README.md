@@ -89,6 +89,10 @@ deployment disabled with `AI_STACK_DOCKER=0`.
 
 Docker Desktop or Colima owns the daemon on macOS. The `containers` capability supplies client tools there. On Linux, Home Manager leaves `docker` and `docker-compose` to `system-setup` while retaining `lazydocker`, `dive`, and `ctop`.
 
+## Launcher
+
+Press `Ctrl+Space` on GNOME to open the Rofi command center. The initial search combines applications, shell commands, open windows, and calculations. Use `Ctrl+Tab` and `Ctrl+Shift+Tab` to move through file browsing, emoji, and actions for clipboard history, web search, screen locking, suspend, restart, and power off. Destructive power actions require confirmation.
+
 ## Neovim
 
 AstroNvim configuration and `lazy-lock.json` are store-managed. Update plugins and the lockfile in `home-manager/configs/nvim/` in the source checkout before deployment; deployed files are immutable.
