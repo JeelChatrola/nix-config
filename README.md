@@ -1,91 +1,112 @@
-# Nix Home-Manager Configuration
+# Nix Home Manager Configuration
 
-Modular, declarative configuration for development tools and CLI utilities using Nix home-manager.
+Host-oriented Home Manager and nix-darwin configuration built from reusable identities, host facts, presets, and capabilities.
 
-## Three-repo layout
+## Repository ownership
 
-| Repo | Role |
-|------|------|
-| [system-setup](https://github.com/JeelChatrola/system-setup) | Host bootstrap: Nix, Docker, Ghostty, desktop |
-| **nix-config** (this repo) | Home Manager, shell, tmux, editor, CLI wrappers |
-| [ai-stack](https://github.com/JeelChatrola/ai-stack) (private) | MCP, Docker services, skills, Hermes/OpenCode config at `~/ai-stack` |
+| Repository | Ownership |
+|---|---|
+| `system-setup` | Host bootstrap and system services, including the Docker daemon/CLI bundle on Linux and Tailscale |
+| `nix-config` | Home Manager, nix-darwin integration, shell/editor tools, desktop user applications, and AI wrappers |
+| `ai-stack` | AI services, agents, generated configuration, and private runtime data |
 
-`AI_STACK_DIR` defaults to `$HOME/ai-stack`. Secrets and `generated/` MCP output live in the private ai-stack repo, not here.
+Secrets, SOPS data, and SSH keys are not managed here.
 
-## Quick Start
+## Architecture
 
-### New machine
+Configuration is assembled in this order:
 
-1. Run `system-setup` (`./install.sh`).
-2. Set up git/SSH, then clone your **nix-config** and **ai-stack** repos yourself.
-3. Deploy base: `cd ~/nix-config && ./deploy.sh`. The base profile excludes AI commands such as `hermes`.
-4. Deploy with AI: `./deploy.sh --ai` (requires `~/ai-stack`; its first Docker run creates a private local SearXNG secret).
+1. `home-manager/identities/` contains reusable person-level facts such as Git name and email.
+2. `home-manager/hosts/` contains platform and host facts, including `system`, home directory, identity, preset, additions, and removals.
+3. `home-manager/lib/presets.nix` resolves a preset, additions, then removals; it rejects unknown capabilities and deduplicates the result.
+4. `home-manager/capabilities/` allocates packages and focused program modules by role.
+5. `home-manager/home.nix` contains common Home Manager state and imports only the resolved capabilities.
 
-### Daily
+Available presets:
+
+| Preset | Capabilities |
+|---|---|
+| `base` | `base` |
+| `personal` | `base desktop` |
+| `workstation` | `base desktop development containers` |
+| `server` | `base containers` |
+
+The canonical Linux output is `homeConfigurations."jeel@main-workstation"`. It uses the `workstation` preset plus `ai`.
+
+## Deploy
+
+Linux deployment requires an explicit host and selects `USER@HOST`:
 
 ```bash
-./deploy.sh              # Home Manager only (.#$USER)
-./deploy.sh --ai         # .#$USER-ai + ~/ai-stack/bin/ai-stack deploy
-nix-refresh --ai         # same from any directory (Home Manager-installed command)
+./deploy.sh --host main-workstation
 ```
 
-Skip Docker and secret provisioning: `./deploy.sh --ai --no-docker`.
+`nix-refresh --host main-workstation` runs the same script from any directory. It resolves the checkout at runtime from `NIX_CONFIG_DIR`, defaulting to `$HOME/nix-config`; generated wrappers do not embed a machine-specific checkout path.
 
-## Repository structure
+If `nh` is not already on `PATH`, deployment runs the flake's locked `.#nh` package. This keeps the fallback tied to `flake.lock` and also works when the checkout path contains spaces.
 
-```
-nix-config/
-├── flake.nix
-├── deploy.sh
-├── docs/              # Workflow and keyboard guide
-├── home-manager/
-│   ├── home.nix
-│   ├── programs/       # zsh, tmux, ghostty, ai-tools.nix (*-ai only)
-│   └── configs/
-└── overlays/
+AI runtime deployment is separate:
+
+```bash
+ai-stack deploy
 ```
 
-## AI integration
+The wrappers resolve `AI_STACK_DIR` at runtime, defaulting to `$HOME/ai-stack`.
 
-When `enableAI` is true (flake output `*-ai`), `ai-tools.nix` installs:
+OpenCode, Codex, and Agent Browser wrappers execute packages from the nixpkgs revision in `flake.lock`; they do not download npm packages at runtime. The current locked versions are OpenCode `1.18.3`, Codex `0.144.4`, Agent Browser `0.27.0`, and `nh` `4.4.1`.
 
-- `opencode`, `codex`, `agent-browser`, `hermes`, `deeptutor`, `ai-stack`, and `rtk` wrappers/tools on PATH
-- `AI_STACK_DIR` and `NIX_CONFIG_DIR` session variables
-- Nix-store wrappers for ai-stack entrypoints
+Update these tools by updating the lock file, reviewing the version changes, and running validation:
 
-Skills, MCP catalog, agent profiles, Docker compose, and Ollama commands live in the private **ai-stack** repo. Use `ai-stack --help`; Nix only installs its wrapper and environment.
+```bash
+nix flake update nixpkgs
+nix eval --raw .#packages.x86_64-linux.nh.version
+nix eval --raw --impure --expr 'let f = builtins.getFlake (toString ./.); p = import f.inputs.nixpkgs { system = "x86_64-linux"; }; in p.opencode.version'
+nix eval --raw --impure --expr 'let f = builtins.getFlake (toString ./.); p = import f.inputs.nixpkgs { system = "x86_64-linux"; }; in p.codex.version'
+nix eval --raw --impure --expr 'let f = builtins.getFlake (toString ./.); p = import f.inputs.nixpkgs { system = "x86_64-linux"; }; in p.agent-browser.version'
+nix flake check
+```
 
-Runtime setup is explicit: use `./deploy.sh --ai` or `ai-stack deploy` after Home Manager has installed the wrappers. Deployment downloads Agent Browser's Chrome assets to `~/.agent-browser`; Hermes and DeepTutor install via uv (`bin/ai-stack install-agents`), RTK configures Claude Code, OpenCode, Hermes, and Codex integrations, and the ai-stack Compose wrapper creates its ignored `.env` and SearXNG secret with mode `0600` when Docker is first used. Config and data remain in `~/.hermes`, `~/deeptutor`, and `~/ai-stack`.
+Commit `flake.lock` only after reviewing and validating the resulting package updates.
 
-## Terminal
+## macOS
 
-Ghostty config is managed at `~/.config/ghostty/config`. Install the Ghostty binary via system-setup (`./install.sh ghostty` — apt or PPA, not Nix).
+The integrated nix-darwin output is deliberately CLI-only: `base + development`, without desktop or AI capabilities.
 
-Ghostty, tmux, Oh My Posh, FZF, and AstroNvim use Gruvbox styling. Neovim's AstroNvim configuration exposes its which-key command groups under the `Space` leader. The tmux status uses the maintained `tmux-cpu` plugin for CPU/GPU utilization. Sesh manages project sessions; Resurrect and Continuum persist layouts.
+```bash
+sudo darwin-rebuild switch --flake .#jeel-mac
+```
 
-Press `Ctrl+a ?` inside tmux or run `workflow-help` from any shell to search shortcuts across tmux, Zsh, Neovim, Harpoon, previews, and Ghostty.
+Temporary standalone Home Manager fallbacks remain available:
 
-Read [Keyboard Workflow](docs/KEYBOARD_WORKFLOW.md) for the mental model, complete shortcut tables, and practice guidance.
+```bash
+home-manager switch --flake .#jeel-mac
+home-manager switch --flake .#jeel-mac-ai
+```
+
+`jeel-mac-ai` installs AI client wrappers only. The current local Docker stack
+requires Linux with NVIDIA support; on macOS or non-NVIDIA hosts, keep Docker
+deployment disabled with `AI_STACK_DOCKER=0`.
+
+Docker Desktop or Colima owns the daemon on macOS. The `containers` capability supplies client tools there. On Linux, Home Manager leaves `docker` and `docker-compose` to `system-setup` while retaining `lazydocker`, `dive`, and `ctop`.
 
 ## Launcher
 
 Press `Ctrl+Space` on GNOME to open the Rofi command center. The initial search combines applications, shell commands, open windows, and calculations. Use `Ctrl+Tab` and `Ctrl+Shift+Tab` to move through file browsing, emoji, and actions for clipboard history, web search, screen locking, suspend, restart, and power off. Destructive power actions require confirmation.
 
-## Adding packages
+## Neovim
 
-Edit `home-manager/programs/packages.nix`, then `./deploy.sh`.
+AstroNvim configuration and `lazy-lock.json` are store-managed. Update plugins and the lockfile in `home-manager/configs/nvim/` in the source checkout before deployment; deployed files are immutable.
 
-## Troubleshooting
+## Validation
 
 ```bash
-nix flake check
+nix flake check --no-build
+nix build '.#homeConfigurations."jeel@main-workstation".activationPackage'
+nix eval .#homeConfigurations.jeel-mac.activationPackage.drvPath
+nix eval .#homeConfigurations.jeel-mac-ai.activationPackage.drvPath
+nix eval .#darwinConfigurations.jeel-mac.system.drvPath
 ```
 
-- Missing ai-stack on `--ai`: clone to `~/ai-stack`
-- `hermes: command not found`: activate the AI profile with `./deploy.sh --ai`; the base profile intentionally excludes AI wrappers
-- `--impure` on deploy: allows HM to reference `~/ai-stack` paths outside the flake store
+Flake checks cover required `system`, unknown capability rejection, preset resolution/deduplication, server and personal exclusions, integrated Darwin GUI/AI exclusions, locked AI wrapper dependencies, and the locked `nh` deploy fallback.
 
-## Learning
-
-- https://search.nixos.org/packages
-- https://nix-community.github.io/home-manager/options.xhtml
+See [Keyboard Workflow](docs/KEYBOARD_WORKFLOW.md) for terminal and editor shortcuts.

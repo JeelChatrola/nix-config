@@ -1,33 +1,29 @@
-{ config, pkgs, userProfile, ... }:
+{ capabilities, lib, pkgs, ... }:
 
 {
   programs.neovim = {
     enable = true;
     defaultEditor = true;
-    withNodeJs = true;
-    withPython3 = true;
+    withNodeJs = builtins.elem "development" capabilities;
+    withPython3 = builtins.elem "development" capabilities;
     withRuby = false;
     initLua = builtins.readFile ../configs/nvim/init.lua;
     extraPackages = with pkgs; [
       curl
       fd
-      gcc
       git
+      ripgrep
+      unzip
+    ] ++ lib.optionals (builtins.elem "development" capabilities) [
       gnumake
       lazygit
-      ripgrep
       tree-sitter
-      unzip
+    ] ++ lib.optionals (builtins.elem "development" capabilities && pkgs.stdenv.isLinux) [
+      gcc
     ];
   };
 
-  # AstroNvim configuration and lockfile stay writable for Lazy updates.
-  xdg.configFile."nvim/lua" = {
-    source = config.lib.file.mkOutOfStoreSymlink "${userProfile.nixConfigDir}/home-manager/configs/nvim/lua";
-    force = true;
-  };
-  xdg.configFile."nvim/lazy-lock.json" = {
-    source = config.lib.file.mkOutOfStoreSymlink "${userProfile.nixConfigDir}/home-manager/configs/nvim/lazy-lock.json";
-    force = true;
-  };
+  # Update Lazy's lockfile in this repository before deploying; deployed config is immutable.
+  xdg.configFile."nvim/lua".source = ../configs/nvim/lua;
+  xdg.configFile."nvim/lazy-lock.json".source = ../configs/nvim/lazy-lock.json;
 }
