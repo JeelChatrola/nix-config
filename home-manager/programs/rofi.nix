@@ -14,6 +14,7 @@ let
     name = "rofi-actions";
     runtimeInputs = with pkgs; [
       clipmenu
+      coreutils
       jq
       systemd
       xdg-utils
@@ -24,6 +25,65 @@ let
         answer="$(printf 'No\nYes\n' | ${rofi} -dmenu -p "$1")"
         [[ "$answer" == "Yes" ]]
       }
+
+      # --launch is the supported entry point; script mode only hands selections back to this controller.
+      if [[ "''${1:-}" == "--launch" ]]; then
+        request_file="$(mktemp --tmpdir="''${XDG_RUNTIME_DIR:-/tmp}" rofi-actions.XXXXXX)"
+        trap 'rm -f "$request_file"' EXIT
+
+        state="launcher"
+        while [[ -n "$state" ]]; do
+          case "$state" in
+            launcher)
+              : >"$request_file"
+              if ! ROFI_ACTION_FILE="$request_file" ${rofi} -show combi; then
+                exit 0
+              fi
+              state=""
+              IFS= read -r state <"$request_file" || true
+              ;;
+            "Clipboard history")
+              env CM_LAUNCHER=rofi clipmenu -p "Clipboard" || true
+              state=""
+              ;;
+            "Emoji picker")
+              ${rofi} -show emoji || true
+              state=""
+              ;;
+            "Browse files")
+              ${rofi} -show filebrowser || true
+              state=""
+              ;;
+            "Search the web")
+              if query="$(${rofi} -dmenu -p "Web search" </dev/null)" && [[ -n "$query" ]]; then
+                encoded="$(jq -rn --arg query "$query" '$query | @uri')"
+                xdg-open "https://www.google.com/search?q=$encoded" >/dev/null 2>&1 &
+              fi
+              state=""
+              ;;
+            "Lock screen")
+              loginctl lock-session
+              state=""
+              ;;
+            "Suspend")
+              confirm "Suspend?" && systemctl suspend
+              state=""
+              ;;
+            "Restart")
+              confirm "Restart?" && systemctl reboot
+              state=""
+              ;;
+            "Power off")
+              confirm "Power off?" && systemctl poweroff
+              state=""
+              ;;
+            *)
+              state=""
+              ;;
+          esac
+        done
+        exit 0
+      fi
 
       if [[ $# -eq 0 ]]; then
         printf '%s\n' \
@@ -38,36 +98,9 @@ let
         exit 0
       fi
 
-      case "$1" in
-        "Clipboard history")
-          exec env CM_LAUNCHER=rofi clipmenu -p "Clipboard"
-          ;;
-        "Emoji picker")
-          exec ${rofi} -show emoji
-          ;;
-        "Browse files")
-          exec ${rofi} -show filebrowser
-          ;;
-        "Search the web")
-          query="$(${rofi} -dmenu -p "Web search" </dev/null)"
-          if [[ -n "$query" ]]; then
-            encoded="$(jq -rn --arg query "$query" '$query | @uri')"
-            xdg-open "https://www.google.com/search?q=$encoded" >/dev/null 2>&1 &
-          fi
-          ;;
-        "Lock screen")
-          loginctl lock-session
-          ;;
-        "Suspend")
-          confirm "Suspend?" && systemctl suspend
-          ;;
-        "Restart")
-          confirm "Restart?" && systemctl reboot
-          ;;
-        "Power off")
-          confirm "Power off?" && systemctl poweroff
-          ;;
-      esac
+      if [[ -n "''${ROFI_ACTION_FILE:-}" ]]; then
+        printf '%s\n' "$1" >"$ROFI_ACTION_FILE"
+      fi
     '';
   };
 in
@@ -105,7 +138,7 @@ in
   dconf.settings = {
     "org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/rofi-launcher" = {
       name = "Rofi Launcher";
-      command = "${rofi} -show combi";
+      command = "${rofiActions}/bin/rofi-actions --launch";
       binding = "<Control>space";
     };
   };
