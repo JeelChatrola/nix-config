@@ -15,6 +15,7 @@ jobs:
       - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
       - uses: cachix/install-nix-action@a49548c11d9846ad46ecc0115273879b045f001c # v31.10.7
       - run: nix flake check --no-build
+      - run: nix build .#checks.x86_64-linux.deploy-workflow --print-build-logs
       - run: nix build '.#homeConfigurations."jeel@main-workstation".activationPackage'
 
   darwin:

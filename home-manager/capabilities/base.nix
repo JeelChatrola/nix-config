@@ -6,6 +6,11 @@ let
     exec ${pkgs.bash}/bin/bash "$config_dir/deploy.sh" "$@"
   '';
 
+  nixUpgrade = pkgs.writeShellScriptBin "nix-upgrade" ''
+    config_dir="''${NIX_CONFIG_DIR:-$HOME/nix-config}"
+    exec ${pkgs.bash}/bin/bash "$config_dir/deploy.sh" --update "$@"
+  '';
+
   workflowHelp = pkgs.writeShellApplication {
     name = "workflow-help";
     runtimeInputs = with pkgs; [
@@ -65,6 +70,7 @@ in
     less
     more
     nixRefresh
+    nixUpgrade
     workflowHelp
   ];
 }

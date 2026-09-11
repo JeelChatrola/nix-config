@@ -155,6 +155,20 @@
       darwinConfigurations.jeel-mac = darwinSystem;
 
       checks.x86_64-linux = {
+        deploy-workflow =
+          let
+            pkgs = mkPkgs "x86_64-linux";
+            wrapper = name: lib.findFirst (pkg: lib.getName pkg == name)
+              (throw "Missing wrapper: ${name}") mainWorkstationHome.config.home.packages;
+            mockCommand = pkgs.writeShellScript "mock-deploy-command"
+              (builtins.readFile ./tests/mock-deploy-command.sh);
+          in
+          pkgs.runCommand "deploy-workflow" { nativeBuildInputs = [ pkgs.bash pkgs.coreutils ]; } ''
+            bash ${./tests/deploy.sh} ${./deploy.sh} \
+              ${wrapper "nix-refresh"}/bin/nix-refresh \
+              ${wrapper "nix-upgrade"}/bin/nix-upgrade ${mockCommand}
+            touch $out
+          '';
         canonical-host = mkCheck "x86_64-linux" "canonical-host" [
           (mainWorkstationHome.activationPackage.drvPath != "")
           (hosts.main-workstation.system == "x86_64-linux")
