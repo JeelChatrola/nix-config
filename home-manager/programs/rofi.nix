@@ -165,7 +165,7 @@ in
       add_binding "${terminalBinding}"
     fi
     add_binding "${launcherBinding}"
-    ${pkgs.dconf}/bin/dconf write "$registry" "$current"
+    run ${pkgs.dconf}/bin/dconf write "$registry" "$current"
   '';
 
   systemd.user.services.clipmenud = {
