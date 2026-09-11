@@ -43,6 +43,22 @@ Linux deployment requires an explicit host and selects `USER@HOST`:
 
 `nix-refresh --host main-workstation` runs the same script from any directory. It resolves the checkout at runtime from `NIX_CONFIG_DIR`, defaulting to `$HOME/nix-config`; generated wrappers do not embed a machine-specific checkout path.
 
+Both commands use the existing lockfile unless `--update` is passed. To update all flake inputs and then apply the Linux Home Manager configuration:
+
+```bash
+nix-upgrade --host main-workstation
+```
+
+For the initial upgrade, before the wrapper is installed:
+
+```bash
+./deploy.sh --host main-workstation --update
+```
+
+`nix-upgrade` resolves the checkout exactly like `nix-refresh` and forwards user arguments to `deploy.sh --update`. The script validates arguments and requires a host before running `nix flake update --flake "$FLAKE_PATH"`, then switches from that same checkout. An update failure stops deployment. If updating changes `flake.lock` and the update or switch later fails, the lockfile remains modified; there is no automatic rollback. Review the diff before retrying or restoring it.
+
+This updates flake inputs, not manually pinned package overrides. It does not run apt or update AI services; those remain separate workflows.
+
 If `nh` is not already on `PATH`, deployment runs the flake's locked `.#nh` package. This keeps the fallback tied to `flake.lock` and also works when the checkout path contains spaces.
 
 AI runtime deployment is separate:
@@ -101,6 +117,7 @@ AstroNvim configuration and `lazy-lock.json` are store-managed. Update plugins a
 
 ```bash
 nix flake check --no-build
+nix build .#checks.x86_64-linux.deploy-workflow --print-build-logs
 nix build '.#homeConfigurations."jeel@main-workstation".activationPackage'
 nix eval .#homeConfigurations.jeel-mac.activationPackage.drvPath
 nix eval .#homeConfigurations.jeel-mac-ai.activationPackage.drvPath
@@ -108,5 +125,7 @@ nix eval .#darwinConfigurations.jeel-mac.system.drvPath
 ```
 
 Flake checks cover required `system`, unknown capability rejection, preset resolution/deduplication, server and personal exclusions, integrated Darwin GUI/AI exclusions, locked AI wrapper dependencies, and the locked `nh` deploy fallback.
+
+The `deploy-workflow` check tests deployment and the generated refresh/upgrade wrappers with mocked commands, including validation before updates, failure handling, checkout paths with spaces, and the `nh` fallback. CI runs it without updating inputs or activating a configuration.
 
 See [Keyboard Workflow](docs/KEYBOARD_WORKFLOW.md) for terminal and editor shortcuts.

@@ -5,24 +5,30 @@ ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 FLAKE_PATH="${NIX_CONFIG_DIR:-$ROOT}"
 DEPLOY_USER="${USER:?USER must be set}"
 HOST=""
+UPDATE=false
 
 usage() {
-  echo "Usage: ./deploy.sh --host HOST"
+  echo "Usage: ./deploy.sh --host HOST [--update]"
   echo ""
   echo "Applies Home Manager configuration USER@HOST (USER defaults to \$USER)."
   echo "Set NIX_CONFIG_DIR when the checkout is not at the script location."
+  echo "--update updates this checkout's flake.lock before applying (no rollback on failure)."
   echo "AI services are deployed separately with: ai-stack deploy"
 }
 
 while [[ $# -gt 0 ]]; do
   case $1 in
     --host)
-      if [[ -z "${2:-}" ]]; then
+      if [[ -z "${2:-}" || "$2" == -* ]]; then
         echo "--host requires a host name" >&2
         exit 1
       fi
       HOST="$2"
       shift 2
+      ;;
+    --update)
+      UPDATE=true
+      shift
       ;;
     -h | --help)
       usage
@@ -41,6 +47,11 @@ if [[ -z "$HOST" ]]; then
 fi
 
 FLAKE_TARGET="$DEPLOY_USER@$HOST"
+if [[ "$UPDATE" == true ]]; then
+  printf '==> Updating flake inputs (%s)\n' "$FLAKE_PATH"
+  nix flake update --flake "$FLAKE_PATH"
+fi
+
 printf '==> Applying Home Manager (%s)\n' "$FLAKE_TARGET"
 
 if command -v nh >/dev/null 2>&1; then
