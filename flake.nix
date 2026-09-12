@@ -115,6 +115,7 @@
       integratedDarwinHome = darwinSystem.config.home-manager.users.${identities.jeel.username};
 
       packageNames = home: map lib.getName home.config.home.packages;
+      hasPackages = home: names: lib.all (name: builtins.elem name (packageNames home)) names;
       lacksPackages = home: names: lib.all (name: !(builtins.elem name (packageNames home))) names;
       deploySource = builtins.readFile ./deploy.sh;
       unknownCapability = builtins.tryEval ((mkMacHome "invalid" [ "unknown" ]).activationPackage.drvPath);
@@ -191,6 +192,9 @@
             "deeptutor"
             "ai-stack"
             "llmfit"
+          ])
+          (hasPackages mainWorkstationHome [
+            "mise"
           ])
           (!(mainWorkstationHome.config.home.sessionVariables ? CODEX_HOME))
           (!(mainWorkstationHome.config.home.sessionVariables ? DEEPTUTOR_HOME))

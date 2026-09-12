@@ -33,6 +33,8 @@ Available presets:
 
 The canonical Linux output is `homeConfigurations."jeel@main-workstation"`. It uses the `workstation` preset. AI tools are managed separately in `ai-stack`.
 
+The `development` capability includes [mise](https://mise.jdx.dev/) (with Zsh integration) for per-project runtimes. Nix still provides the system Node 24 / uv / Python toolchain; mise only takes effect where a project directory pins its own tools, and no global tool versions are set here.
+
 ## Deploy
 
 Linux deployment requires an explicit host and selects `USER@HOST`:

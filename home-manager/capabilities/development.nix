@@ -1,6 +1,10 @@
 { lib, pkgs, ... }:
 
 {
+  imports = [
+    ../programs/mise.nix
+  ];
+
   home.packages = with pkgs; [
     git-lfs
     nodejs_24
