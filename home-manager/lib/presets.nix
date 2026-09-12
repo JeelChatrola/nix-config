@@ -6,7 +6,6 @@ let
     "desktop"
     "development"
     "containers"
-    "ai"
   ];
 
   presets = {

@@ -27,5 +27,7 @@
     gdb
     man-pages
     man-db
+  ] ++ lib.optionals (pkgs.stdenv.hostPlatform.system == "x86_64-linux") [
+    rtk
   ];
 }

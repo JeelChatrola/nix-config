@@ -7,8 +7,8 @@ Host-oriented Home Manager and nix-darwin configuration built from reusable iden
 | Repository | Ownership |
 |---|---|
 | `system-setup` | Host bootstrap and system services, including the Docker daemon/CLI bundle on Linux and Tailscale |
-| `nix-config` | Home Manager, nix-darwin integration, shell/editor tools, desktop user applications, and AI wrappers |
-| `ai-stack` | AI services, agents, generated configuration, and private runtime data |
+| `nix-config` | Home Manager, nix-darwin integration, shell/editor tools, and non-AI applications |
+| `ai-stack` | AI client installation and updates, optional local services, generated configuration, and private runtime data |
 
 Secrets, SOPS data, and SSH keys are not managed here.
 
@@ -31,7 +31,7 @@ Available presets:
 | `workstation` | `base desktop development containers` |
 | `server` | `base containers` |
 
-The canonical Linux output is `homeConfigurations."jeel@main-workstation"`. It uses the `workstation` preset plus `ai`.
+The canonical Linux output is `homeConfigurations."jeel@main-workstation"`. It uses the `workstation` preset. AI tools are managed separately in `ai-stack`.
 
 ## Deploy
 
@@ -61,28 +61,23 @@ This updates flake inputs, not manually pinned package overrides. It does not ru
 
 If `nh` is not already on `PATH`, deployment runs the flake's locked `.#nh` package. This keeps the fallback tied to `flake.lock` and also works when the checkout path contains spaces.
 
-AI runtime deployment is separate:
+AI client deployment is separate and does not start local services:
 
 ```bash
 ai-stack deploy
 ```
 
-The wrappers resolve `AI_STACK_DIR` at runtime, defaulting to `$HOME/ai-stack`.
-
-OpenCode, Codex, and Agent Browser wrappers execute packages from the nixpkgs revision in `flake.lock`; they do not download npm packages at runtime. The current locked versions are OpenCode `1.18.3`, Codex `0.144.4`, Agent Browser `0.27.0`, and `nh` `4.4.1`.
-
-Update these tools by updating the lock file, reviewing the version changes, and running validation:
+From the ai-stack checkout, use `bin/ai-stack deploy` for the first installation. It links its commands into `~/.local/bin`, which must be on PATH. Individual updates belong to that repo:
 
 ```bash
-nix flake update nixpkgs
-nix eval --raw .#packages.x86_64-linux.nh.version
-nix eval --raw --impure --expr 'let f = builtins.getFlake (toString ./.); p = import f.inputs.nixpkgs { system = "x86_64-linux"; }; in p.opencode.version'
-nix eval --raw --impure --expr 'let f = builtins.getFlake (toString ./.); p = import f.inputs.nixpkgs { system = "x86_64-linux"; }; in p.codex.version'
-nix eval --raw --impure --expr 'let f = builtins.getFlake (toString ./.); p = import f.inputs.nixpkgs { system = "x86_64-linux"; }; in p.agent-browser.version'
-nix flake check
+ai-stack update codex
+ai-stack update hermes
+ai-stack add PACKAGE
 ```
 
-Commit `flake.lock` only after reviewing and validating the resulting package updates.
+For the ownership migration, install ai-stack clients first, then apply this Home Manager configuration and open a new shell. Check `command -v codex` and `command -v hermes`: both should resolve through `~/.local/bin`. Existing authentication and agent state stay in their existing directories.
+
+Nix no longer supplies AI launchers, AI environment variables, or `llmfit`. RTK remains a general CLI utility in the development capability. Existing editor, shell, and desktop choices are retained; further package pruning can be done as those workflows are reviewed.
 
 ## macOS
 
@@ -96,12 +91,9 @@ Temporary standalone Home Manager fallbacks remain available:
 
 ```bash
 home-manager switch --flake .#jeel-mac
-home-manager switch --flake .#jeel-mac-ai
 ```
 
-`jeel-mac-ai` installs AI client wrappers only. The current local Docker stack
-requires Linux with NVIDIA support; on macOS or non-NVIDIA hosts, keep Docker
-deployment disabled with `AI_STACK_DOCKER=0`.
+The legacy `jeel-mac-ai` output has been removed. The integrated Mac configuration is unchanged; AI tools are managed outside Nix.
 
 Docker Desktop or Colima owns the daemon on macOS. The `containers` capability supplies client tools there. On Linux, Home Manager leaves `docker` and `docker-compose` to `system-setup` while retaining `lazydocker`, `dive`, and `ctop`.
 
@@ -120,11 +112,10 @@ nix flake check --no-build
 nix build .#checks.x86_64-linux.deploy-workflow --print-build-logs
 nix build '.#homeConfigurations."jeel@main-workstation".activationPackage'
 nix eval .#homeConfigurations.jeel-mac.activationPackage.drvPath
-nix eval .#homeConfigurations.jeel-mac-ai.activationPackage.drvPath
 nix eval .#darwinConfigurations.jeel-mac.system.drvPath
 ```
 
-Flake checks cover required `system`, unknown capability rejection, preset resolution/deduplication, server and personal exclusions, integrated Darwin GUI/AI exclusions, locked AI wrapper dependencies, and the locked `nh` deploy fallback.
+Flake checks cover required `system`, unknown capability rejection, preset resolution/deduplication, server and personal exclusions, integrated Darwin GUI/AI exclusions, absence of AI packages and environment variables on Linux, and the locked `nh` deploy fallback.
 
 The `deploy-workflow` check tests deployment and the generated refresh/upgrade wrappers with mocked commands, including validation before updates, failure handling, checkout paths with spaces, and the `nh` fallback. CI runs it without updating inputs or activating a configuration.
 
