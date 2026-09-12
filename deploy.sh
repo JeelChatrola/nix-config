@@ -13,7 +13,7 @@ usage() {
   echo "Applies Home Manager configuration USER@HOST (USER defaults to \$USER)."
   echo "Set NIX_CONFIG_DIR when the checkout is not at the script location."
   echo "--update updates this checkout's flake.lock before applying (no rollback on failure)."
-  echo "AI services are deployed separately with: ai-stack deploy"
+  echo "AI clients are deployed separately with: ai-stack deploy"
 }
 
 while [[ $# -gt 0 ]]; do

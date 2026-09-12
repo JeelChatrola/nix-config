@@ -69,7 +69,6 @@
         additions = [ "development" ];
       };
       darwinFallbackCapabilities = presetLib.resolve { preset = "workstation"; };
-      darwinFallbackAiCapabilities = darwinFallbackCapabilities ++ [ "ai" ];
 
       mainWorkstationHome = mkHostHome hosts.main-workstation;
       serverHome = mkHome {
@@ -116,9 +115,7 @@
       integratedDarwinHome = darwinSystem.config.home-manager.users.${identities.jeel.username};
 
       packageNames = home: map lib.getName home.config.home.packages;
-      hasPackages = home: names: lib.all (name: builtins.elem name (packageNames home)) names;
       lacksPackages = home: names: lib.all (name: !(builtins.elem name (packageNames home))) names;
-      aiToolsSource = builtins.readFile ./home-manager/programs/ai-tools.nix;
       deploySource = builtins.readFile ./deploy.sh;
       unknownCapability = builtins.tryEval ((mkMacHome "invalid" [ "unknown" ]).activationPackage.drvPath);
       systemIsRequired = (builtins.functionArgs mkHome).system == false;
@@ -149,7 +146,6 @@
       homeConfigurations = {
         "jeel@main-workstation" = mainWorkstationHome;
         jeel-mac = mkMacHome "workstation" darwinFallbackCapabilities;
-        jeel-mac-ai = mkMacHome "workstation-ai" darwinFallbackAiCapabilities;
       };
 
       darwinConfigurations.jeel-mac = darwinSystem;
@@ -175,7 +171,7 @@
           (presetLib.resolve {
             preset = "workstation";
             additions = [
-              "ai"
+              "development"
               "base"
             ];
             removals = [ ];
@@ -184,20 +180,20 @@
             "desktop"
             "development"
             "containers"
-            "ai"
           ])
           (!unknownCapability.success)
           systemIsRequired
-          (hasPackages mainWorkstationHome [
+          (lacksPackages mainWorkstationHome [
             "opencode"
             "codex"
             "agent-browser"
+            "hermes"
+            "deeptutor"
+            "ai-stack"
+            "llmfit"
           ])
-          (lib.hasInfix "exec \${pkgs.opencode}/bin/opencode" aiToolsSource)
-          (lib.hasInfix "exec \${pkgs.codex}/bin/codex" aiToolsSource)
-          (lib.hasInfix "exec \${pkgs.agent-browser}/bin/agent-browser" aiToolsSource)
-          (!(lib.hasInfix "/bin/npx" aiToolsSource))
-          (!(lib.hasInfix "npx -y" aiToolsSource))
+          (!(mainWorkstationHome.config.home.sessionVariables ? CODEX_HOME))
+          (!(mainWorkstationHome.config.home.sessionVariables ? DEEPTUTOR_HOME))
           (lib.hasInfix ''nix run "$FLAKE_PATH#nh"'' deploySource)
           (!(lib.hasInfix "nixpkgs#" deploySource))
         ];

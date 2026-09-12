@@ -4,6 +4,6 @@
   identity = "jeel";
   homeDirectory = "/home/jeel";
   preset = "workstation";
-  additions = [ "ai" ];
+  additions = [ ];
   removals = [ ];
 }
